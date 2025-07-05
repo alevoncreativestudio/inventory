@@ -72,6 +72,33 @@ export function PurchaseTable<TValue>({
     },
   });
 
+    interface Purchase {
+      grandTotal?: number;
+      paymentDue?: number;
+      paymentStatus?:string;
+    }
+
+        const formatCurrency = (amount: number) =>
+        new Intl.NumberFormat("en-US", {
+            style: "currency",
+            currency: "USD",
+        }).format(amount);
+
+        // Total purchase and due amounts
+        const totalPurchaseAmount = data.reduce((acc, row: Purchase) => acc + (row?.grandTotal || 0), 0);
+        const totalDueAmount = data.reduce((acc, row: Purchase) => acc + (row?.paymentDue ||0),0);
+
+        // Counts
+        const dueCount = data.filter((row: Purchase) => row?.paymentStatus === "Due").length;
+        const paidCount = data.filter((row: Purchase) => row?.paymentStatus === "Paid").length;
+        const partialCount = data.filter((row: Purchase) => row?.paymentStatus === "Partial").length;
+
+        // Formatted values
+        const formattedTotalPurchase = formatCurrency(totalPurchaseAmount);
+        const formattedTotalDue = formatCurrency(totalDueAmount);
+
+
+
   return (
     <div className="flex flex-col gap-5">
       <Card>
@@ -165,10 +192,19 @@ export function PurchaseTable<TValue>({
                   </TableCell>
                 </TableRow>
               )}
-              <TableFooter aria-colspan={3}>
-                <div>dvvs</div>
-              </TableFooter>
             </TableBody>
+            <TableFooter className="bg-muted/50 text-sm font-medium border-t">
+                <TableRow>
+                    <TableCell colSpan={columns.length} className="px-4 py-2">
+                    Total Purchase: {formattedTotalPurchase}  |  Due: {formattedTotalDue}
+                    </TableCell>
+                </TableRow>
+                <TableRow>
+                    <TableCell colSpan={columns.length} className="text-muted-foreground px-4 py-2">
+                    Payment Status — Due: {dueCount} | Paid: {paidCount} | Partial: {partialCount}
+                    </TableCell>
+                </TableRow>
+            </TableFooter>
           </Table>
         </CardContent>
       </Card>

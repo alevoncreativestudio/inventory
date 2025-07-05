@@ -35,6 +35,18 @@ export const purchaseColumns: ColumnDef<Purchase>[] = [
     },
   },
   {
+    accessorKey: "date",
+    header: "Date",
+    cell: ({ row }) => {
+        const date = row.getValue("date");
+        return (
+        <div>
+            {date ? new Date(date as string).toLocaleDateString("en-GB") : "-"}
+        </div>
+        );
+    },
+    },
+  {
     accessorKey: "location",
     header: "Location",
   },
@@ -109,18 +121,7 @@ export const purchaseColumns: ColumnDef<Purchase>[] = [
         return <div className="font-medium">{formatted}</div>;
         }  
     },
-  {
-    accessorKey: "date",
-    header: "Date",
-    cell: ({ row }) => {
-        const date = row.getValue("date");
-        return (
-        <div>
-            {date ? new Date(date as string).toLocaleDateString("en-GB") : "-"}
-        </div>
-        );
-    },
-    },
+  
   {
     id: "actions",
     cell: ({ row }) => <PurchaseActions purchase={row.original} />,
