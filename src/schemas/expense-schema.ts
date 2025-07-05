@@ -1,0 +1,19 @@
+import { z } from "zod";
+
+export const expenseSchema = z.object({
+  title: z.string().min(1),
+  description: z.string().optional(),
+  amount: z.coerce.number({ required_error: "Amount is required" }).min(0),
+  date: z.coerce.date(),
+  category: z.string().min(1),
+});
+
+export const updateExpenseSchema = expenseSchema.extend({
+    id: z.string(),
+})
+
+export const getExpenseByList = z.object({
+    id:z.string(),
+})
+
+export type ExpenseInput = z.infer<typeof expenseSchema>;

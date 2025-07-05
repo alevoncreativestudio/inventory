@@ -32,3 +32,10 @@ export interface MetricCard {
     description: string;
   };
 }
+
+
+export interface ModalProps {
+    modalOpen: boolean;
+    setModalOpen: (open:boolean) => boolean | void;
+    children: React.ReactNode;
+}

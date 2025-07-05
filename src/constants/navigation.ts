@@ -1,9 +1,14 @@
 import {
+  IconBrandProducthunt,
+  IconBrandShopee,
+  IconCategory,
+  IconCurrency,
   IconDashboard,
   IconDatabase,
   IconFileText,
   IconHelp, IconSearch,
   IconSettings,
+  IconShoppingBag,
   IconUserPlus
 } from '@tabler/icons-react';
 import type { SidebarData } from '@/types/navigation';
@@ -23,6 +28,31 @@ export const SIDEBAR_DATA: SidebarData = {
       url: '/dashboard',
       icon: IconDashboard,
     },
+    {
+      title: 'Purchase',
+      url: '/purchase',
+      icon: IconShoppingBag,
+    },
+    {
+      title: 'Products',
+      url: '/products',
+      icon: IconBrandProducthunt,
+    },
+    {
+      title: 'Brands',
+      url: '/brands',
+      icon: IconBrandShopee,
+    },
+    {
+      title: 'Categories',
+      url: '/categories',
+      icon: IconCategory,
+    },
+    {
+      title: 'Expenses',
+      url: '/expenses',
+      icon: IconCurrency,
+    }
   ],
 
   // only admin can see this navigation

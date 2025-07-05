@@ -1,0 +1,92 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("CLUSTER_URL")
+}
+
+// Product
+model Product {
+  id           String @id @default(auto()) @map("_id") @db.ObjectId
+  product_name String
+  quantity     Int
+  price        Float
+  brandId      String @db.ObjectId
+  categoryId   String @db.ObjectId
+
+  brand    Brand    @relation(fields: [brandId], references: [id])
+  category Category @relation(fields: [categoryId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// Brand
+model Brand {
+  id      String    @id @default(auto()) @map("_id") @db.ObjectId
+  name    String    @unique
+  product Product[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// Category
+model Category {
+  id       String    @id @default(auto()) @map("_id") @db.ObjectId
+  name     String    @unique
+  products Product[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// Expense
+model Expense {
+  id               String   @id @default(auto()) @map("_id") @db.ObjectId
+  title            String
+  description      String?
+  amount           Float
+  date             DateTime
+  category         String
+
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
+
+//PURCHASE
+model Purchase {
+  id             String    @id @default(auto()) @map("_id") @db.ObjectId
+  referenceNo    String
+  date           DateTime
+  location       String
+  supplier       String
+  purchaseStatus PurchaseStatus
+  paymentStatus  PaymentStatus
+  grandTotal     Float
+  paymentDue     Float
+
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+}
+
+enum PurchaseStatus {
+  Received
+  Pending
+  Cancelled
+}
+
+enum PaymentStatus {
+  Due
+  Paid
+  Partial
+}
+
