@@ -9,8 +9,9 @@ import {
 import { ObjectId } from "mongodb";
 import { revalidatePath } from "next/cache";
 
-export const createPurchase = actionClient.inputSchema(purchaseSchema).action(
-  async (values) => {
+export const createPurchase = actionClient
+  .inputSchema(purchaseSchema)
+  .action(async (values) => {
     try {
       const purchase = await prisma.purchase.create({
         data: values.parsedInput,
@@ -21,8 +22,7 @@ export const createPurchase = actionClient.inputSchema(purchaseSchema).action(
       console.log("Create Purchase Error:", error);
       return { error: "Something went wrong" };
     }
-  }
-);
+  });
 
 export const getPurchaseList = actionClient.action(async () => {
   try {
@@ -36,8 +36,9 @@ export const getPurchaseList = actionClient.action(async () => {
   }
 });
 
-export const getPurchaseById = actionClient.inputSchema(getPurchaseByIdSchema).action(
-  async (values) => {
+export const getPurchaseById = actionClient
+  .inputSchema(getPurchaseByIdSchema)
+  .action(async (values) => {
     const { id } = values.parsedInput;
     if (!ObjectId.isValid(id)) {
       return { data: null };
@@ -46,11 +47,11 @@ export const getPurchaseById = actionClient.inputSchema(getPurchaseByIdSchema).a
       where: { id },
     });
     return { data: purchase };
-  }
-);
+  });
 
-export const updatePurchase = actionClient.inputSchema(purchaseUpdateSchema).action(
-  async (values) => {
+export const updatePurchase = actionClient
+  .inputSchema(purchaseUpdateSchema)
+  .action(async (values) => {
     const { id, ...data } = values.parsedInput;
     try {
       const purchase = await prisma.purchase.update({
@@ -63,17 +64,17 @@ export const updatePurchase = actionClient.inputSchema(purchaseUpdateSchema).act
       console.log("Update Purchase Error:", error);
       return { error: "Something went wrong" };
     }
-  }
-);
+  });
 
-export const deletePurchase = actionClient.inputSchema(getPurchaseByIdSchema).action(
-  async (values) => {
+export const deletePurchase = actionClient
+  .inputSchema(getPurchaseByIdSchema)
+  .action(async (values) => {
     const { id } = values.parsedInput;
     if (!ObjectId.isValid(id)) {
       return null;
     }
+    revalidatePath("/purchases");
     return await prisma.purchase.delete({
       where: { id },
     });
-  }
-);
+  });
