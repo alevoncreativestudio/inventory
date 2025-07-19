@@ -1,198 +1,538 @@
-"use client";
+'use client';
 
 import {
-  FormDialog,
-  FormDialogContent,
-  FormDialogDescription,
-  FormDialogFooter,
-  FormDialogHeader,
-  FormDialogTitle,
-  FormDialogTrigger,
-} from "@/components/common/form-dialog";
+  Sheet,
+  SheetContent,
+  SheetFooter,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 import {
-  FormControl,
   FormField,
   FormItem,
   FormLabel,
+  FormControl,
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
-import { DialogClose } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Plus ,Calendar1} from "lucide-react";
+import { Check, ChevronsUpDown, Plus, Search } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
-import { useForm } from "react-hook-form";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { useForm, FormProvider, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
-import z from "zod";
-import { purchaseSchema,paymentStatusEnum,purchaseStatusEnum } from "@/schemas/purchase-schema";
+import { fullPurchaseSchema } from "@/schemas/purchase-item-schema";
 import { createPurchase, updatePurchase } from "@/actions/purchase-actions";
+import { getSupplierListForDropdown } from "@/actions/supplier-action";
+import { getProductListForDropdown } from "@/actions/product-actions";
 import { useAction } from "next-safe-action/hooks";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { cn } from "@/lib/utils";
+import { useEffect, useState } from "react";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "../ui/table";
+import { Card } from "../ui/card";
+import { purchaseStatusEnum } from "@/schemas/purchase-schema";
 import { PurchaseFormProps } from "@/types/purchase";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../ui/select";
+import type { PurchaseItemField } from "@/types/purchase";
+import { z } from "zod";
+import { ProductOption } from "@/types/product";
+import { cn } from "@/lib/utils";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "../ui/command";
+import { nanoid } from "nanoid";
 
 
-
-export const PurchaseFormDialog = ({ purchase, open, openChange }: PurchaseFormProps) => {
-
-  const purchaseStatusOptions = purchaseStatusEnum.options; 
-  const paymentStatusOptions = paymentStatusEnum.options;
-
+export const PurchaseFormSheet = ({
+  purchase,
+  open,
+  openChange,
+}: PurchaseFormProps) => {
+  const purchaseStatusOption = purchaseStatusEnum.options;
+  const isControlled = typeof open === "boolean";
   const { execute: create, isExecuting: isCreating } = useAction(createPurchase);
   const { execute: update, isExecuting: isUpdating } = useAction(updatePurchase);
+  const [productSearch, setProductSearch] = useState("");
+  const [productOptions, setProductOptions] = useState<ProductOption[]>([]);
+  const [supplierList, setSupplierList] = useState<{ name: string; id: string,openingBalance:number }[]>([]);
+  const [showSupplierSuggestions, setShowSupplierSuggestions] = useState(false);
+  const [selectedSupplierOpeningBalance, setSelectedSupplierOpeningBalance] = useState<number | null>(null);
+  const itemFieldKeys: PurchaseItemField[] = [
+    "quantity",
+    "excTax",
+    "discount",
+    "incTax",
+    "subtotal",
+    "total",
+  ];
 
-  const form = useForm<z.infer<typeof purchaseSchema>>({
-    resolver: zodResolver(purchaseSchema),
+
+  useEffect(() => {
+    const fetchOptions = async () => {
+      const res = await getSupplierListForDropdown();
+      setSupplierList(res);
+    };
+    fetchOptions();
+  }, []);
+
+  const form = useForm<z.infer<typeof fullPurchaseSchema>>({
+    resolver: zodResolver(fullPurchaseSchema),
     defaultValues: {
+      supplierId: purchase?.supplierId || "",
       referenceNo: purchase?.referenceNo || "",
-      location: purchase?.location || "",
-      supplier: purchase?.supplier || "",
-      purchaseStatus: purchase?.purchaseStatus ?? undefined,
-      paymentStatus: purchase?.paymentStatus ?? undefined,
-      grandTotal: purchase?.grandTotal ?? undefined,
-      paymentDue: purchase?.paymentDue ?? undefined,
-      date: purchase?.date ? new Date(purchase.date) : undefined,
+      purchaseDate: purchase?.purchaseDate ? new Date(purchase.purchaseDate) : new Date(),
+      status: purchase?.status ?? purchaseStatusOption[0],
+      totalAmount: purchase?.totalAmount || 0,
+      dueAmount:purchase?.dueAmount || 0,
+      items: purchase?.items || [],
+      payments: purchase?.payments || []
     },
   });
 
-  const handleSubmit = async (data: z.infer<typeof purchaseSchema>, close: () => void) => {
+  useEffect(() => {
+  if (!purchase) {
+    form.setValue("referenceNo", `REF-${nanoid(4).toUpperCase()}`);
+  }
+}, [form, purchase]);
+
+  const { fields, append, remove } = useFieldArray({
+    control: form.control,
+    name: "items",
+  });
+
+
+  useEffect(() => {
+    const debounce = setTimeout(async () => {
+      if (productSearch.length > 1) {
+        const res = await getProductListForDropdown({ query: productSearch });
+        setProductOptions(res?.data?.products || []);
+      }
+    }, 300);
+    return () => clearTimeout(debounce);
+  }, [productSearch]);
+
+
+  const handleSubmit = async (data: z.infer<typeof fullPurchaseSchema>) => {
+    
+    const totalAmount = data.items.reduce((sum, item) => sum + (item.total || 0), 0);
+    const paidAmount = data.payments.reduce((sum, payment) => sum + (payment.amount || 0), 0);
+    const dueAmount = totalAmount - paidAmount
+
+    form.setValue("totalAmount", totalAmount);
+    form.setValue("dueAmount",dueAmount);
+
+    const payload = {
+      ...data,
+      totalAmount,
+      dueAmount
+    };
+
     if (purchase) {
-      await update({ id: purchase.id, ...data });
+      await update({ id: purchase.id, ...payload });
       toast.success("Purchase updated successfully");
     } else {
-      await create(data);
+      await create(payload);
       toast.success("Purchase created successfully");
     }
-    close();
+
+    if (isControlled && openChange) openChange(false);
   };
 
+
   return (
-    <FormDialog open={open} openChange={openChange} form={form} onSubmit={handleSubmit}>
-      <FormDialogTrigger asChild>
-        <Button>
-          <Plus className="size-4 mr-2" />
-          New Purchase
-        </Button>
-      </FormDialogTrigger>
+    <Sheet open={open} onOpenChange={openChange}>
+      {!isControlled && (
+        <SheetTrigger asChild>
+          <Button>
+            <Plus className="mr-2" />
+            New Purchase
+          </Button>
+        </SheetTrigger>
+      )}
+      <SheetContent side="top" className="max-h-screen overflow-y-auto p-6">
+        <FormProvider {...form}>
+          <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+            <SheetHeader>
+              <SheetTitle>{purchase ? "Edit Purchase" : "New Purchase"}</SheetTitle>
+            </SheetHeader>
 
-      <FormDialogContent className="sm:max-w-2xl">
-        <FormDialogHeader>
-            <FormDialogTitle>{purchase ? "Edit Purchase" : "New Purchase"}</FormDialogTitle>
-            <FormDialogDescription>
-            Fill out the purchase details. Click save when done.
-            </FormDialogDescription>
-        </FormDialogHeader>
+            <Card className="grid md:grid-cols-2 gap-4 p-4">
+              <FormField
+                control={form.control}
+                name="supplierId"
+                render={({ field }) => (
+                  <FormItem className="flex flex-col">
+                    <FormLabel>Supplier</FormLabel>
+                    <Popover open={showSupplierSuggestions} onOpenChange={setShowSupplierSuggestions}>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="outline"
+                          role="combobox"
+                          className={cn("w-full justify-between", !field.value && "text-muted-foreground")}
+                        >
+                          {supplierList.find((s) => s.id === field.value)?.name || "Select supplier..."}
+                          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-full p-0">
+                        <Command>
+                          <CommandInput placeholder="Search supplier..." />
+                          <CommandList>
+                            <CommandEmpty>No supplier found.</CommandEmpty>
+                            <CommandGroup>
+                              {supplierList.map((supplier) => (
+                                <CommandItem
+                                  key={supplier.id}
+                                  value={supplier.name}
+                                  onSelect={() => {
+                                    field.onChange(supplier.id);
+                                    setSelectedSupplierOpeningBalance(supplier.openingBalance);
+                                    setShowSupplierSuggestions(false);
+                                  }}
+                                >
+                                  <Check
+                                    className={cn(
+                                      "mr-2 h-4 w-4",
+                                      supplier.id === field.value ? "opacity-100" : "opacity-0"
+                                    )}
+                                  />
+                                  {supplier.name}
+                                </CommandItem>
+                              ))}
+                            </CommandGroup>
+                          </CommandList>
+                        </Command>
+                      </PopoverContent>
+                    </Popover>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <FormField name="referenceNo" control={form.control} render={({ field }) => (
-            <FormItem>
-                <FormLabel>Reference No</FormLabel>
-                <FormControl><Input placeholder="PO2024/001" {...field} /></FormControl>
-                <FormMessage />
-            </FormItem>
-            )} />
-
-            <FormField name="location" control={form.control} render={({ field }) => (
-            <FormItem>
-                <FormLabel>Location</FormLabel>
-                <FormControl><Input placeholder="Location" {...field} /></FormControl>
-                <FormMessage />
-            </FormItem>
-            )} />
-
-            <FormField name="supplier" control={form.control} render={({ field }) => (
-            <FormItem>
-                <FormLabel>Supplier</FormLabel>
-                <FormControl><Input placeholder="Jackson Hill" {...field} /></FormControl>
-                <FormMessage />
-            </FormItem>
-            )} />
-
-            <FormField control={form.control} name="date" render={({ field }) => (
-            <FormItem>
-                <FormLabel>Date</FormLabel>
-                <Popover>
-                <PopoverTrigger asChild>
+              <FormField
+                control={form.control}
+                name="referenceNo"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Reference No</FormLabel>
                     <FormControl>
-                    <Button variant="outline" className={cn("w-full pl-3 text-left font-normal", !field.value && "text-muted-foreground")}>
-                        {field.value ? new Date(field.value).toLocaleDateString() : <Calendar1 className="text-left"/>}
-                    </Button>
+                      <Input {...field} />
                     </FormControl>
-                </PopoverTrigger>
-                <PopoverContent>
-                    <Calendar
-                    mode="single"
-                    selected={field.value ? new Date(field.value) : undefined}
-                    onSelect={field.onChange}
-                    captionLayout="dropdown"
-                    />
-                </PopoverContent>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="purchaseDate"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Purchase Date</FormLabel>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <FormControl>
+                          <Button variant="outline" className="w-full text-left">
+                            {field.value
+                              ? new Date(field.value).toLocaleDateString()
+                              : "Pick date"}
+                          </Button>
+                        </FormControl>
+                      </PopoverTrigger>
+                      <PopoverContent>
+                        <Calendar
+                          mode="single"
+                          selected={new Date(field.value)}
+                          onSelect={field.onChange}
+                          captionLayout="dropdown"
+                        />
+                      </PopoverContent>
+                    </Popover>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="status"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Status</FormLabel>
+                    <FormControl>
+                      <Select onValueChange={field.onChange} value={field.value}>
+                        <SelectTrigger className="w-full">
+                          <SelectValue placeholder="Select status" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {purchaseStatusOption.map((s) => (
+                            <SelectItem key={s} value={s}>
+                              {s}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </Card>
+
+            <Card className="p-4 space-y-4">
+              <FormItem className="relative max-w-sm">
+                <FormLabel className="mb-1">Add Product</FormLabel>
+                <Popover open={productOptions.length > 0} onOpenChange={() => setProductOptions([])}>
+                  <PopoverTrigger asChild>
+                    <div>
+                      <Input
+                        placeholder="Search product…"
+                        className="pl-9"
+                        value={productSearch}
+                        onChange={(e) => setProductSearch(e.target.value)}
+                      />
+                      <Search className="absolute left-3 top-9 h-4 w-4 text-muted-foreground" />
+                    </div>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-full p-0">
+                    <Command shouldFilter={false}>
+                      <CommandInput placeholder="Search product..." value={productSearch} onValueChange={setProductSearch} />
+                      <CommandList>
+                        <CommandEmpty>No products found.</CommandEmpty>
+                        <CommandGroup>
+                          {productOptions.map((p) => (
+                            <CommandItem
+                              key={p.id}
+                              value={p.product_name}
+                              onSelect={() => {
+                                append({
+                                  productId: p.id,
+                                  quantity: 1,
+                                  product_name: p.product_name,
+                                  stock:p.stock,
+                                  discount: 0,
+                                  excTax: p.excTax,
+                                  incTax: p.incTax,
+                                  subtotal: p.excTax,
+                                  total: p.excTax + p.incTax,
+                                });
+                                setProductSearch("");
+                                setProductOptions([]);
+                              }}
+                            >
+                              {p.product_name}
+                            </CommandItem>
+                          ))}
+                        </CommandGroup>
+                      </CommandList>
+                    </Command>
+                  </PopoverContent>
                 </Popover>
-                <FormMessage />
-            </FormItem>
-            )} />
+              </FormItem>
 
-            <FormField name="purchaseStatus" control={form.control} render={({ field }) => (
-            <FormItem>
-                <FormLabel>Purchase Status</FormLabel>
-                <Select onValueChange={field.onChange} value={field.value}>
-                <FormControl><SelectTrigger className="w-full"><SelectValue placeholder="Select" /></SelectTrigger></FormControl>
-                <SelectContent>
-                    {purchaseStatusOptions.map((status) => (
-                    <SelectItem key={status} value={status}>{status}</SelectItem>
-                    ))}
-                </SelectContent>
-                </Select>
-                <FormMessage />
-            </FormItem>
-            )} />
 
-            <FormField name="paymentStatus" control={form.control} render={({ field }) => (
-            <FormItem>
-                <FormLabel>Payment Status</FormLabel>
-                <Select onValueChange={field.onChange} value={field.value}>
-                <FormControl><SelectTrigger className="w-full"><SelectValue placeholder="Select" /></SelectTrigger></FormControl>
-                <SelectContent>
-                    {paymentStatusOptions.map((status) => (
-                    <SelectItem key={status} value={status}>{status}</SelectItem>
-                    ))}
-                </SelectContent>
-                </Select>
-                <FormMessage />
-            </FormItem>
-            )} />
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Product Name</TableHead>
+                    <TableHead>Available Stock</TableHead>
+                    <TableHead>Qty</TableHead>
+                    <TableHead>Unit Cost(Before Tax)</TableHead>
+                    <TableHead>Discount</TableHead>
+                    <TableHead>Cost (include Tax)</TableHead>
+                    <TableHead>Subtotal</TableHead>
+                    <TableHead>Total</TableHead>
+                    <TableHead />
+                  </TableRow>
+                </TableHeader>
 
-            <FormField name="grandTotal" control={form.control} render={({ field }) => (
-            <FormItem>
-                <FormLabel>Grand Total</FormLabel>
-                <FormControl><Input type="number" {...field} value={field.value ?? ""} /></FormControl>
-                <FormMessage />
-            </FormItem>
-            )} />
+                <TableBody>
+                  {fields.map((f, idx) => (
+                    <TableRow key={f.id}>
+                      <TableCell>
+                        {f.product_name || "—"}
+                      </TableCell>
+                      <TableCell>
+                        {f.stock}
+                      </TableCell>
 
-            <FormField name="paymentDue" control={form.control} render={({ field }) => (
-            <FormItem>
-                <FormLabel>Payment Due</FormLabel>
-                <FormControl><Input type="number" {...field} value={field.value ?? ""} /></FormControl>
-                <FormMessage />
-            </FormItem>
-            )} />
+                      {itemFieldKeys.map((key) => (
+                        <TableCell key={key}>
+                          <FormField
+                            control={form.control}
+                            name={`items.${idx}.${key}`}
+                            render={({ field }) => (
+                              <FormControl>
+                                <Input
+                                  type="number"
+                                  {...field}
+                                  value={field.value ?? ""}
+                                  onBlur={() => {
+                                    const qty = Number(form.getValues(`items.${idx}.quantity`));
+                                    const discount = Number(form.getValues(`items.${idx}.discount`));
+                                    const tax = Number(form.getValues(`items.${idx}.incTax`));
 
-            
-        </div>
+                                    const subtotal = qty * tax;
+                                    const total = subtotal - discount;
 
-        <FormDialogFooter className="pt-6">
-            <DialogClose asChild>
-            <Button type="button" variant="outline" disabled={isCreating || isUpdating}>Cancel</Button>
-            </DialogClose>
-            <Button type="submit" disabled={isCreating || isUpdating}>
-            {isCreating || isUpdating ? "Saving..." : "Save"}
-            </Button>
-        </FormDialogFooter>
-        </FormDialogContent>
+                                    form.setValue(`items.${idx}.subtotal`, subtotal);
+                                    form.setValue(`items.${idx}.total`, total);
+                                  }}
+                                />
+                              </FormControl>
+                            )}
+                          />
+                        </TableCell>
+                      ))}
 
-    </FormDialog>
+                      <TableCell>
+                        <Button
+                          type="button"
+                          variant="destructive"
+                          onClick={() => remove(idx)}
+                        >
+                          Remove
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+              <div className="flex justify-end pr-4">
+                <div className="text-right space-y-1">
+                  <div className="text-muted-foreground text-sm">Grand Total:</div>
+                  <div className="text-xl font-semibold">
+                    ₹{" "}
+                    {form
+                      .watch("items")
+                      .reduce((sum, item) => sum + (Number(item.total) || 0), 0)
+                      .toFixed(2)}
+                  </div>
+                </div>
+              </div>
+            </Card>
+            <Card className="p-4 space-y-4">
+              <h3 className="text-lg font-semibold">Add Payment</h3>
+              {selectedSupplierOpeningBalance !== null && (
+                <div className="text-sm text-muted-foreground mt-1">
+                  Opening Balance: ₹ {selectedSupplierOpeningBalance.toFixed(2)}
+                </div>
+              )}
+              <div className="grid md:grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="payments.0.amount"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Amount Payed</FormLabel>
+                      <FormControl>
+                        <Input type="number" {...field} value={field.value ?? ""}/>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="payments.0.paidOn"
+                  render={({ field }) => (
+                    <FormItem>
+                    <FormLabel>Purchase Date</FormLabel>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <FormControl>
+                          <Button variant="outline" className="w-full text-left">
+                            {field.value
+                              ? new Date(field.value).toLocaleDateString()
+                              : "Pick date"}
+                          </Button>
+                        </FormControl>
+                      </PopoverTrigger>
+                      <PopoverContent>
+                        <Calendar
+                          mode="single"
+                          selected={new Date(field.value)}
+                          onSelect={field.onChange}
+                          captionLayout="dropdown"
+                        />
+                      </PopoverContent>
+                    </Popover>
+                    <FormMessage />
+                  </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="payments.0.paymentMethod"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Payment Method</FormLabel>
+                      <Select value={field.value} onValueChange={field.onChange}>
+                        <FormControl>
+                          <SelectTrigger className="w-full">
+                            <SelectValue placeholder="Select method" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {['cash', 'card', 'bank'].map((method) => (
+                            <SelectItem key={method} value={method}>{method}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="payments.0.paymentNote"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Payment Note</FormLabel>
+                      <FormControl>
+                        <Input {...field} value={field.value ?? ''} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+              <div className="flex justify-end pr-4">
+                <div className="text-right space-y-1">
+                  <div className="text-muted-foreground text-sm">Due Amount:</div>
+                  <div className="text-xl font-semibold">
+                    ₹{" "}
+                    {(
+                      form.watch("items").reduce((sum, item) => sum + (Number(item.total) || 0), 0) -
+                      form.watch("payments").reduce((sum, p) => sum + (Number(p.amount) || 0), 0)
+                    ).toFixed(2)}
+                  </div>
+                </div>
+              </div>
+            </Card>
+
+            <SheetFooter>
+              <Button type="submit" disabled={isCreating || isUpdating}>
+                {isCreating || isUpdating ? "Saving..." : "Save"}
+              </Button>
+            </SheetFooter>
+          </form>
+        </FormProvider>
+      </SheetContent>
+    </Sheet>
   );
 };

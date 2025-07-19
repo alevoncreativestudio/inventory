@@ -2,10 +2,18 @@ import { z } from "zod"
 
 export const productSchema = z.object({
   product_name: z.string().min(2, "Product name is required"),
-  quantity: z.coerce.number().min(0),
-  price: z.coerce.number().min(0),
+  sku: z.string().min(1, "SKU is required"),
+  barcodeType: z.string().min(1, "Barcode type is required"),
+  unit: z.string().min(1, "Unit is required"),
+  stock: z.coerce.number().min(0, { message: "Stock cannot be negative" }),
   brandId: z.string().min(1, "Brand must be selected"),
   categoryId: z.string().min(1, "Category must be selected"),
+  tax: z.string(),
+  sellingPriceTaxType: z.string(),
+  excTax: z.coerce.number().min(0, "Exc. Tax is required"),
+  incTax: z.coerce.number().min(0, "Inc. Tax is required"),
+  margin: z.coerce.number().min(0, "Margin is required"),
+  sellingPrice: z.coerce.number().min(0, "Selling Price is required"),
 })
 
 export const productUpdateSchema = productSchema.extend({

@@ -24,10 +24,10 @@ export const createExpense = actionClient.inputSchema(expenseSchema)
 export const getExpenseList = actionClient.action(async () => {
     try{
         const expense = await prisma.expense.findMany({
-            orderBy: {amount : "desc"}
+            orderBy: {amount : "desc"},
+            include:{category:true}
         })
-        revalidatePath("/expenses")
-        return { data: expense}
+        return {expense}
     }catch(error){
         console.log("Get expense Error :", error)
     }

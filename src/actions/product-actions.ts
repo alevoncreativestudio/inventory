@@ -4,6 +4,7 @@ import { actionClient } from "@/lib/safeAction";
 import { getProductByList, productSchema, productUpdateSchema } from "@/schemas/product-schema";
 import { ObjectId } from 'mongodb';
 import { revalidatePath } from 'next/cache';
+import { z } from 'zod';
 
 export const createProduct = actionClient.inputSchema(productSchema)
     .action(async (values) => {
@@ -32,6 +33,31 @@ export const getProductList = actionClient.action(async () => {
     }
 })
 
+export const getProductListForDropdown = actionClient.inputSchema(
+    z.object({ query: z.string().optional() })
+    ).action(async ({ parsedInput }) => {
+    const query = parsedInput.query || "";
+    const products = await prisma.product.findMany({
+        where: {
+        product_name: {
+            contains: query,
+            mode: "insensitive",
+        },
+        },
+        take: 10,
+    });
+
+    return {
+        products: products.map((p) => ({
+        id: p.id,
+        product_name: p.product_name,
+        stock:p.stock,
+        quantity:1,
+        excTax:p.excTax,
+        incTax:p.incTax
+        })),
+    };
+});
 
 export const getProductById = actionClient.inputSchema(getProductByList).action(async (values) => {
     const { id } = values.parsedInput;

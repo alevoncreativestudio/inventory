@@ -1,10 +1,10 @@
 import { expenseColumns } from "@/components/expenses/expense-colums";
 import { ExpenseTable } from "@/components/expenses/expense-table";
-import {prisma} from "@/lib/prisma";
 import { ExpenseFormDialog } from "@/components/expenses/expense-form";
+import { getExpenseList } from "@/actions/expense-actions";
 
 export default async function ExpensePage() {
-  const expenses = await prisma.expense.findMany();
+    const {data } = await getExpenseList();
 
   return (
     <div className="flex flex-1 flex-col">
@@ -17,7 +17,7 @@ export default async function ExpensePage() {
             </div>
               <ExpenseFormDialog />
           </div>
-          <ExpenseTable columns={expenseColumns} data={expenses} />
+          <ExpenseTable columns={expenseColumns} data={data?.expense ?? []} />
         </div>
       </div>
     </div>

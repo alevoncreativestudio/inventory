@@ -6,6 +6,7 @@ export interface NavItem {
   icon: Icon;
 }
 
+
 export interface UserProfile {
   name: string;
   email: string;

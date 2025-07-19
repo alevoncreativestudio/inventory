@@ -23,7 +23,8 @@ export const ExpenseDeleteDialog:FC<{
   open: boolean;
   setOpen: (open: boolean) => void;
 }> = ({expense, open, setOpen}) => {
-    const router = useRouter()
+
+  const router = useRouter()
   const handleDelete = async () => {
     try{
         await deleteExpense({ id : expense.id});

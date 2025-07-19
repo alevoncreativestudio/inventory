@@ -1,7 +1,7 @@
 "use client";
 
 import { Product } from "@/types/product";
-import { ProductFormDialog } from "./product-form";
+import { ProductFormSheet } from "./product-form";
 
 import { ColumnDef } from "@tanstack/react-table";
 import {
@@ -26,6 +26,10 @@ import { useState } from "react";
 
 export const productColumns: ColumnDef<Product>[] = [
   {
+    accessorKey:"sku",
+    header:"SKU"
+  },
+  {
     accessorKey: "product_name",
     header: ({ column }) => {
       const sort = column.getIsSorted();
@@ -49,12 +53,29 @@ export const productColumns: ColumnDef<Product>[] = [
     cell: ({ row }) =>  <div className="px-3">{row.getValue('product_name') as string}</div>,
   },
   {
-    accessorKey: "price",
-    header: "Price",
+    accessorKey: "excTax",
+    header: "Purchase Price",
   },
   {
-    accessorKey: "quantity",
-    header: "Quantity",
+    accessorKey: "sellingPrice",
+    header: "Selling Price",
+  },
+  {
+    accessorKey: "stock",
+    header: "Current Stock",
+  },
+  {
+    accessorKey:"tax",
+    header:"Tax",
+    cell: ({row}) => {
+      const Tax = row.original.tax
+
+      return (
+        <span >
+            {Tax}
+        </span>
+      )
+    }
   },
   {
     accessorKey: "brand",
@@ -63,7 +84,7 @@ export const productColumns: ColumnDef<Product>[] = [
       const Brand = row.original.brand.name
 
        return (
-        <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-sm font-medium text-blue-500`}>
+        <span className={`inline-flex items-center py-0.5 text-sm font-medium text-blue-500`}>
             {Brand}
         </span>
         );
@@ -92,8 +113,7 @@ export const productColumns: ColumnDef<Product>[] = [
 export const ProductDropdeownMenu = ({ product }: { product: Product }) => {
   const [openDelete, setOpenDelete] = useState(false);
   const [openEdit, setOpenEdit] = useState(false);
-
-  const router = useRouter()
+  const router = useRouter();
 
   return (
     <div className="text-right">
@@ -104,31 +124,36 @@ export const ProductDropdeownMenu = ({ product }: { product: Product }) => {
             <MoreHorizontal className="h-4 w-4" />
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
 
+        <DropdownMenuContent align="end">
           <DropdownMenuItem onSelect={() => router.push(`/products/${product.id}`)}>
-            <Eye className="size-4" />
+            <Eye className="size-4 mr-2" />
             View
           </DropdownMenuItem>
 
-          <DropdownMenuItem onSelect={() => setOpenEdit(!openEdit)}>
-            <Edit2 className="size-4" />
+          <DropdownMenuItem onSelect={() => setOpenEdit(true)}>
+            <Edit2 className="size-4 mr-2" />
             Edit Product
           </DropdownMenuItem>
+
           <DropdownMenuItem
             className="text-destructive"
-            onSelect={() => setOpenDelete(!openDelete)}
+            onSelect={() => setOpenDelete(true)}
           >
-            <Trash2 className="size-4" />
+            <Trash2 className="size-4 mr-2" />
             Delete Product
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
 
-      {/* Edit Dialog */}
-      <ProductFormDialog open={openEdit} openChange={setOpenEdit} product={product} />
+      {/* Sheet opens on Edit */}
+      <ProductFormSheet
+        product={product}
+        open={openEdit}
+        openChange={setOpenEdit}
+      />
 
-      {/* Dialogs */}
+      {/* Dialog opens on Delete */}
       <ProductDeleteDialog
         product={product}
         open={openDelete}
@@ -137,3 +162,4 @@ export const ProductDropdeownMenu = ({ product }: { product: Product }) => {
     </div>
   );
 };
+

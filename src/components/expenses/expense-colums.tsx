@@ -1,6 +1,5 @@
 "use client";
-
-import { Expense } from "@prisma/client";
+import { Expense } from "@/types/expense";
 import { ExpenseFormDialog } from "./expense-form";
 
 import { ColumnDef } from "@tanstack/react-table";
@@ -58,18 +57,6 @@ export const expenseColumns: ColumnDef<Expense>[] = [
         )
     }
   },
-  {
-    accessorKey: "amount",
-    header: "Amount",
-    cell: ({ row }) => {
-    const amount = row.getValue("amount") as number;
-    const formatted = new Intl.NumberFormat("en-US", {
-        style: "currency",
-        currency: "USD",
-    }).format(amount);
-    return <div className="font-medium">{formatted}</div>;
-    }
-  },
     {
     accessorKey: "date",
     header: "Date",
@@ -86,12 +73,23 @@ export const expenseColumns: ColumnDef<Expense>[] = [
     accessorKey: "category",
     header: "Category",
     cell: ({ row }) => {
-    const purchaseStatus = row.original.category;
+    const expenseCategory = row.original.category.name;
         return (
         <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-sm font-medium bg-blue-100 text-blue-800`}>
-            {purchaseStatus}
+            {expenseCategory}
         </span>
         );
+    }
+  },{
+    accessorKey: "amount",
+    header: "Amount",
+    cell: ({ row }) => {
+    const amount = row.getValue("amount") as number;
+    const formatted = new Intl.NumberFormat("en-US", {
+        style: "currency",
+        currency: "USD",
+    }).format(amount);
+    return <div className="font-medium">{formatted}</div>;
     }
   },
   {

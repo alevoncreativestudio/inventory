@@ -1,18 +1,21 @@
 import {
-  IconBrandProducthunt,
+  IconBox,
   IconBrandShopee,
   IconCategory,
+  IconCoin,
   IconCurrency,
   IconDashboard,
   IconDatabase,
   IconFileText,
   IconHelp, IconSearch,
-  IconSettings,
   IconShoppingBag,
+  IconTruckDelivery,
+  IconTruckLoading,
   IconUserPlus
 } from '@tabler/icons-react';
 import type { SidebarData } from '@/types/navigation';
 import { APP_CONFIG } from '@/config/app';
+
 
 export const SIDEBAR_DATA: SidebarData = {
   demoUser: {
@@ -27,6 +30,10 @@ export const SIDEBAR_DATA: SidebarData = {
       title: 'Dashboard',
       url: '/dashboard',
       icon: IconDashboard,
+    },{
+      title: 'Products',
+      url: '/products',
+      icon: IconBox,
     },
     {
       title: 'Purchase',
@@ -34,9 +41,18 @@ export const SIDEBAR_DATA: SidebarData = {
       icon: IconShoppingBag,
     },
     {
-      title: 'Products',
-      url: '/products',
-      icon: IconBrandProducthunt,
+      title:'Purchase Return',
+      url:'/purchase-return',
+      icon:IconTruckDelivery
+    },
+    {
+      title:'Sales',
+      url:'/sales',
+      icon:IconCoin
+    },{
+      title:'Sales Return',
+      url:'/sales-return',
+      icon:IconTruckLoading
     },
     {
       title: 'Brands',
@@ -76,11 +92,11 @@ export const SIDEBAR_DATA: SidebarData = {
 
   // secondary navigation for all users
   navSecondary: [
-    {
-      title: 'Settings',
-      url: '/settings',
-      icon: IconSettings,
-    },
+    // {
+    //   title: 'Settings',
+    //   url: '/settings',
+    //   icon: IconSettings,
+    // },
     {
       title: 'Search',
       url: '/search',

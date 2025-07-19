@@ -7,16 +7,17 @@ import {
   getSortedRowModel,
   SortingState,
   useReactTable,
+  type ColumnFiltersState,
 } from "@tanstack/react-table";
 
 import {
   Table,
   TableBody,
   TableCell,
-  TableFooter,
   TableHead,
   TableHeader,
   TableRow,
+  TableFooter
 } from "@/components/ui/table";
 
 import {
@@ -28,10 +29,6 @@ import {
 } from "@/components/ui/card";
 
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { useState } from "react";
-import { Funnel, Search } from "lucide-react";
-
 import {
   Select,
   SelectContent,
@@ -39,120 +36,142 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+
+import { Search } from "lucide-react";
+import { useState } from "react";
 import { PurchaseTableProps } from "@/types/purchase";
 
-
-
-export function PurchaseTable<TValue>({
-  columns,
-  data,
-}: PurchaseTableProps<TValue>) {
+export function PurchaseTable<TValue>({ columns, data }: PurchaseTableProps<TValue>) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [globalFilter, setGlobalFilter] = useState("");
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
 
   const table = useReactTable({
     data,
     columns,
     onSortingChange: setSorting,
     onGlobalFilterChange: setGlobalFilter,
+    onColumnFiltersChange: setColumnFilters,
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     getSortedRowModel: getSortedRowModel(),
-    globalFilterFn: (row, _columnId, filterValue) => {
-      const refNo = row.getValue("referenceNo") as string;
-      const supplier = row.getValue("supplier") as string;
-      const filter = String(filterValue || "").toLowerCase();
-
-      return refNo?.toLowerCase().includes(filter) ||
-             supplier?.toLowerCase().includes(filter) 
-    },
     state: {
       sorting,
       globalFilter,
+      columnFilters,
+    },
+    globalFilterFn: (row, _columnId, filterValue) => {
+      const refNo = row.getValue("referenceNo") as string;
+      const supplier = row.original?.supplier?.name || "";
+      const filter = String(filterValue || "").toLowerCase();
+      return (
+        refNo?.toLowerCase().includes(filter) ||
+        supplier?.toLowerCase().includes(filter)
+      );
     },
   });
 
-    interface Purchase {
-      grandTotal?: number;
-      paymentDue?: number;
-      paymentStatus?:string;
-    }
+  const formatCurrency = (amount: number) =>
+    new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "USD",
+    }).format(amount);
 
-        const formatCurrency = (amount: number) =>
-        new Intl.NumberFormat("en-US", {
-            style: "currency",
-            currency: "USD",
-        }).format(amount);
+  const totalPurchaseAmount = data.reduce((acc, row) => acc + (row?.totalAmount ?? 0), 0);
 
-        // Total purchase and due amounts
-        const totalPurchaseAmount = data.reduce((acc, row: Purchase) => acc + (row?.grandTotal || 0), 0);
-        const totalDueAmount = data.reduce((acc, row: Purchase) => acc + (row?.paymentDue ||0),0);
+  const totalDueAmount = data.reduce((acc,row) => acc+ (row?.dueAmount ?? 0),0)
 
-        // Counts
-        const dueCount = data.filter((row: Purchase) => row?.paymentStatus === "Due").length;
-        const paidCount = data.filter((row: Purchase) => row?.paymentStatus === "Paid").length;
-        const partialCount = data.filter((row: Purchase) => row?.paymentStatus === "Partial").length;
-
-        // Formatted values
-        const formattedTotalPurchase = formatCurrency(totalPurchaseAmount);
-        const formattedTotalDue = formatCurrency(totalDueAmount);
-
-
+  const formattedTotalPurchase = formatCurrency(totalPurchaseAmount);
+  const formattedDueAmount = formatCurrency(totalDueAmount);
 
   return (
     <div className="flex flex-col gap-5">
+      {/* Filter Card */}
       <Card>
         <CardHeader>
           <div className="space-y-2">
             <CardTitle>Filters</CardTitle>
             <CardDescription>Search purchases by invoice, supplier or payment</CardDescription>
           </div>
+
+          <div className="flex flex-col sm:flex-row gap-4 mt-3">
+            {/* Purchase Status Filter */}
+            <div className="w-full">
+              <label className="text-sm font-medium text-muted-foreground mb-1 block">
+                Filter by Purchase Status
+              </label>
+              <Select
+                onValueChange={(value) =>
+                  table.setColumnFilters((prev) => [
+                    ...prev.filter((f) => f.id !== "status"),
+                    { id: "status", value: value === "all" ? undefined : value },
+                  ])
+                }
+                defaultValue="all"
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Select Purchase Status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All</SelectItem>
+                  <SelectItem value="Received">Received</SelectItem>
+                  <SelectItem value="Pending">Pending</SelectItem>
+                  <SelectItem value="Cancelled">Cancelled</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Payment Status Filter */}
+            <div className="w-full">
+              <label className="text-sm font-medium text-muted-foreground mb-1 block">
+                Filter by Payment Status
+              </label>
+              <Select
+                onValueChange={(value) =>
+                  table.setColumnFilters((prev) => [
+                    ...prev.filter((f) => f.id !== "paymentStatus"),
+                    {
+                      id: "paymentStatus",
+                      value: value === "all" ? undefined : value,
+                    },
+                  ])
+                }
+                defaultValue="all"
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Select Payment Status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All</SelectItem>
+                  <SelectItem value="Due">Due</SelectItem>
+                  <SelectItem value="Paid">Paid</SelectItem>
+                  <SelectItem value="Partial">Partial</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
         </CardHeader>
-        <CardContent className="flex gap-4 md:items-center justify-between">
-          <div className="relative w-full">
+      </Card>
+
+      {/* Table Card */}
+      <Card>
+        <CardHeader className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+          <div>
+            <CardTitle>Purchases</CardTitle>
+            <CardDescription>A list of all purchases</CardDescription>
+          </div>
+
+          <div className="relative w-full sm:w-1/2 md:w-1/4">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
             <Input
-              placeholder="Search by invoice or supplier"
+              placeholder="Search by Ref no or supplier"
               value={globalFilter}
               onChange={(e) => setGlobalFilter(e.target.value)}
               className="pl-9"
             />
           </div>
-
-          <div>
-            <Select>
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Filter by payment method" />
-              </SelectTrigger>
-              <SelectContent>
-                {[
-                  { id: "all", name: "All" },
-                  { id: "cash", name: "Cash" },
-                  { id: "bank", name: "Bank" },
-                  { id: "credit", name: "Credit" },
-                ].map((payment) => (
-                  <SelectItem key={payment.id} value={payment.id}>
-                    {payment.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="flex flex-wrap items-center gap-3">
-            <Button variant="outline">
-              <Funnel className="h-4 w-4 mr-2" />
-              <span className="hidden md:inline">Filter</span>
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Purchases</CardTitle>
-          <CardDescription>A list of all purchases</CardDescription>
         </CardHeader>
+
         <CardContent>
           <Table>
             <TableHeader>
@@ -162,25 +181,20 @@ export function PurchaseTable<TValue>({
                     <TableHead key={header.id}>
                       {header.isPlaceholder
                         ? null
-                        : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
+                        : flexRender(header.column.columnDef.header, header.getContext())}
                     </TableHead>
                   ))}
                 </TableRow>
               ))}
             </TableHeader>
+
             <TableBody>
-              {table.getRowModel().rows?.length ? (
+              {table.getRowModel().rows.length ? (
                 table.getRowModel().rows.map((row) => (
                   <TableRow key={row.id}>
                     {row.getVisibleCells().map((cell) => (
                       <TableCell key={cell.id}>
-                        {flexRender(
-                          cell.column.columnDef.cell,
-                          cell.getContext()
-                        )}
+                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
                       </TableCell>
                     ))}
                   </TableRow>
@@ -193,17 +207,14 @@ export function PurchaseTable<TValue>({
                 </TableRow>
               )}
             </TableBody>
+
             <TableFooter className="bg-muted/50 text-sm font-medium border-t">
-                <TableRow>
-                    <TableCell colSpan={columns.length} className="px-4 py-2">
-                    Total Purchase: {formattedTotalPurchase}  |  Due: {formattedTotalDue}
-                    </TableCell>
-                </TableRow>
-                <TableRow>
-                    <TableCell colSpan={columns.length} className="text-muted-foreground px-4 py-2">
-                    Payment Status — Due: {dueCount} | Paid: {paidCount} | Partial: {partialCount}
-                    </TableCell>
-                </TableRow>
+              <TableRow>
+                <TableCell colSpan={4} />
+                <TableCell className="text-center border-r-2">Total:</TableCell>
+                <TableCell className="border-r-2">{formattedTotalPurchase}</TableCell>
+                <TableCell colSpan={2} className="border-r-2">{formattedDueAmount}</TableCell>
+              </TableRow>
             </TableFooter>
           </Table>
         </CardContent>

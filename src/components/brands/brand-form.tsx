@@ -33,10 +33,10 @@ export const BrandFormDialog = ({ brand, open, openChange }: BrandFormProps) => 
   ) => {
     if (brand) {
       await updateProject({ id: brand.id, ...data });
-      toast.success("Project updated successfully");
+      toast.success("Brand updated successfully");
     } else {
       await createProject(data);
-      toast.success("Project created successfully");
+      toast.success("Brand created successfully");
     }
     close();
   };

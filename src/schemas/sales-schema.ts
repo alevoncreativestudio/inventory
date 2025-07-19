@@ -1,0 +1,19 @@
+import { z } from "zod";
+
+export const SalePaymentStatusEnum = z.enum(["Due", "Paid", "Partial"]);
+
+export const salesSchema = z.object({
+  invoiceNo: z.string().min(1),
+  salesdate: z.coerce.date(), 
+  customerId: z.string().min(1),
+  grandTotal: z.coerce.number().min(0),
+  dueAmount:z.coerce.number()
+});
+
+export const salesUpdateSchema = salesSchema.extend({
+  id: z.string(),
+});
+
+export const getSalesById = z.object({
+  id: z.string(),
+});

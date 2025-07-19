@@ -1,10 +1,10 @@
-import { CategoryInput } from "@/schemas/category-schema";
+import { CustomerInput } from "@/schemas/customer-schema";
 import { Category } from "@prisma/client";
 import { ReactNode } from "react";
 
 export type CategoryModalProps = {
   isEdit?: boolean;
-  initialData?: CategoryInput & { id: string };
+  initialData?: CustomerInput & { id: string };
   triggerLabel?: ReactNode;
 };
 

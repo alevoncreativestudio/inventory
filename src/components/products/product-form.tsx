@@ -2,17 +2,17 @@
 
 import { Product } from "@/types/product";
 import {
-  FormDialog,
-  FormDialogContent,
-  FormDialogDescription,
-  FormDialogFooter,
-  FormDialogHeader,
-  FormDialogTitle,
-  FormDialogTrigger,
-} from "@/components/common/form-dialog";
+  Sheet,
+  SheetTrigger,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetDescription,
+  SheetFooter,
+} from "@/components/ui/sheet";
 import { productSchema } from "@/schemas/product-schema";
 import z from "zod";
-import { useForm } from "react-hook-form";
+import { useForm, FormProvider } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
@@ -24,11 +24,10 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { DialogClose } from "../ui/dialog";
+import { Card } from "@/components/ui/card";
 import { createProduct, updateProduct } from "@/actions/product-actions";
 import { useAction } from "next-safe-action/hooks";
 import { toast } from "sonner";
-
 import {
   Select,
   SelectContent,
@@ -39,6 +38,10 @@ import {
 import { useEffect, useState } from "react";
 import { getBrandlistForDropdown } from "@/actions/brand-actions";
 import { getCategorylistForDropdown } from "@/actions/category-actions";
+import { getTaxRateListForDropdown } from "@/actions/taxrate-actions";
+import {Table ,TableBody, TableCell, TableHead, TableHeader, TableRow } from "../ui/table";
+import { nanoid } from "nanoid";
+
 
 interface ProductFormProps {
   product?: Product;
@@ -46,47 +49,84 @@ interface ProductFormProps {
   openChange?: (open: boolean) => void;
 }
 
-export const ProductFormDialog = ({
-  product,
-  open,
-  openChange,
-}: ProductFormProps) => {
+export const ProductFormSheet = ({ product, open, openChange }: ProductFormProps) => {
+  const isControlled = typeof open !== "undefined" && typeof openChange === "function";
 
   const { execute: createProject, isExecuting: isCreating } = useAction(createProduct);
   const { execute: updateProject, isExecuting: isUpdating } = useAction(updateProduct);
 
-  const [brandList, setBrandList] = useState<{ name: string; id: string }[]>([])
-  const [categoryList, setCategoryList] = useState<{ name: string; id: string }[]>([])
-
-
+  const [brandList, setBrandList] = useState<{ name: string; id: string }[]>([]);
+  const [categoryList, setCategoryList] = useState<{ name: string; id: string }[]>([]);
+  const [taxRateList, setTaxRateList] = useState<{ name: string; taxRate: string; id: string }[]>([]);
 
   useEffect(() => {
     const fetchOptions = async () => {
-    const brandRes = await getBrandlistForDropdown()
-    const categoryRes = await getCategorylistForDropdown()
-    setBrandList(brandRes)
-    setCategoryList(categoryRes)
-  };
-  fetchOptions();
-  },[])
-  
+      const brandRes = await getBrandlistForDropdown();
+      const categoryRes = await getCategorylistForDropdown();
+      const taxRateRes = await getTaxRateListForDropdown();
+      setBrandList(brandRes);
+      setCategoryList(categoryRes);
+      setTaxRateList(taxRateRes);
+    };
+    fetchOptions();
+  }, []);
+  console.log(taxRateList);
 
   
+  
+
   const form = useForm<z.infer<typeof productSchema>>({
     resolver: zodResolver(productSchema),
     defaultValues: {
       product_name: product?.product_name || "",
-      price: product?.price ?? undefined,
-      quantity: product?.quantity ?? undefined,
+      sku: product?.sku || "",
+      barcodeType: product?.barcodeType || "",
+      unit: product?.unit || "",
+      stock:product?.stock ?? 0,
       brandId: product?.brandId || "",
       categoryId: product?.categoryId || "",
+      tax: product?.tax ?? "",
+      sellingPriceTaxType:product?.sellingPriceTaxType || "",
+      excTax: product?.excTax ?? undefined,
+      incTax: product?.incTax ?? undefined,
+      margin: product?.margin ?? 25,
+      sellingPrice: product?.sellingPrice ?? undefined,
     },
   });
 
-  const handleSubmit = async (
-    data: z.infer<typeof productSchema>,
-    close: () => void,
-  ) => {
+  useEffect(() => {
+  if (!product) {
+    form.setValue("sku", `SKU-${nanoid(6).toUpperCase()}`);
+  }
+}, [form, product]);
+
+
+  const {watch, setValue} = form;
+
+  const excTax = watch("excTax");
+  const taxRate = watch("tax");
+  const margin = watch("margin");
+
+useEffect(() => {
+  const exc = Number(excTax) || 0;
+  const inc = Number(form.getValues("incTax")) || 0;
+  const tax = Number(taxRate) || 0;
+  const mgn = Number(margin) || 0;
+  const type = form.getValues("sellingPriceTaxType");
+
+  const newInc = exc + (exc * (tax * 100)) / 100;
+  if (!isNaN(newInc)) setValue("incTax", parseFloat(newInc.toFixed(2)));
+
+  const base = type === "inclusive" ? inc : exc;
+  const selling = base + (base * mgn) / 100;
+
+  if (!isNaN(selling)) setValue("sellingPrice", parseFloat(selling.toFixed(2)));
+}, [excTax, taxRate, margin, form.watch("sellingPriceTaxType"), setValue]);
+
+
+  const handleSubmit = async (data: z.infer<typeof productSchema>) => {
+    console.log("Form data submitted:", data);
+    
     if (product) {
       await updateProject({ id: product.id, ...data });
       toast.success("Product updated successfully");
@@ -94,147 +134,228 @@ export const ProductFormDialog = ({
       await createProject(data);
       toast.success("Product created successfully");
     }
-    close();
+    if (isControlled && openChange) openChange(false);
   };
 
   return (
-    <FormDialog open={open} openChange={openChange} form={form} onSubmit={handleSubmit}>
-      <FormDialogTrigger asChild>
-        <Button>
-          <Plus className="size-4 mr-2" />
-          New Product
-        </Button>
-      </FormDialogTrigger>
-
-      <FormDialogContent className="sm:max-w-sm">
-        <FormDialogHeader>
-          <FormDialogTitle>{product ? "Edit Product" : "New Product"}</FormDialogTitle>
-          <FormDialogDescription>
-            Fill out the product details. Click save when youre done.
-          </FormDialogDescription>
-        </FormDialogHeader>
-
-        {/* Product Name */}
-        <FormField
-          control={form.control}
-          name="product_name"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Product Name</FormLabel>
-              <FormControl>
-                <Input placeholder="Product Name" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        {/* Price */}
-        <FormField
-          control={form.control}
-          name="price"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Price</FormLabel>
-              <FormControl>
-                <Input
-                type="number"
-                {...field}
-                value={field.value ?? ""}
-                placeholder="price"
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        {/* Quantity */}
-        <FormField
-          control={form.control}
-          name="quantity"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Quantity</FormLabel>
-              <FormControl>
-                <Input
-                type="number"
-                {...field}
-                value={field.value ?? ""}
-                placeholder="qty"
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        {/* Brand Dropdown */}
-        <FormField
-          control={form.control}
-          name="brandId"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Brand</FormLabel>
-              <Select onValueChange={field.onChange} value={field.value}>
-                <FormControl>
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Select Brand" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  {brandList.map((brand) => (
-                    <SelectItem key={brand?.id} value={brand?.id}>
-                      {brand?.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="categoryId"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Category</FormLabel>
-              <Select onValueChange={field.onChange} value={field.value}>
-                <FormControl>
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Select Category" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  {categoryList.map((category) => (
-                    <SelectItem key={category?.id} value={category?.id}>
-                      {category?.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormDialogFooter>
-          <DialogClose asChild>
-            <Button
-              type="button"
-              variant="outline"
-              disabled={isCreating || isUpdating}
-            >
-              Cancel
-            </Button>
-          </DialogClose>
-          <Button type="submit" disabled={isCreating || isUpdating}>
-            {isCreating || isUpdating ? "Saving..." : "Save"}
+    <Sheet open={isControlled ? open : undefined} onOpenChange={isControlled ? openChange : undefined}>
+      {!isControlled && (
+        <SheetTrigger asChild>
+          <Button>
+            <Plus className="size-4 mr-2" />
+            New Product
           </Button>
-        </FormDialogFooter>
-      </FormDialogContent>
-    </FormDialog>
+        </SheetTrigger>
+      )}
+
+      <SheetContent side="top" className="w-full overflow-y-scroll max-h-screen p-5">
+          <FormProvider {...form}>
+            <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+              <SheetHeader>
+                <SheetTitle>{product ? "Edit Product" : "New Product"}</SheetTitle>
+                <SheetDescription>Fill out the product details. Click save when done.</SheetDescription>
+              </SheetHeader>
+
+              <Card className="p-4 grid grid-cols-1 md:grid-cols-3 gap-4">
+                <FormField control={form.control} name="product_name" render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Product Name</FormLabel>
+                    <FormControl><Input placeholder="Product Name" {...field} /></FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )} />
+
+                <FormField control={form.control} name="sku" render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>SKU</FormLabel>
+                    <FormControl><Input placeholder="SKSKU-ABCD" {...field} /></FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )} />
+
+                <FormField control={form.control} name="barcodeType" render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Barcode Type</FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <FormControl>
+                        <SelectTrigger><SelectValue placeholder="Select Barcode Type" /></SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="C128">Code 128 (C128)</SelectItem>
+                        <SelectItem value="EAN13">EAN-13</SelectItem>
+                        <SelectItem value="QR">QR Code</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )} />
+
+                <FormField control={form.control} name="unit" render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Unit</FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <FormControl>
+                        <SelectTrigger><SelectValue placeholder="Select Unit" /></SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="pcs">Pieces (pcs)</SelectItem>
+                        <SelectItem value="pkt">Packets (pkts)</SelectItem>
+                        <SelectItem value="box">Boxes</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )} />
+
+                <FormField control={form.control} name="brandId" render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Brand</FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <FormControl>
+                        <SelectTrigger><SelectValue placeholder="Select Brand" /></SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {brandList.map(brand => (
+                          <SelectItem key={brand.id} value={brand.id}>{brand.name}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )} />
+
+                <FormField control={form.control} name="categoryId" render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Category</FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <FormControl>
+                        <SelectTrigger><SelectValue placeholder="Select Category" /></SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {categoryList.map(category => (
+                          <SelectItem key={category.id} value={category.id}>{category.name}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )} /> 
+              </Card>
+
+              <Card className="p-4 space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <FormField control={form.control} name="tax" render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Applicable Tax</FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value}>
+                        <FormControl>
+                          <SelectTrigger><SelectValue placeholder="Select Tax Rate" /></SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {taxRateList.map(tax => (
+                            <SelectItem key={tax.id} value={tax.taxRate}>{tax.name}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )} />
+
+                  <FormField control={form.control} name="sellingPriceTaxType" render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Selling Price Tax Type</FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value}>
+                        <FormControl>
+                          <SelectTrigger><SelectValue placeholder="Select Type" /></SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="exclusive">Exclusive</SelectItem>
+                          <SelectItem value="inclusive">Inclusive</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )} />
+                </div>
+
+                <Table className="border">
+                  <TableHeader>
+                    <TableRow className="bg-green-600 hover:bg-green-600 text-white">
+                      <TableHead className="text-white" colSpan={2}>Default Purchase Price</TableHead>
+                      <TableHead className="text-white">x Margin(%)</TableHead>
+                      <TableHead className="text-white">Default Selling Price</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    <TableRow>
+                      {/* Exc. Tax */}
+                      <TableCell>
+                      <FormLabel>Exc.Tax</FormLabel>
+                        <FormField control={form.control} name="excTax" render={({ field }) => (
+                          <FormItem className="mb-0">
+                            <FormControl>
+                              <Input type="number" placeholder="Exc. tax" 
+                              {...field} 
+                              value={field.value ?? ""}/>
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )} />
+                      </TableCell>
+
+                      <TableCell>
+                        <FormLabel>Inc.Tax</FormLabel>
+                        <FormField control={form.control} name="incTax" render={({ field }) => (
+                          <FormItem className="mb-0">
+                            <FormControl>
+                              <Input type="number" placeholder="Inc. tax" 
+                              {...field} 
+                              value={field.value ?? ""}/>
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )} />
+                      </TableCell>
+
+                      {/* Margin (%) */}
+                      <TableCell>
+                        <FormField control={form.control} name="margin" render={({ field }) => (
+                          <FormItem className="mb-0">
+                            <FormControl>
+                              <Input type="number" placeholder="Margin (%)" 
+                              {...field} 
+                              value={field.value ?? ""}/>
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )} />
+                      </TableCell>
+
+                      {/* Selling Price */}
+                      <TableCell>
+                        <FormField control={form.control} name="sellingPrice" render={({ field }) => (
+                          <FormItem className="mb-0">
+                            <FormControl>
+                              <Input type="number" placeholder="Selling Price" 
+                              {...field} 
+                              value={field.value ?? ""}/>
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )} />
+                      </TableCell>
+                    </TableRow>
+                  </TableBody>
+                </Table>
+              </Card>
+              <SheetFooter>
+                <Button type="submit" disabled={isCreating || isUpdating}>
+                  {isCreating || isUpdating ? "Saving..." : "Save"}
+                </Button>
+              </SheetFooter>
+            </form>
+          </FormProvider>
+      </SheetContent>
+    </Sheet>
   );
 };

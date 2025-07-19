@@ -10,3 +10,12 @@ export interface ProductTableProps<TValue> {
   columns: ColumnDef<Product, TValue>[];
   data: Product[];
 }
+
+export interface ProductOption {
+  id: string;
+  product_name: string;
+  stock:number;
+  excTax:number;
+  incTax:number;
+  quantity:number;
+}

@@ -28,7 +28,7 @@ export const PurchaseDeleteDialog: FC<{
   const handleDelete = async () => {
     try {
       await deletePurchase({ id: purchase.id });
-      toast.success(`Purchase "${purchase.referenceNo}" deleted.`);
+      toast.success(`Purchase "${purchase.supplierId}" deleted.`);
       setOpen(false);
       router.refresh();
     } catch (error) {

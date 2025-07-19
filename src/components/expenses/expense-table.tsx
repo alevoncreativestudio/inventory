@@ -1,7 +1,6 @@
 "use client";
 
 import {
-  ColumnDef,
   flexRender,
   getCoreRowModel,
   getFilteredRowModel,
@@ -14,11 +13,11 @@ import {
   Table,
   TableBody,
   TableCell,
+  TableFooter,
   TableHead,
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Expense } from "@prisma/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useState } from "react";
 import { Input } from "../ui/input";
@@ -33,10 +32,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-interface ExpenseTableProps<TValue> {
-  columns: ColumnDef<Expense, TValue>[];
-  data: Expense[];
-}
+import { ExpenseTableProps } from "@/types/expense";
+
+
+
 
 export function ExpenseTable<TValue>({ columns, data }: ExpenseTableProps<TValue>) {
       const [sorting, setSorting] = useState<SortingState>([]);
@@ -67,6 +66,17 @@ export function ExpenseTable<TValue>({ columns, data }: ExpenseTableProps<TValue
       },
     });
 
+    const formatCurrency = (amount: number) =>
+    new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "USD",
+    }).format(amount);
+
+    const totalExpenseAmount = data.reduce((acc, row) => acc + (row?.amount ?? 0), 0);
+
+    const formattedTotalPurchase = formatCurrency(totalExpenseAmount);
+
+
   return (
     <div className="flex flex-col gap-5">
         <Card>
@@ -89,7 +99,7 @@ export function ExpenseTable<TValue>({ columns, data }: ExpenseTableProps<TValue
         <div>
             <Select>
                   <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Select Brand" />
+                    <SelectValue placeholder="Select Expense Category" />
                   </SelectTrigger>
                 <SelectContent>
                   {[
@@ -171,6 +181,16 @@ export function ExpenseTable<TValue>({ columns, data }: ExpenseTableProps<TValue
               </TableRow>
             )}
           </TableBody>
+
+          <TableFooter className="bg-muted/50 text-sm font-medium border-t">
+              <TableRow>
+                <TableCell colSpan={4} />
+                <TableCell className="text-center border-r-2">Total:</TableCell>
+                <TableCell className="border-r-2">{formattedTotalPurchase}</TableCell>
+                <TableCell />
+                <TableCell />
+              </TableRow>
+            </TableFooter>
         </Table>
       </CardContent>
     </Card>

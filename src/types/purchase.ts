@@ -1,5 +1,20 @@
-import { Purchase } from "@prisma/client";
+import { 
+  Purchase as PrismaPurchase,
+  PurchaseItem as PrismaPurchaseItem,
+  PurchasePayment} from "@prisma/client";
 import { ColumnDef } from "@tanstack/react-table";
+
+export interface PurchaseItem extends PrismaPurchaseItem {
+  product?: {
+    product_name: string;
+  };
+}
+
+export interface Purchase extends PrismaPurchase {
+  supplier: { name: string };
+  items: PurchaseItem[];
+  payments:PurchasePayment[];
+}
 
 export interface PurchaseFormProps {
   purchase?: Purchase;
@@ -11,3 +26,44 @@ export interface PurchaseTableProps<TValue> {
   columns: ColumnDef<Purchase, TValue>[];
   data: Purchase[];
 }
+
+export type PurchaseItemField =
+  | "quantity"
+  | "excTax"
+  | "incTax"
+  | "discount"
+  | "subtotal"
+  | "total";
+
+export type PaymentField =
+  | "amount"
+  | "paidOn"
+  | "paymentMethod"
+  | "paymentAccount"
+  | "paymentNote";
+
+
+export interface PurchaseCount {
+  grandTotal?: number;
+  paymentDue?: number;
+  paymentStatus?: string;
+}
+
+export type RawPurchaseItem = {
+  productId: string;
+  product_name?: string;
+  quantity: number;
+  excTax: number;
+  incTax:number;
+  discount: number;
+  subtotal: number;
+  total: number;
+};
+
+export interface RawPurchasePayment {
+  amount: number;
+  paidOn: Date;
+  paymentMethod: string;
+  paymentNote?: string | null;
+}
+

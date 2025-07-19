@@ -5,7 +5,7 @@ export const expenseSchema = z.object({
   description: z.string().optional(),
   amount: z.coerce.number({ required_error: "Amount is required" }).min(0),
   date: z.coerce.date(),
-  category: z.string().min(1),
+  expenseCategoryId: z.string().min(1),
 });
 
 export const updateExpenseSchema = expenseSchema.extend({

@@ -1,6 +1,5 @@
 "use client";
 
-import { Expense } from "@prisma/client";
 import {
   FormDialog,
   FormDialogContent,
@@ -32,15 +31,11 @@ import { toast } from "sonner";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-// import { useEffect, useState } from "react";
-// import { getBrandlistForDropdown } from "@/actions/brand.actions";
-// import { getCategorylistForDropdown } from "@/actions/category.actions";
+import { getExpenseCategoryDropdown } from "@/actions/expense-category-action";
+import { useEffect, useState } from "react";
+import { ExpenseFormProps } from "@/types/expense";
 
-interface ExpenseFormProps {
-  expense?: Expense;
-  open?: boolean;
-  openChange?: (open: boolean) => void;
-}
+
 
 export const ExpenseFormDialog = ({
   expense,
@@ -51,17 +46,17 @@ export const ExpenseFormDialog = ({
   const { execute: createProject, isExecuting: isCreating } = useAction(createExpense);
   const { execute: updateProject, isExecuting: isUpdating } = useAction(updateExpense);
 
-//   const [categoryList, setCategoryList] = useState<{ name: string; id: string }[]>([])
+  const [expenseCategoryList, setExpenseCategoryList] = useState<{ name: string; id: string }[]>([])
 
 
 
-//   useEffect(() => {
-//     const fetchOptions = async () => {
-//     const categoryRes = await getCategorylistForDropdown()
-//     setCategoryList(categoryRes)
-//   };
-//   fetchOptions();
-//   },[])
+  useEffect(() => {
+    const fetchOptions = async () => {
+    const expenseCategory = await getExpenseCategoryDropdown()
+    setExpenseCategoryList(expenseCategory)
+  };
+  fetchOptions();
+  },[])
   
 
   
@@ -72,7 +67,7 @@ export const ExpenseFormDialog = ({
       description: expense?.description ?? "",
       amount: expense?.amount ?? undefined,
       date: expense?.date ? new Date(expense.date) : new Date(),
-      category: expense?.category || "",
+      expenseCategoryId: expense?.expenseCategoryId || "",
     },
   });
 
@@ -197,28 +192,22 @@ export const ExpenseFormDialog = ({
 
         <FormField
           control={form.control}
-          name="category"
+          name="expenseCategoryId"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Category</FormLabel>
+              <FormLabel>Expense Category</FormLabel>
               <Select onValueChange={field.onChange} value={field.value}>
                 <FormControl>
                   <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Select Category" />
+                    <SelectValue placeholder="Select Expense Category" />
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
-                    {[
-                    { id: "officeappliances", name: "Office Appliances" },
-                    { id: "travel", name: "Travel" },
-                    { id: "market", name: "Market" },
-                    { id: "software", name: "Software" },
-                    { id: "other", name: "Other" },
-                    ].map((category) => (
-                    <SelectItem key={category.id} value={category.name}>
-                    {category.name}
+                  {expenseCategoryList.map((expenseCategory) => (
+                    <SelectItem key={expenseCategory?.id} value={expenseCategory?.id}>
+                      {expenseCategory?.name}
                     </SelectItem>
-                    ))}
+                  ))}
                 </SelectContent>
               </Select>
               <FormMessage />

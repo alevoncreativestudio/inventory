@@ -1,5 +1,5 @@
 import { ProductTable } from "@/components/products/product-table";
-import { ProductFormDialog } from "@/components/products/product-form";
+import { ProductFormSheet } from "@/components/products/product-form";
 import { productColumns } from "@/components/products/product-columns";
 import { getProductList } from "@/actions/product-actions";
 
@@ -15,7 +15,7 @@ export default async function ProductPage() {
               <h1 className="text-2xl font-bold tracking-tight">Products</h1>
               <p className="text-muted-foreground">Manage your Products</p>
             </div>
-                <ProductFormDialog/>
+                <ProductFormSheet/>
           </div>
           <ProductTable columns={productColumns} data={data?.products ?? []}/>
           

@@ -1,6 +1,6 @@
 "use client";
 
-import { Purchase } from "@prisma/client";
+import { Purchase } from "@/types/purchase";
 import { ColumnDef } from "@tanstack/react-table";
 import {
   DropdownMenu,
@@ -18,9 +18,8 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
-// import { useRouter } from "next/navigation";
 import { PurchaseDeleteDialog } from "./purchase-delete-dailog";
-import { PurchaseFormDialog } from "./purchase-form";
+import { PurchaseFormSheet } from "./purchase-form";
 
 export const purchaseColumns: ColumnDef<Purchase>[] = [
   {
@@ -35,10 +34,10 @@ export const purchaseColumns: ColumnDef<Purchase>[] = [
     },
   },
   {
-    accessorKey: "date",
+    accessorKey: "purchaseDate",
     header: "Date",
     cell: ({ row }) => {
-        const date = row.getValue("date");
+        const date = row.getValue("purchaseDate");
         return (
         <div>
             {date ? new Date(date as string).toLocaleDateString("en-GB") : "-"}
@@ -51,14 +50,23 @@ export const purchaseColumns: ColumnDef<Purchase>[] = [
     header: "Location",
   },
   {
-    accessorKey: "supplier",
+    accessorKey: "supplierId",
     header: "Supplier",
+    cell:({row}) =>{
+      const Supplier = row.original.supplier.name
+
+      return (
+        <span>
+          {Supplier}
+        </span>
+      )
+    }
   },
   {
-  accessorKey: "purchaseStatus",
+  accessorKey: "status",
   header: "Purchase Status",
   cell: ({ row }) => {
-    const purchaseStatus = row.original.purchaseStatus;
+    const purchaseStatus = row.original.status;
 
     const statusColorMap: Record<string, string> = {
       Received: "bg-green-100 text-green-800",
@@ -74,34 +82,14 @@ export const purchaseColumns: ColumnDef<Purchase>[] = [
         </span>
         );
     },
+    enableColumnFilter:true,
     },
-  {
-  accessorKey: "paymentStatus",
-  header: "Payment Status",
-  cell: ({ row }) => {
-    const paymentStatus = row.original.paymentStatus;
-
-    const statusColorMap: Record<string, string> = {
-      Paid: "bg-green-100 text-green-800",
-      Partial: "bg-yellow-100 text-yellow-800",
-      Due: "bg-red-100 text-red-800",
-    };
-
-    const colorClasses = statusColorMap[paymentStatus] || "bg-gray-100 text-gray-800";
-
-    return (
-      <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-sm font-medium ${colorClasses}`}>
-        {paymentStatus}
-      </span>
-    );
-  },
-},
 
   {
-    accessorKey: "grandTotal",
+    accessorKey: "totalAmount",
     header: "Grand Total",
     cell: ({ row }) => {
-    const amount = row.getValue("grandTotal") as number;
+    const amount = row.getValue("totalAmount") as number;
     const formatted = new Intl.NumberFormat("en-US", {
         style: "currency",
         currency: "USD",
@@ -110,10 +98,10 @@ export const purchaseColumns: ColumnDef<Purchase>[] = [
     }
   },
   {
-    accessorKey: "paymentDue",
+    accessorKey: "dueAmount",
     header: "Payment Due",
     cell: ({ row }) => {
-        const amount = row.getValue("paymentDue") as number;
+        const amount = row.getValue("dueAmount") as number;
         const formatted = new Intl.NumberFormat("en-US", {
             style: "currency",
             currency: "USD",
@@ -153,7 +141,7 @@ const PurchaseActions = ({ purchase }: { purchase: Purchase }) => {
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
-      <PurchaseFormDialog open={openEdit} openChange={setOpenEdit} purchase={purchase} />
+      <PurchaseFormSheet open={openEdit} openChange={setOpenEdit} purchase={purchase} />
       <PurchaseDeleteDialog purchase={purchase} open={openDelete} setOpen={setOpenDelete} />
     </div>
   );

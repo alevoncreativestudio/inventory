@@ -42,12 +42,12 @@ const Page = async ({ params }: PageParamsProps) => {
                 <TableCell>{product?.product_name}</TableCell>
               </TableRow>
               <TableRow>
-                <TableCell className="font-medium">Quantity</TableCell>
-                <TableCell>{product?.quantity}</TableCell>
+                <TableCell className="font-medium">Price</TableCell>
+                <TableCell>{product?.incTax}</TableCell>
               </TableRow>
               <TableRow>
-                <TableCell className="font-medium">Price</TableCell>
-                <TableCell>₹ {product?.price.toFixed(2)}</TableCell>
+                <TableCell className="font-medium">Tax Price</TableCell>
+                <TableCell>₹ {product?.excTax}</TableCell>
               </TableRow>
               <TableRow>
                 <TableCell className="font-medium">Brand</TableCell>

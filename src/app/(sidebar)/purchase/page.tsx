@@ -1,5 +1,5 @@
 import { PurchaseTable } from "@/components/purchase/purchase-table";
-import { PurchaseFormDialog } from "@/components/purchase/purchase-form";
+import { PurchaseFormSheet } from "@/components/purchase/purchase-form";
 import { purchaseColumns } from "@/components/purchase/purchase-colums";
 import { getPurchaseList } from "@/actions/purchase-actions";
 
@@ -15,7 +15,7 @@ export default async function ProductPage() {
               <h1 className="text-2xl font-bold tracking-tight">Purchases</h1>
               <p className="text-muted-foreground">Manage your Purchases</p>
             </div>
-                <PurchaseFormDialog/>
+                <PurchaseFormSheet/>
           </div>
           <PurchaseTable columns={purchaseColumns} data={data?.purchases ?? []}/>
           
