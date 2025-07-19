@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/sheet";
 import { productSchema } from "@/schemas/product-schema";
 import z from "zod";
-import { useForm, FormProvider } from "react-hook-form";
+import { useForm, FormProvider, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
@@ -41,6 +41,7 @@ import { getCategorylistForDropdown } from "@/actions/category-actions";
 import { getTaxRateListForDropdown } from "@/actions/taxrate-actions";
 import {Table ,TableBody, TableCell, TableHead, TableHeader, TableRow } from "../ui/table";
 import { nanoid } from "nanoid";
+
 
 
 interface ProductFormProps {
@@ -101,27 +102,27 @@ export const ProductFormSheet = ({ product, open, openChange }: ProductFormProps
 }, [form, product]);
 
 
-  const {watch, setValue} = form;
-
-  const excTax = watch("excTax");
-  const taxRate = watch("tax");
-  const margin = watch("margin");
+const excTax = useWatch({ control: form.control, name: "excTax" });
+const incTax = useWatch({ control: form.control, name: "incTax" });
+const taxRate = useWatch({ control: form.control, name: "tax" });
+const margin = useWatch({ control: form.control, name: "margin" });
+const sellingPriceTaxType = useWatch({ control: form.control, name: "sellingPriceTaxType" });
 
 useEffect(() => {
   const exc = Number(excTax) || 0;
-  const inc = Number(form.getValues("incTax")) || 0;
+  const inc = Number(incTax) || 0;
   const tax = Number(taxRate) || 0;
   const mgn = Number(margin) || 0;
-  const type = form.getValues("sellingPriceTaxType");
+  const type = sellingPriceTaxType;
 
   const newInc = exc + (exc * (tax * 100)) / 100;
-  if (!isNaN(newInc)) setValue("incTax", parseFloat(newInc.toFixed(2)));
+  if (!isNaN(newInc)) form.setValue("incTax", parseFloat(newInc.toFixed(2)));
 
   const base = type === "inclusive" ? inc : exc;
   const selling = base + (base * mgn) / 100;
 
-  if (!isNaN(selling)) setValue("sellingPrice", parseFloat(selling.toFixed(2)));
-}, [excTax, taxRate, margin, form.watch("sellingPriceTaxType"), setValue]);
+  if (!isNaN(selling)) form.setValue("sellingPrice", parseFloat(selling.toFixed(2)));
+}, [excTax, incTax, taxRate, margin, sellingPriceTaxType, form]);
 
 
   const handleSubmit = async (data: z.infer<typeof productSchema>) => {
