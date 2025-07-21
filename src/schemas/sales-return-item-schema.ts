@@ -5,7 +5,7 @@ export const salesReturnItemSchema = z.object({
   productId: z.string().min(1, "Product is required"),
   product_name: z.string().optional(),
   quantity: z.coerce.number().min(1, "Quantity is required"),
-  excTax: z.coerce.number().min(0, "Exclusive Tax is required"),
+  incTax: z.coerce.number().min(0),
   subtotal: z.coerce.number().min(0, "Subtotal is required"),
   total: z.coerce.number().min(0, "Total is required"),
 });

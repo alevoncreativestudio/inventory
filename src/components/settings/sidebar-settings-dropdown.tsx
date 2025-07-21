@@ -11,6 +11,7 @@ const settingsItems = [
   { title: "Customers", url: "/settings/customers"},
   { title: "Supplier", url: "/settings/supplier"},
   { title: "Tax Rates", url: "/settings/taxrates" },
+  { title: "Branches", url: "/settings/branches" },
 ]
 
 export function SidebarSettingsDropdown() {

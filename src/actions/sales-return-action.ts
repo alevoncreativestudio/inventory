@@ -16,7 +16,7 @@ const mapItemsWithRelation = (items: RawSalesReturnItem[]) =>
   items.map((item) => ({
     product_name: item.product_name ?? "Unnamed",
     quantity: item.quantity,
-    excTax: item.excTax,
+    incTax: item.incTax,
     subtotal: item.subtotal,
     total: item.total,
     product: {

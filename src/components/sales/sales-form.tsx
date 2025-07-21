@@ -35,7 +35,7 @@ import { SaleFormProps } from "@/types/sales";
 import { getCustomerListForDropdown } from "@/actions/customer-action";
 import { Card } from "../ui/card";
 import { ProductOption } from "@/types/product";
-import { PurchaseItemField } from "@/types/purchase";
+import { SaleItemField } from "@/types/sales";
 import { fullSalesSchema } from "@/schemas/sales-item-schema";
 import { getProductListForDropdown } from "@/actions/product-actions";
 import { Command,CommandGroup, CommandItem,CommandInput,CommandEmpty,CommandList } from "../ui/command";
@@ -58,13 +58,14 @@ export const SalesFormSheet = ({ sales, open, openChange }: SaleFormProps) => {
     customerId: sales?.customerId || "",
     grandTotal: sales?.grandTotal ?? 0,
     dueAmount: sales?.dueAmount ?? 0,
+    paidAmount:sales?.paidAmount ?? 0,
     salesdate: sales?.salesdate ? new Date(sales.salesdate) : undefined,
     items: sales?.items || [],
     salesPayment: sales?.payments || [],
   }
   });
 
-  const itemFieldKeys: PurchaseItemField[] = [
+  const itemFieldKeys: SaleItemField[] = [
     "quantity",
     "excTax",
     "discount",
@@ -114,10 +115,12 @@ export const SalesFormSheet = ({ sales, open, openChange }: SaleFormProps) => {
   const dueAmount = grandTotal - paidAmount;
 
   form.setValue("grandTotal", grandTotal);
+  form.setValue("paidAmount", paidAmount);
   form.setValue("dueAmount", dueAmount);
 
   const payload = {
     ...data,
+    paidAmount,
     grandTotal,
     dueAmount,
   };
@@ -281,10 +284,10 @@ console.log(customerList);
                                     product_name: p.product_name,
                                     stock:p.stock,
                                     discount: 0,
-                                    excTax: p.excTax,
-                                    incTax: p.incTax,
-                                    subtotal: p.excTax,
-                                    total: p.excTax + p.incTax,
+                                    excTax: p.sellingPrice,
+                                    incTax: p.sellingPrice + (p.sellingPrice * Number(p.tax)),
+                                    subtotal: p.incTax,
+                                    total:p.incTax,
                                   });
                                   setProductSearch("");
                                   setProductOptions([]);

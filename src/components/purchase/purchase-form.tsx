@@ -100,6 +100,7 @@ export const PurchaseFormSheet = ({
       status: purchase?.status ?? purchaseStatusOption[0],
       totalAmount: purchase?.totalAmount || 0,
       dueAmount:purchase?.dueAmount || 0,
+      paidAmount:purchase?.paidAmount || 0,
       items: purchase?.items || [],
       payments: purchase?.payments || []
     },
@@ -135,11 +136,13 @@ export const PurchaseFormSheet = ({
     const dueAmount = totalAmount - paidAmount
 
     form.setValue("totalAmount", totalAmount);
+    form.setValue("paidAmount",paidAmount)
     form.setValue("dueAmount",dueAmount);
 
     const payload = {
       ...data,
       totalAmount,
+      paidAmount,
       dueAmount
     };
 
@@ -328,7 +331,7 @@ export const PurchaseFormSheet = ({
                                   excTax: p.excTax,
                                   incTax: p.incTax,
                                   subtotal: p.excTax,
-                                  total: p.excTax + p.incTax,
+                                  total:p.incTax,
                                 });
                                 setProductSearch("");
                                 setProductOptions([]);

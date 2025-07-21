@@ -10,27 +10,29 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 import { FC } from "react";
-import { Product } from "@/types/product";
+import { Branch } from "@prisma/client";
 import { Button } from "../ui/button";
 import { toast } from "sonner";
-import { deleteProduct } from "@/actions/product-actions";
+import { deleteBranch } from "@/actions/branch-action";
 import { useRouter } from "next/navigation";
 
-export const ProductDeleteDialog:FC<{
-  product: Product,
+
+
+export const BranchDeleteDialog:FC<{
+  branch: Branch,
   open: boolean;
   setOpen: (open: boolean) => void;
-}> = ({product, open, setOpen}) => {
+}> = ({branch, open, setOpen}) => {
     const router = useRouter()
   const handleDelete = async () => {
     try{
-        await deleteProduct({ id : product.id});
-        toast.success(`Product "${product.product_name}" deleted.`)
+        await deleteBranch({ id : branch.id});
+        toast.success(`Branch "${branch.name}" deleted.`)
         setOpen(!open)
         router.refresh()
     }catch(error){
-        toast.error("Failed to delete product.")
-        console.log(error,"Error on deleting product");
+        toast.error("Failed to delete branch.")
+        console.log(error,"Error on deleting branches");
         
     }
   }
@@ -41,7 +43,7 @@ export const ProductDeleteDialog:FC<{
           <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
           <AlertDialogDescription>
             This action cannot be undone. This will permanently delete{" "}
-            <span className="font-bold">{product.product_name}</span> product
+            <span className="font-bold">{branch.name}</span> branch
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>

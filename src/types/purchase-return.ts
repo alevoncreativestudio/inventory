@@ -30,7 +30,7 @@ export type RawPurchaseReturnItem = {
   productId: string;
   product_name?: string;
   quantity: number;
-  excTax: number;
+  incTax: number;
   subtotal: number;
   total: number;
 };
@@ -39,6 +39,6 @@ export type RawPurchaseReturnItem = {
 
 export type PurchaseReturnItemField =
   | "quantity"
-  | "excTax"
+  | "incTax"
   | "subtotal"
   | "total";

@@ -10,3 +10,12 @@ export const balancePaymentSchema = z.object({
 }).refine((data) => data.customerId || data.supplierId, {
   message: "Either customerId or supplierId is required",
 });
+
+export const getBalancePaymentsSchema = z
+  .object({
+    customerId: z.string().optional(),
+    supplierId: z.string().optional(),
+  })
+  .refine((data) => data.customerId || data.supplierId, {
+    message: "Must provide customerId or supplierId",
+  });

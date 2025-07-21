@@ -9,6 +9,7 @@ export const purchaseSchema = z.object({
   status: purchaseStatusEnum,
   totalAmount:z.coerce.number(),
   dueAmount:z.coerce.number(),
+  paidAmount:z.coerce.number()
 });
 
 export const purchaseUpdateSchema = purchaseSchema.extend({

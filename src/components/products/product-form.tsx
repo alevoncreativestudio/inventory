@@ -42,8 +42,6 @@ import { getTaxRateListForDropdown } from "@/actions/taxrate-actions";
 import {Table ,TableBody, TableCell, TableHead, TableHeader, TableRow } from "../ui/table";
 import { nanoid } from "nanoid";
 
-
-
 interface ProductFormProps {
   product?: Product;
   open?: boolean;
@@ -72,9 +70,6 @@ export const ProductFormSheet = ({ product, open, openChange }: ProductFormProps
     fetchOptions();
   }, []);
   console.log(taxRateList);
-
-  
-  
 
   const form = useForm<z.infer<typeof productSchema>>({
     resolver: zodResolver(productSchema),

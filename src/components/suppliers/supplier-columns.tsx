@@ -14,6 +14,7 @@ import {
   ArrowDown,
   ArrowUp,
   ArrowUpDown,
+  Clock1,
   Edit2,
   MoreHorizontal,
   Trash2,
@@ -22,6 +23,7 @@ import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { SupplierPayDialog } from "./supplier-pay-dialog";
 import { IconCash } from "@tabler/icons-react";
+import { SupplierHistoryListDialog } from "./supplier-payment-dialog";
 
 export const supplierColumns: ColumnDef<Supplier>[] = [
   {
@@ -40,7 +42,7 @@ export const supplierColumns: ColumnDef<Supplier>[] = [
           variant="ghost"
           onClick={() => column.toggleSorting(sort === "asc")}
         >
-          Customer Id
+          Supplier Id
           {renderIcon()}
         </Button>
       );
@@ -111,6 +113,7 @@ export const SupplierDropdownMenu = ({ supplier }: { supplier: Supplier }) => {
   const [openDelete, setOpenDelete] = useState(false);
   const [openEdit, setOpenEdit] = useState(false);
   const [openPay,setOpenPay] = useState(false);
+  const [openPayment,setOpenPayment] = useState(false);
 
   return (
     <div className="text-right">
@@ -125,6 +128,10 @@ export const SupplierDropdownMenu = ({ supplier }: { supplier: Supplier }) => {
           <DropdownMenuItem onSelect={() => setOpenPay(true)}>
             <IconCash color="blue" className="size-4 mr-2" />
             Pay
+          </DropdownMenuItem>
+          <DropdownMenuItem onSelect={() => setOpenPayment(true)}>
+            <Clock1 className="size-4 mr-2" />
+            Payment History
           </DropdownMenuItem>
           <DropdownMenuItem onSelect={() => setOpenEdit(true)}>
             <Edit2 className="size-4 mr-2" />
@@ -150,6 +157,12 @@ export const SupplierDropdownMenu = ({ supplier }: { supplier: Supplier }) => {
         supplier={supplier}
         open={openPay}
         setOpen={setOpenPay}
+      />
+
+      <SupplierHistoryListDialog
+        open={openPayment}
+        setOpen={setOpenPayment}
+        supplierId={supplier?.id}
       />
 
       <SupplierDeleteDialog

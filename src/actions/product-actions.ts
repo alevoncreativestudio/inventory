@@ -52,6 +52,8 @@ export const getProductListForDropdown = actionClient.inputSchema(
         id: p.id,
         product_name: p.product_name,
         stock:p.stock,
+        sellingPrice:p.sellingPrice,
+        tax:p.tax,
         quantity:1,
         excTax:p.excTax,
         incTax:p.incTax

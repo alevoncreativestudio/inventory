@@ -28,13 +28,13 @@ export type RawSalesReturnItem = {
   productId: string;
   product_name?: string;
   quantity: number;
-  excTax: number;
+  incTax: number;
   subtotal: number;
   total: number;
 };
 
 export type SalesReturnItemField =
   | "quantity"
-  | "excTax"
+  | "incTax"
   | "subtotal"
   | "total";

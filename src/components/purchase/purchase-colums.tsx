@@ -109,7 +109,6 @@ export const purchaseColumns: ColumnDef<Purchase>[] = [
         return <div className="font-medium">{formatted}</div>;
         }  
     },
-  
   {
     id: "actions",
     cell: ({ row }) => <PurchaseActions purchase={row.original} />,
@@ -119,7 +118,6 @@ export const purchaseColumns: ColumnDef<Purchase>[] = [
 const PurchaseActions = ({ purchase }: { purchase: Purchase }) => {
   const [openEdit, setOpenEdit] = useState(false);
   const [openDelete, setOpenDelete] = useState(false);
-//   const router = useRouter();
 
   return (
     <div className="text-right">
@@ -130,9 +128,6 @@ const PurchaseActions = ({ purchase }: { purchase: Purchase }) => {
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
-          {/* <DropdownMenuItem onSelect={() => router.push(`/purchases/${purchase.id}`)}>
-            <Eye className="size-4 mr-2" /> View
-          </DropdownMenuItem> */}
           <DropdownMenuItem onSelect={() => setOpenEdit(true)}>
             <Edit2 className="size-4 mr-2" /> Edit
           </DropdownMenuItem>

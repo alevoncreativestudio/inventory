@@ -59,7 +59,7 @@ export const PurchaseReturnFormSheet = ({
   const [productOptions, setProductOptions] = useState<ProductOption[]>([]);
   const itemFieldKeys: PurchaseReturnItemField[] = [
       "quantity",
-      "excTax",
+      "incTax",
       "subtotal",
       "total",
     ];
@@ -260,9 +260,9 @@ export const PurchaseReturnFormSheet = ({
                                   productId: p.id,
                                   product_name: p.product_name,
                                   quantity: 1,
-                                  excTax: p.excTax,
-                                  subtotal: p.excTax,
-                                  total: p.excTax + p.incTax,
+                                  incTax: p.incTax,
+                                  subtotal: p.incTax,
+                                  total:p.incTax,
                                 });
                                 setProductSearch("");
                                 setProductOptions([]);
@@ -309,7 +309,7 @@ export const PurchaseReturnFormSheet = ({
                                   value={field.value ?? ""}
                                   onBlur={() => {
                                     const qty = Number(form.getValues(`purchaseReturnItem.${idx}.quantity`));
-                                    const tax = Number(form.getValues(`purchaseReturnItem.${idx}.excTax`));
+                                    const tax = Number(form.getValues(`purchaseReturnItem.${idx}.incTax`));
 
                                     const subtotal = qty * tax;
                                     const total = subtotal;

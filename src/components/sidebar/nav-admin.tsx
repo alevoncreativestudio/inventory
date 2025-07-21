@@ -1,12 +1,11 @@
 'use client';
 
-import { IconDots, IconFolder, IconShare3, IconTrash } from '@tabler/icons-react';
+import { IconArrowsUpDown, IconDots, IconMan, IconShare3 } from '@tabler/icons-react';
 
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import {
@@ -19,6 +18,7 @@ import {
   useSidebar,
 } from '@/components/ui/sidebar';
 import type { NavItem } from '@/types/navigation';
+import Link from 'next/link';
 
 interface NavAdminProps {
   items: NavItem[];
@@ -52,17 +52,32 @@ export function NavAdmin({ items }: NavAdminProps) {
                 align={isMobile ? 'end' : 'start'}
               >
                 <DropdownMenuItem>
-                  <IconFolder />
-                  <span>Open</span>
+                  <Link href="/reports/contact-reports">
+                    <IconMan />
+                    <span>Contact Report</span>
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem>
+                  <Link href="/reports/sales-purchase-reports">
+                    <IconArrowsUpDown />
+                    <span>Sales & Purchase Report</span>
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem>
+                  <Link href="/reports/payment-reports">
+                    <IconArrowsUpDown />
+                    <span>Payment Report</span>
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem>
+                  <Link href="/reports/pnl-reports">
+                    <IconArrowsUpDown />
+                    <span>PnL Report</span>
+                  </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem>
                   <IconShare3 />
                   <span>Share</span>
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem variant="destructive">
-                  <IconTrash />
-                  <span>Delete</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

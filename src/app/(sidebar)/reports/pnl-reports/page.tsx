@@ -1,0 +1,97 @@
+import {
+  Table,
+  TableBody,
+  TableCaption,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { prisma } from "@/lib/prisma";
+import { formatCurrency } from "@/lib/utils";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+
+export default async function ProfitAndLossReport() {
+  const expenseReports = await prisma.expense.findMany({ select: { amount: true } });
+  const purchaseReports = await prisma.purchase.findMany({ select: { totalAmount: true } });
+  const purchaseReturnReports = await prisma.purchaseReturn.findMany({ select: { totalAmount: true } });
+  const saleReports = await prisma.sale.findMany({ select: { grandTotal: true } });
+  const salesReturnReports = await prisma.salesReturn.findMany({ select: { grandTotal: true } });
+
+  const totalRevenue = saleReports.reduce((sum, sale) => sum + sale.grandTotal, 0);
+  const totalSalesReturn = salesReturnReports.reduce((sum, ret) => sum + ret.grandTotal, 0);
+  const totalExpenses = expenseReports.reduce((sum, exp) => sum + exp.amount, 0);
+  const totalPurchases = purchaseReports.reduce((sum, p) => sum + p.totalAmount, 0);
+  const totalPurchasesReturn = purchaseReturnReports.reduce((sum, p) => sum + p.totalAmount, 0);
+
+  const grossProfit = totalRevenue - totalPurchases;
+  const netProfit = grossProfit - totalExpenses;
+
+  return (
+    <div>
+      <Card className="p-4 mb-5">
+        <CardHeader className="pt-4">
+          <CardTitle>Profit and Loss Report</CardTitle>
+          <p className="text-sm text-muted-foreground">Summary of financial performance</p>
+        </CardHeader>
+        <CardContent className="overflow-x-auto">
+          <Table>
+            <TableCaption>Profit and loss summary</TableCaption>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Description</TableHead>
+                <TableHead className="text-right">Amount</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              <TableRow>
+                <TableCell>Total Sales</TableCell>
+                <TableCell className="text-right">{formatCurrency(totalRevenue)}</TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell>Total Sales Return</TableCell>
+                <TableCell className="text-right">{formatCurrency(totalSalesReturn)}</TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell>Total Purchases</TableCell>
+                <TableCell className="text-right">{formatCurrency(totalPurchases)}</TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell>Total Sales Return</TableCell>
+                <TableCell className="text-right">{formatCurrency(totalPurchasesReturn)}</TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell className="font-bold">Gross Profit</TableCell>
+                <TableCell className="text-right font-bold">{formatCurrency(grossProfit)}</TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell>Total Expenses</TableCell>
+                <TableCell className="text-right">{formatCurrency(totalExpenses)}</TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell className="font-bold">Net Profit</TableCell>
+                <TableCell className="text-right font-bold">{formatCurrency(netProfit)}</TableCell>
+              </TableRow>
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
+
+      <Card className="col-span-1 lg:col-span-2">
+        <CardContent className=" py-6 space-y-4">
+          <div className="text-lg">
+            <span className="font-semibold">Gross Profit: </span>
+            <span className={`font-bold ${netProfit >= 0 ? "text-green-600" : "text-red-600"}`}>
+              {formatCurrency(netProfit)}
+            </span>
+          </div>
+
+          <div className="text-lg">
+            <span className="font-semibold">Net Profit: </span>
+            <span className="text-red-600 font-bold">{formatCurrency(netProfit)}</span>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}

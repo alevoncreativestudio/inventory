@@ -14,6 +14,8 @@ export interface ProductTableProps<TValue> {
 export interface ProductOption {
   id: string;
   product_name: string;
+  sellingPrice:number;
+  tax:string;
   stock:number;
   excTax:number;
   incTax:number;

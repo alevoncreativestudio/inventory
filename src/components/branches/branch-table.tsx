@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  ColumnDef,
   flexRender,
   getCoreRowModel,
   useReactTable,
@@ -25,12 +26,15 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { ProductTableProps } from "@/types/product";
+import { Branch } from "@prisma/client";
 import { useState } from "react";
-import { Search } from "lucide-react";
 
-export function ProductTable<TValue>({ columns, data }: ProductTableProps<TValue>) {
+interface BranchTableProps<TValue> {
+  columns: ColumnDef<Branch, TValue>[];
+  data: Branch[];
+}
+
+export function BranchTable<TValue>({ columns, data }: BranchTableProps<TValue>) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [globalFilter, setGlobalFilter] = useState("");
 
@@ -43,7 +47,7 @@ export function ProductTable<TValue>({ columns, data }: ProductTableProps<TValue
     getFilteredRowModel: getFilteredRowModel(),
     getSortedRowModel: getSortedRowModel(),
     globalFilterFn: (row, columnId, filterValue) => {
-      const name = row.getValue('product_name') as string;
+      const name = row.getValue('name') as string;
       const filter = String(filterValue || '').toLowerCase();
       return name.toLowerCase().includes(filter);
     },
@@ -57,27 +61,8 @@ export function ProductTable<TValue>({ columns, data }: ProductTableProps<TValue
     <div className="flex flex-col gap-5">
       <Card>
         <CardHeader>
-          <div className="space-y-2">
-            <CardTitle>Filters</CardTitle>
-            <CardDescription>Filter product by name</CardDescription>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <Input
-              placeholder="Search product..."
-              value={globalFilter}
-              onChange={(e) => setGlobalFilter(e.target.value)}
-              className="pl-9"
-            />
-          </div>
-        </CardContent>
-      </Card>
-      <Card>
-        <CardHeader>
-          <CardTitle>Product</CardTitle>
-          <CardDescription>A list of all Product</CardDescription>
+          <CardTitle>Branches</CardTitle>
+          <CardDescription>A list of all Branches</CardDescription>
         </CardHeader>
         <CardContent>
           <Table>
@@ -118,6 +103,7 @@ export function ProductTable<TValue>({ columns, data }: ProductTableProps<TValue
                     className="h-24 text-center"
                   >
                     No results.
+    
                   </TableCell>
                 </TableRow>
               )}

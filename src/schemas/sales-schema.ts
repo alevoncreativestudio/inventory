@@ -7,7 +7,8 @@ export const salesSchema = z.object({
   salesdate: z.coerce.date(), 
   customerId: z.string().min(1),
   grandTotal: z.coerce.number().min(0),
-  dueAmount:z.coerce.number()
+  dueAmount:z.coerce.number(),
+  paidAmount:z.coerce.number()
 });
 
 export const salesUpdateSchema = salesSchema.extend({

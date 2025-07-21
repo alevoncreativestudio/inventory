@@ -2,10 +2,8 @@
 
 import { prisma } from "@/lib/prisma";
 import { actionClient } from "@/lib/safeAction";
-import { balancePaymentSchema } from "@/schemas/balance-payment-schema";
+import { balancePaymentSchema, getBalancePaymentsSchema } from "@/schemas/balance-payment-schema";
 import { revalidatePath } from "next/cache";
-import { z } from "zod";
-
 
 
 export const createBalancePayment = actionClient
@@ -49,6 +47,9 @@ export const createBalancePayment = actionClient
               dueAmount: {
                 decrement: deduction,
               },
+              paidAmount:{
+                increment:deduction
+              }
             },
           });
 
@@ -87,6 +88,9 @@ export const createBalancePayment = actionClient
               dueAmount: {
                 decrement: deduction,
               },
+              paidAmount:{
+                increment:deduction,
+              }
             },
           });
 
@@ -109,19 +113,10 @@ export const createBalancePayment = actionClient
   });
 
 
-const getBalancePaymentsSchema = z
-  .object({
-    customerId: z.string().optional(),
-    supplierId: z.string().optional(),
-  })
-  .refine((data) => data.customerId || data.supplierId, {
-    message: "Must provide customerId or supplierId",
-  });
-
 export const getBalancePayments = actionClient
   .inputSchema(getBalancePaymentsSchema)
   .action(async ({ parsedInput }) => {
-    const { customerId, supplierId } = parsedInput;
+    const { customerId,supplierId} = parsedInput;
 
     try {
       const payments = await prisma.balancePayment.findMany({
@@ -131,10 +126,11 @@ export const getBalancePayments = actionClient
         },
         orderBy: { paidOn: "desc" },
       });
-
       return { data: payments };
     } catch (error) {
       console.error("Get Balance Payments Error:", error);
       return { error: "Failed to fetch payments" };
     }
   });
+
+  

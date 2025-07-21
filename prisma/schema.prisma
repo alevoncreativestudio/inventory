@@ -49,14 +49,21 @@ model Purchase {
   purchaseDate       DateTime       @default(now())
   status             purchaseStatus 
   totalAmount        Float
-  dueAmount          Float        
-  
+  dueAmount          Float
+  paidAmount         Float
+
   supplier           Supplier       @relation(fields: [supplierId], references: [id])
   items              PurchaseItem[]
   payments           PurchasePayment[]
 
   createdAt          DateTime       @default(now())
   updatedAt          DateTime       @updatedAt
+}
+
+enum purchaseStatus {
+  Received
+  Pending
+  Cancelled
 }
 
 //PURCHASE ITEAMS
@@ -79,11 +86,7 @@ model PurchaseItem {
   updatedAt      DateTime       @updatedAt
 }
 
-enum purchaseStatus {
-  Received
-  Pending
-  Cancelled
-}
+
 
 model PurchaseReturn {
   id                  String       @id @default(auto()) @map("_id") @db.ObjectId
@@ -105,7 +108,7 @@ model PurchaseReturnItem {
   product_name          String
   productId             String   @db.ObjectId
   quantity              Int
-  excTax                Float
+  incTax                Float
   subtotal              Float     
   total                 Float     
 
@@ -117,7 +120,6 @@ model PurchaseReturnItem {
 }
 
 
-
 //SALES 
 
 model Sale {
@@ -127,6 +129,7 @@ model Sale {
   salesdate         DateTime        @default(now())
   grandTotal        Float
   dueAmount         Float
+  paidAmount        Float
   
   customer          Customer        @relation(fields: [customerId], references: [id])
   items             SaleItem[]
@@ -175,7 +178,7 @@ model SalesReturnItem {
   product_name          String
   productId             String   @db.ObjectId
   quantity              Int
-  excTax                Float
+  incTax                Float
   subtotal              Float  
   total                 Float     
 
@@ -184,11 +187,6 @@ model SalesReturnItem {
 
   createdAt             DateTime @default(now())
   updatedAt             DateTime @updatedAt
-}
-
-enum PaymentMethod {
-  Bank
-  Cash
 }
 
 //PAYMENT
@@ -290,8 +288,8 @@ model Customer {
   phone          String    @unique
   openingBalance Float     @default(0)
   address        String
-  salesDue       Float     @default(0)
-  salesReturnDue Float     @default(0)
+  salesDue       Float       @default(0)
+  salesReturnDue Float       @default(0)
 
   sale           Sale[]
   salesReturn    SalesReturn[]
@@ -318,17 +316,12 @@ model BalancePayment {
   updatedAt   DateTime @updatedAt
 }
 
-
-enum PurchaseStatus {
-  Received
-  Pending
-  Cancelled
-}
-
-enum PaymentStatus {
-  Due
-  Paid
-  Partial
+model Contact {
+  id              String   @id @default(auto()) @map("_id") @db.ObjectId
+  name            String
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
 }
 
 model TaxRates {
@@ -340,3 +333,10 @@ model TaxRates {
   updatedAt         DateTime   @updatedAt
 }
 
+model Branch {
+  id      String    @id @default(auto()) @map("_id") @db.ObjectId
+  name    String    @unique
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
