@@ -187,8 +187,6 @@ export function ExpenseTable<TValue>({ columns, data }: ExpenseTableProps<TValue
                 <TableCell colSpan={4} />
                 <TableCell className="text-center border-r-2">Total:</TableCell>
                 <TableCell className="border-r-2">{formattedTotalPurchase}</TableCell>
-                <TableCell />
-                <TableCell />
               </TableRow>
             </TableFooter>
         </Table>

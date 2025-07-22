@@ -247,7 +247,7 @@ model Expense {
   description             String?
   amount                  Int
   date                    DateTime
-  expenseCategoryId       String @db.ObjectId
+  expenseCategoryId       String   @db.ObjectId
   category                ExpenseCategory @relation(fields: [expenseCategoryId], references: [id])
 
   createdAt               DateTime @default(now())
