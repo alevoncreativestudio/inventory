@@ -1,11 +1,17 @@
-import { RegisterForm } from "@/components/auth/signup-form"
+// app/sign-up/page.tsx
+import { getAllRoles, getAllBranches } from '@/actions/auth';
+import { SignUpWrapper } from '@/components/auth/SignUpWrapper';
 
-export default function Page() {
+export default async function SignUpPage() {
+  const roles = await getAllRoles();
+  const branches = await getAllBranches();
+
+
   return (
-    <div className="flex min-h-svh w-full items-center justify-center p-6 md:p-10">
+    <div className="flex min-h-screen w-full items-center justify-center p-6 md:p-10">
       <div className="w-full max-w-sm">
-        <RegisterForm />
+        <SignUpWrapper roles={roles} branches={branches} />
       </div>
     </div>
-  )
+  );
 }

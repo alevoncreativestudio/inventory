@@ -27,6 +27,8 @@ import {
 } from '@/components/ui/sidebar';
 import type { UserProfile } from '@/types/navigation';
 import { getInitials } from '@/lib/utils';
+import { useState } from 'react';
+import { LogoutDialog } from '../auth/logout-modal';
 
 interface NavUserProps {
   user: UserProfile;
@@ -35,6 +37,7 @@ interface NavUserProps {
 export function NavUser({ user }: NavUserProps) {
   const { isMobile } = useSidebar();
   const initials = getInitials(user.name);
+  const [openDelete, setOpenDelete] = useState(false);
 
   return (
     <SidebarMenu>
@@ -96,12 +99,18 @@ export function NavUser({ user }: NavUserProps) {
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>
+            <DropdownMenuItem
+            className='text-destructive'
+            onSelect={() => setOpenDelete(!openDelete)}>
               <IconLogout />
               Log out
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
+
+        <LogoutDialog 
+        open={openDelete}
+        setOpen={setOpenDelete}/>
       </SidebarMenuItem>
     </SidebarMenu>
   );

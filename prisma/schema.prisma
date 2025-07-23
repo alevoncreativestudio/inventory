@@ -14,50 +14,52 @@ datasource db {
 }
 
 // Product
+
 model Product {
-  id                    String   @id @default(auto()) @map("_id") @db.ObjectId
-  product_name          String
-  sku                   String
-  barcodeType           String
-  unit                  String
-  stock                 Int      @default(0)     
-  brandId               String   @db.ObjectId
-  categoryId            String   @db.ObjectId
-  tax                   String
-  sellingPriceTaxType   String
-  excTax                Int
-  incTax                Int
-  margin                Int
-  sellingPrice          Int
+  id                  String @id @default(auto()) @map("_id") @db.ObjectId
+  product_name        String
+  sku                 String
+  barcodeType         String
+  unit                String
+  stock               Int    @default(0)
+  brandId             String @db.ObjectId
+  categoryId          String @db.ObjectId
+  tax                 String
+  sellingPriceTaxType String
+  excTax              Int
+  incTax              Int
+  margin              Int
+  sellingPrice        Int
 
-  brand                 Brand    @relation(fields: [brandId], references: [id])
-  category              Category @relation(fields: [categoryId], references: [id])
+  brand    Brand    @relation(fields: [brandId], references: [id])
+  category Category @relation(fields: [categoryId], references: [id])
 
-  purchaseItems         PurchaseItem[] 
-  salesItems            SaleItem[]
-  purchaseReturnItem    PurchaseReturnItem[]
-  saleReturnItem        SalesReturnItem[]
-  createdAt             DateTime @default(now())
-  updatedAt             DateTime @updatedAt
+  purchaseItems      PurchaseItem[]
+  salesItems         SaleItem[]
+  purchaseReturnItem PurchaseReturnItem[]
+  saleReturnItem     SalesReturnItem[]
+  createdAt          DateTime             @default(now())
+  updatedAt          DateTime             @updatedAt
 }
 
 //PURCHASE
+
 model Purchase {
-  id                 String         @id @default(auto()) @map("_id") @db.ObjectId
-  referenceNo        String
-  supplierId         String         @db.ObjectId
-  purchaseDate       DateTime       @default(now())
-  status             purchaseStatus 
-  totalAmount        Float
-  dueAmount          Float
-  paidAmount         Float
+  id           String         @id @default(auto()) @map("_id") @db.ObjectId
+  referenceNo  String
+  supplierId   String         @db.ObjectId
+  purchaseDate DateTime       @default(now())
+  status       purchaseStatus
+  totalAmount  Float
+  dueAmount    Float
+  paidAmount   Float
 
-  supplier           Supplier       @relation(fields: [supplierId], references: [id])
-  items              PurchaseItem[]
-  payments           PurchasePayment[]
+  supplier Supplier          @relation(fields: [supplierId], references: [id])
+  items    PurchaseItem[]
+  payments PurchasePayment[]
 
-  createdAt          DateTime       @default(now())
-  updatedAt          DateTime       @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 enum purchaseStatus {
@@ -67,81 +69,10 @@ enum purchaseStatus {
 }
 
 //PURCHASE ITEAMS
+
 model PurchaseItem {
-  id                    String   @id @default(auto()) @map("_id") @db.ObjectId
-  purchaseId            String   @db.ObjectId
-  product_name          String
-  productId             String   @db.ObjectId
-  quantity              Int
-  excTax                Float
-  incTax                Float
-  discount              Float
-  subtotal              Float     
-  total                 Float     
-
-  product               Product  @relation(fields: [productId], references: [id])
-  purchase              Purchase @relation(fields: [purchaseId], references: [id])
-
-  createdAt      DateTime       @default(now())
-  updatedAt      DateTime       @updatedAt
-}
-
-
-
-model PurchaseReturn {
-  id                  String       @id @default(auto()) @map("_id") @db.ObjectId
-  referenceNo         String
-  supplierId          String       @db.ObjectId
-  returnDate          DateTime     @default(now())
-  totalAmount         Float
-
-  purchaseReturnItem  PurchaseReturnItem[]
-  supplier            Supplier       @relation(fields: [supplierId], references: [id])
-  
-  createdAt           DateTime       @default(now())
-  updatedAt           DateTime       @updatedAt
-}
-
-model PurchaseReturnItem {
-  id                    String   @id @default(auto()) @map("_id") @db.ObjectId
-  purchaseReturnId      String   @db.ObjectId
-  product_name          String
-  productId             String   @db.ObjectId
-  quantity              Int
-  incTax                Float
-  subtotal              Float     
-  total                 Float     
-
-  product               Product         @relation(fields: [productId], references: [id])
-  purchaseReturn        PurchaseReturn  @relation(fields: [purchaseReturnId], references: [id])
-
-  createdAt      DateTime       @default(now())
-  updatedAt      DateTime       @updatedAt
-}
-
-
-//SALES 
-
-model Sale {
-  id                String          @id @default(auto()) @map("_id") @db.ObjectId
-  invoiceNo         String
-  customerId        String          @db.ObjectId
-  salesdate         DateTime        @default(now())
-  grandTotal        Float
-  dueAmount         Float
-  paidAmount        Float
-  
-  customer          Customer        @relation(fields: [customerId], references: [id])
-  items             SaleItem[]
-  payments          SalesPayment[]
-
-  createdAt         DateTime        @default(now())
-  updatedAt         DateTime        @updatedAt
-}
-
-model SaleItem {
   id           String   @id @default(auto()) @map("_id") @db.ObjectId
-  saleId       String   @db.ObjectId
+  purchaseId   String   @db.ObjectId
   product_name String
   productId    String   @db.ObjectId
   quantity     Int
@@ -150,76 +81,141 @@ model SaleItem {
   discount     Float
   subtotal     Float
   total        Float
-
   product      Product  @relation(fields: [productId], references: [id])
-  sale         Sale     @relation(fields: [saleId], references: [id])
+  purchase     Purchase @relation(fields: [purchaseId], references: [id])
 
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model PurchaseReturn {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  referenceNo String
+  supplierId  String   @db.ObjectId
+  returnDate  DateTime @default(now())
+  totalAmount Float
+
+  purchaseReturnItem PurchaseReturnItem[]
+  supplier           Supplier             @relation(fields: [supplierId], references: [id])
+  createdAt          DateTime             @default(now())
+  updatedAt          DateTime             @updatedAt
+}
+
+model PurchaseReturnItem {
+  id               String         @id @default(auto()) @map("_id") @db.ObjectId
+  purchaseReturnId String         @db.ObjectId
+  product_name     String
+  productId        String         @db.ObjectId
+  quantity         Int
+  incTax           Float
+  subtotal         Float
+  total            Float
+  product          Product        @relation(fields: [productId], references: [id])
+  purchaseReturn   PurchaseReturn @relation(fields: [purchaseReturnId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+//SALES 
+
+model Sale {
+  id         String         @id @default(auto()) @map("_id") @db.ObjectId
+  invoiceNo  String
+  customerId String         @db.ObjectId
+  salesdate  DateTime       @default(now())
+  grandTotal Float
+  dueAmount  Float
+  paidAmount Float
+  customer   Customer       @relation(fields: [customerId], references: [id])
+  items      SaleItem[]
+  payments   SalesPayment[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model SaleItem {
+  id           String @id @default(auto()) @map("_id") @db.ObjectId
+  saleId       String @db.ObjectId
+  product_name String
+  productId    String @db.ObjectId
+  quantity     Int
+  excTax       Float
+  incTax       Float
+  discount     Float
+  subtotal     Float
+  total        Float
+
+  product Product @relation(fields: [productId], references: [id])
+  sale    Sale    @relation(fields: [saleId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model SalesReturn {
-  id                String       @id @default(auto()) @map("_id") @db.ObjectId
-  invoiceNo         String
-  customerId        String       @db.ObjectId
-  salesReturnDate   DateTime     @default(now())
-  grandTotal        Float
+  id              String   @id @default(auto()) @map("_id") @db.ObjectId
+  invoiceNo       String
+  customerId      String   @db.ObjectId
+  salesReturnDate DateTime @default(now())
+  grandTotal      Float
 
-  customer          Customer      @relation(fields: [customerId], references: [id])
-  salesReturnItem   SalesReturnItem[]
+  customer        Customer          @relation(fields: [customerId], references: [id])
+  salesReturnItem SalesReturnItem[]
 
-  createdAt         DateTime       @default(now())
-  updatedAt         DateTime       @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model SalesReturnItem {
-  id                    String   @id @default(auto()) @map("_id") @db.ObjectId
-  salesReturnId         String   @db.ObjectId
-  product_name          String
-  productId             String   @db.ObjectId
-  quantity              Int
-  incTax                Float
-  subtotal              Float  
-  total                 Float     
+  id            String      @id @default(auto()) @map("_id") @db.ObjectId
+  salesReturnId String      @db.ObjectId
+  product_name  String
+  productId     String      @db.ObjectId
+  quantity      Int
+  incTax        Float
+  subtotal      Float
+  total         Float
+  product       Product     @relation(fields: [productId], references: [id])
+  salesReturn   SalesReturn @relation(fields: [salesReturnId], references: [id])
 
-  product               Product  @relation(fields: [productId], references: [id])
-  salesReturn           SalesReturn  @relation(fields: [salesReturnId], references: [id])
-
-  createdAt             DateTime @default(now())
-  updatedAt             DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 //PAYMENT
+
 model PurchasePayment {
-  id              String   @id @default(auto()) @map("_id") @db.ObjectId
-  amount          Float
-  paidOn          DateTime
-  paymentMethod   String
-  paymentNote     String?
-  purchaseId      String   @db.ObjectId
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  amount        Float
+  paidOn        DateTime
+  paymentMethod String
+  paymentNote   String?
+  purchaseId    String   @db.ObjectId
 
-  purchase        Purchase @relation(fields: [purchaseId], references: [id])
+  purchase Purchase @relation(fields: [purchaseId], references: [id])
 
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model SalesPayment {
-  id              String   @id @default(auto()) @map("_id") @db.ObjectId
-  amount          Float
-  paidOn          DateTime
-  paymentMethod   String
-  paymentNote     String?
-  salesId         String   @db.ObjectId
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  amount        Float
+  paidOn        DateTime
+  paymentMethod String
+  paymentNote   String?
+  salesId       String   @db.ObjectId
 
-  sale            Sale @relation(fields: [salesId], references: [id])
+  sale Sale @relation(fields: [salesId], references: [id])
 
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
-
 // Brand
+
 model Brand {
   id      String    @id @default(auto()) @map("_id") @db.ObjectId
   name    String    @unique
@@ -230,6 +226,7 @@ model Brand {
 }
 
 // Category
+
 model Category {
   id       String    @id @default(auto()) @map("_id") @db.ObjectId
   name     String    @unique
@@ -239,104 +236,177 @@ model Category {
   updatedAt DateTime @updatedAt
 }
 
-
 // Expense
-model Expense {
-  id                      String   @id @default(auto()) @map("_id") @db.ObjectId
-  title                   String
-  description             String?
-  amount                  Int
-  date                    DateTime
-  expenseCategoryId       String   @db.ObjectId
-  category                ExpenseCategory @relation(fields: [expenseCategoryId], references: [id])
 
-  createdAt               DateTime @default(now())
-  updatedAt               DateTime @updatedAt
+model Expense {
+  id                String          @id @default(auto()) @map("_id") @db.ObjectId
+  title             String
+  description       String?
+  amount            Int
+  date              DateTime
+  expenseCategoryId String          @db.ObjectId
+  category          ExpenseCategory @relation(fields: [expenseCategoryId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model ExpenseCategory {
-  id    String @id @default(auto()) @map("_id") @db.ObjectId
-  name  String @unique
+  id       String    @id @default(auto()) @map("_id") @db.ObjectId
+  name     String    @unique
   expenses Expense[]
 }
 
-
 model Supplier {
-  id                  String    @id @default(auto()) @map("_id") @db.ObjectId
-  SupplierId          String
-  name                String    @unique
-  email               String    @unique
-  phone               String    @unique
-  openingBalance      Float     @default(0)
-  address             String
-  purchaseDue         Float     @default(0)
-  purchaseReturnDue   Float     @default(0)
+  id                String @id @default(auto()) @map("_id") @db.ObjectId
+  SupplierId        String
+  name              String @unique
+  email             String @unique
+  phone             String @unique
+  openingBalance    Float  @default(0)
+  address           String
+  purchaseDue       Float  @default(0)
+  purchaseReturnDue Float  @default(0)
 
-  purchase            Purchase[]
-  purchaseReturn      PurchaseReturn[]
-  BalancePayment      BalancePayment[]
+  purchase       Purchase[]
+  purchaseReturn PurchaseReturn[]
+  BalancePayment BalancePayment[]
 
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Customer {
-  id             String    @id @default(auto()) @map("_id") @db.ObjectId
+  id             String @id @default(auto()) @map("_id") @db.ObjectId
   CustomerID     String
-  name           String    @unique
-  email          String    @unique
-  phone          String    @unique
-  openingBalance Float     @default(0)
+  name           String @unique
+  email          String @unique
+  phone          String @unique
+  openingBalance Float  @default(0)
   address        String
-  salesDue       Float       @default(0)
-  salesReturnDue Float       @default(0)
+  salesDue       Float  @default(0)
+  salesReturnDue Float  @default(0)
 
   sale           Sale[]
   salesReturn    SalesReturn[]
   BalancePayment BalancePayment[]
 
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model BalancePayment {
+  id     String   @id @default(auto()) @map("_id") @db.ObjectId
+  amount Float
+  paidOn DateTime @default(now())
+  note   String?
+  method String
+
+  customer   Customer? @relation(fields: [customerId], references: [id])
+  customerId String?   @db.ObjectId
+
+  supplier   Supplier? @relation(fields: [supplierId], references: [id])
+  supplierId String?   @db.ObjectId
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Contact {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model TaxRates {
+  id      String @id @default(auto()) @map("_id") @db.ObjectId
+  name    String
+  taxRate String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Branch {
+  id   String @id @default(auto()) @map("_id") @db.ObjectId
+  name String @unique
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Role {
   id          String   @id @default(auto()) @map("_id") @db.ObjectId
-  amount      Float
-  paidOn      DateTime @default(now())
-  note        String?
-  method      String
-
-  customer    Customer? @relation(fields: [customerId], references: [id])
-  customerId  String?   @db.ObjectId
-
-  supplier    Supplier? @relation(fields: [supplierId], references: [id])
-  supplierId  String?   @db.ObjectId
-
+  name        String   @unique
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
 
-model Contact {
-  id              String   @id @default(auto()) @map("_id") @db.ObjectId
-  name            String
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+
+model User {
+  id            String    @id @map("_id")
+  name          String
+  email         String
+  emailVerified Boolean
+  image         String?
+  createdAt     DateTime
+  updatedAt     DateTime
+  banned        Boolean?
+  banReason     String?
+  banExpires    DateTime?
+  branch        String   
+  role          String   
   
+  sessions      Session[]
+  accounts      Account[]
+
+  @@unique([email])
+  @@map("user")
 }
 
-model TaxRates {
-  id        String     @id @default(auto()) @map("_id") @db.ObjectId
-  name      String
-  taxRate   String
+model Session {
+  id             String   @id @map("_id")
+  expiresAt      DateTime
+  token          String
+  createdAt      DateTime
+  updatedAt      DateTime
+  ipAddress      String?
+  userAgent      String?
+  userId         String
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  impersonatedBy String?
 
-  createdAt         DateTime   @default(now())
-  updatedAt         DateTime   @updatedAt
+  @@unique([token])
+  @@map("session")
 }
 
-model Branch {
-  id      String    @id @default(auto()) @map("_id") @db.ObjectId
-  name    String    @unique
+model Account {
+  id                    String    @id @map("_id")
+  accountId             String
+  providerId            String
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime
+  updatedAt             DateTime
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  @@map("account")
+}
+
+model Verification {
+  id         String    @id @map("_id")
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime?
+  updatedAt  DateTime?
+
+  @@map("verification")
 }
