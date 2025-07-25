@@ -184,7 +184,7 @@ export function UserForm({ roles, branches, onSuccess, initialData , isEdit }: U
                       <SelectValue placeholder="Select a role">
                         {field.value && (
                           <span className="truncate">
-                            {roles.find((role) => role.name === field.value)?.name}
+                            {roles.find((role) => role.value === field.value)?.name}
                           </span>
                         )}
                       </SelectValue>
@@ -192,7 +192,7 @@ export function UserForm({ roles, branches, onSuccess, initialData , isEdit }: U
                   </FormControl>
                   <SelectContent>
                     {roles.map((role) => (
-                      <SelectItem key={role.id} value={role.name}>
+                      <SelectItem key={role.id} value={role.value}>
                         <div className="flex flex-col">
                           <span className="font-medium">{role.name}</span>
                           {role.description && (

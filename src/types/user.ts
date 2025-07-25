@@ -1,6 +1,7 @@
 export type Role = {
   id: string;
   name: string;
+  value: string;
   description?: string;
 };
 
@@ -32,16 +33,14 @@ export type User = {
   banReason: string | null;
   banExpires: Date | null;
   branch: string;
-  role: string; 
+  role: string;
 };
-
 
 export type UsersTableProps = {
   users: User[];
   roles: Role[];
   branches: Branch[];
 };
-
 
 export type UserFormData = {
   name: string;
@@ -53,11 +52,11 @@ export type UserFormData = {
 };
 
 export type UserFormProps = {
-  roles: Role[]; 
-  branches: Branch[]; 
+  roles: Role[];
+  branches: Branch[];
   onSuccess?: () => void;
   initialData?: Partial<UserFormData>;
-  isEdit?:boolean;
+  isEdit?: boolean;
 };
 
 export interface UserProfile {
@@ -68,4 +67,3 @@ export interface UserProfile {
   role?: string | null;
   branch?: string | null;
 }
-

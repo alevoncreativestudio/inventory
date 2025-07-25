@@ -162,14 +162,15 @@ export function UsersTable({ users, roles, branches }: UsersTableProps) {
     const isUpdating = updatingRoleUserId === user.id;
     const currentRole = user.role || '';
 
-    const getRoleDisplayText = (role: string | null) => {
-      if (!role) return 'No Role';
-      return role.charAt(0).toUpperCase() + role.slice(1).toLowerCase();
-    };
+    const getRoleDisplayText = (roleValue: string | null) => {
+      if (!roleValue) return 'No Role';
+      const role = roles.find((r) => r.value === roleValue);
+      return role ? role.name : 'Unknown Role';
+    }
 
-    const getRoleColor = (role: string | null) => {
-      if (!role) return 'text-muted-foreground';
-      switch (role.toLowerCase()) {
+    const getRoleColor = (roleValue: string | null) => {
+      if (!roleValue) return 'text-muted-foreground';
+      switch (roleValue.toLowerCase()) {
         case 'admin':
           return 'text-red-600 dark:text-red-400';
         case 'user':
@@ -186,19 +187,19 @@ export function UsersTable({ users, roles, branches }: UsersTableProps) {
           onValueChange={(newRole) => handleRoleUpdate(user.id, newRole, currentRole)}
           disabled={isUpdating}
         >
-          <SelectTrigger className="w-32 h-8 border-none shadow-none p-2 hover:bg-muted/50 focus:ring-1 focus:ring-ring">
+          <SelectTrigger className="w-36 h-8 border-none shadow-none p-2 hover:bg-muted/50 focus:ring-1 focus:ring-ring">
             <SelectValue>
-              <span className={`text-sm font-medium ${getRoleColor(currentRole)}`}>
+              <span className={`text-sm font-medium  ${getRoleColor(currentRole)}`}>
                 {getRoleDisplayText(currentRole)}
               </span>
             </SelectValue>
           </SelectTrigger>
           <SelectContent>
             {roles.map((role) => (
-              <SelectItem key={role.id} value={role.name} className="cursor-pointer">
+              <SelectItem key={role.id} value={role.value} className="cursor-pointer">
                 <div className="flex flex-col">
-                  <span className={`font-medium text-sm ${getRoleColor(role.name)}`}>
-                    {getRoleDisplayText(role.name)}
+                  <span className={`font-medium text-sm ${getRoleColor(role.value)}`}>
+                    {getRoleDisplayText(role.value)}
                   </span>
                   {role.description && (
                     <span className="text-xs text-muted-foreground">{role.description}</span>
@@ -243,9 +244,9 @@ export function UsersTable({ users, roles, branches }: UsersTableProps) {
             {branches.map((branch) => (
               <SelectItem key={branch.id} value={branch.id} className="cursor-pointer">
                 <div className="flex flex-col">
-                  <span className="font-medium text-sm text-blue-600 dark:text-blue-400">
+                  <p className="font-medium text-sm text-blue-600 dark:text-blue-400">
                     {branch.name}
-                  </span>
+                  </p>
                   {branch.address && (
                     <span className="text-xs text-muted-foreground">{branch.address}</span>
                   )}
