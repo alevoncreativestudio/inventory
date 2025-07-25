@@ -1,11 +1,11 @@
-import type { Icon } from '@tabler/icons-react';
+import type { Icon } from "@tabler/icons-react";
 
 export interface NavItem {
   title: string;
   url: string;
-  icon: Icon;
+  icon?: Icon;
+  children?: NavItem[];
 }
-
 
 export interface UserProfile {
   name: string;
@@ -23,7 +23,7 @@ export interface MetricCard {
   value: string;
   description: string;
   trend: {
-    type: 'up' | 'down';
+    type: "up" | "down";
     value: string;
   };
   footer: {
@@ -32,9 +32,8 @@ export interface MetricCard {
   };
 }
 
-
 export interface ModalProps {
-    modalOpen: boolean;
-    setModalOpen: (open:boolean) => boolean | void;
-    children: React.ReactNode;
+  modalOpen: boolean;
+  setModalOpen: (open: boolean) => boolean | void;
+  children: React.ReactNode;
 }

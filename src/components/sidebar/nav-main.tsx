@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import { IconCirclePlusFilled } from '@tabler/icons-react';
+import { IconCirclePlusFilled } from "@tabler/icons-react";
 
 import {
   SidebarGroup,
@@ -8,9 +8,10 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-} from '@/components/ui/sidebar';
-import type { NavItem } from '@/types/navigation';
-import { navigation } from '@/config/app';
+} from "@/components/ui/sidebar";
+import type { NavItem } from "@/types/navigation";
+import { navigation } from "@/config/app";
+import { NavMenu } from "./nav-menu";
 
 interface NavMainProps {
   items: NavItem[];
@@ -35,18 +36,7 @@ export function NavMain({ items }: NavMainProps) {
             </SidebarMenuItem>
           </SidebarMenu>
         )}
-        <SidebarMenu>
-          {items.map((item) => (
-            <SidebarMenuItem key={item.title}>
-              <SidebarMenuButton tooltip={item.title} asChild>
-                <a href={item.url}>
-                  <item.icon />
-                  <span>{item.title}</span>
-                </a>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-          ))}
-        </SidebarMenu>
+        <NavMenu items={items} />
       </SidebarGroupContent>
     </SidebarGroup>
   );
