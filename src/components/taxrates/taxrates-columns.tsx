@@ -48,7 +48,8 @@ export const taxRatesColumns: ColumnDef<TaxRates>[] = [
   },
   {
     accessorKey:'taxRate',
-    header:"Tax Rate"
+    header:"Tax Rate",
+    cell: ({ row }) => <div>{row.getValue("taxRate")}%</div>
   },
   {
     id: "action",

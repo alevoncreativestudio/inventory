@@ -1,5 +1,6 @@
 "use server";
 
+import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { actionClient } from "@/lib/safeAction";
 import {
@@ -9,6 +10,7 @@ import {
 } from "@/schemas/customer-schema";
 import { ObjectId } from "mongodb";
 import { revalidatePath } from "next/cache";
+import { headers } from "next/headers";
 
 export const createCustomer = actionClient.inputSchema(customerSchema).action(
   async (values) => {
@@ -27,16 +29,27 @@ export const createCustomer = actionClient.inputSchema(customerSchema).action(
 
 export const getCustomerList = actionClient.action(async () => {
   try {
+    const session = await auth.api.getSession({
+      headers: await headers(),
+    });
+
+    const role = session?.user?.role;
+    const branchId = session?.user?.branch;
+
+    const whereClause = role === "admin" ? {} : { branchId };
+
     const customers = await prisma.customer.findMany({
+      where: whereClause,
       orderBy: { name: "asc" },
     });
-    revalidatePath("/customers");
-    return { data: customers };
+
+    return { customers };
   } catch (error) {
     console.log("Get Customers Error:", error);
     return { error: "Something went wrong" };
   }
 });
+
 
 export const getCustomerListForDropdown = async () => {
   return await prisma.customer.findMany({

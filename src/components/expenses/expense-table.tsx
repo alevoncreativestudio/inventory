@@ -21,18 +21,9 @@ import {
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useState } from "react";
 import { Input } from "../ui/input";
-// import { Button } from "../ui/button";
-import { Funnel, Search } from "lucide-react";
-import { Button } from "../ui/button";
-// import { FormControl } from "../ui/form";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Search } from "lucide-react";
 import { ExpenseTableProps } from "@/types/expense";
+import { formatCurrency } from "@/lib/utils";
 
 
 
@@ -66,16 +57,7 @@ export function ExpenseTable<TValue>({ columns, data }: ExpenseTableProps<TValue
       },
     });
 
-    const formatCurrency = (amount: number) =>
-    new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: "USD",
-    }).format(amount);
-
     const totalExpenseAmount = data.reduce((acc, row) => acc + (row?.amount ?? 0), 0);
-
-    const formattedTotalPurchase = formatCurrency(totalExpenseAmount);
-
 
   return (
     <div className="flex flex-col gap-5">
@@ -96,7 +78,7 @@ export function ExpenseTable<TValue>({ columns, data }: ExpenseTableProps<TValue
             className="pl-9"
         />
         </div>
-        <div>
+        {/* <div>
             <Select>
                   <SelectTrigger className="w-full">
                     <SelectValue placeholder="Select Expense Category" />
@@ -116,13 +98,13 @@ export function ExpenseTable<TValue>({ columns, data }: ExpenseTableProps<TValue
                   ))}
                 </SelectContent>
               </Select>
-        </div>
-        <div className="flex flex-wrap items-center gap-3">
+        </div> */}
+        {/* <div className="flex flex-wrap items-center gap-3">
             <Button variant="outline">
                 <Funnel className="h-4 w-4 mr-0 sm:mr-0 md:mr-2" />
                 <span className="hidden md:inline">Filter</span>
             </Button>
-        </div>
+        </div> */}
       </CardContent>
     </Card>
 
@@ -184,9 +166,10 @@ export function ExpenseTable<TValue>({ columns, data }: ExpenseTableProps<TValue
 
           <TableFooter className="bg-muted/50 text-sm font-medium border-t">
               <TableRow>
-                <TableCell colSpan={4} />
+                <TableCell colSpan={3} />
                 <TableCell className="text-center border-r-2">Total:</TableCell>
-                <TableCell className="border-r-2">{formattedTotalPurchase}</TableCell>
+                <TableCell className="border-r-2">{formatCurrency(totalExpenseAmount)}</TableCell>
+                <TableCell />
               </TableRow>
             </TableFooter>
         </Table>

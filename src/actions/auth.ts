@@ -5,7 +5,7 @@ import { actionClient } from '@/lib/safeAction';
 import { auth } from '@/lib/auth';
 import { returnValidationErrors } from 'next-safe-action';
 import {prisma} from '@/lib/prisma';
-import { redirect } from 'next/navigation';
+// import { redirect } from 'next/navigation';
 import { cookies } from 'next/headers';
 import { loginSchema, userFormSchema } from '@/schemas/user-schema';
 import { z } from 'zod';
@@ -17,7 +17,6 @@ export const createUserAction = actionClient
     console.log(name,email,branch,password,role);
     
     const { user } = await auth.api.createUser({
-      
       body: {
         name,
         email,
@@ -41,6 +40,37 @@ export const createUserAction = actionClient
       user,
     };
   });
+
+//UPDATE USER
+  // export const updateUserAction = actionClient
+  // .inputSchema(userFormSchema)
+  // .action(async ({ parsedInput: { name, email, password, role, branch } }) => {
+  //   console.log(name,email,branch,password,role);
+    
+  //   const { user } = await auth.api.createUser({
+  //     body: {
+  //       name,
+  //       email,
+  //       password,
+  //       role: role as 'admin' | 'user',
+  //       data: {
+  //         branch,
+  //       },
+  //     },
+  //   });
+
+  //   if (!user) {
+  //     return returnValidationErrors(userFormSchema, {
+  //       _errors: ['Failed to create user'],
+  //     });
+  //   }
+
+  //   return {
+  //     success: true,
+  //     message: 'User created successfully',
+  //     user,
+  //   };
+  // });
 
 // Update user branch action
 export const updateUserBranchAction = actionClient
@@ -114,7 +144,7 @@ export const logoutAction = actionClient.action(async () => {
   cookieStore.delete('auth.session-token');
 
   // Redirect to login page
-  redirect('/login');
+  // redirect('/login');
 });
 
 export const getAllUsers = async () =>
@@ -129,5 +159,6 @@ export const getAllRoles = async () =>
 
 export const getAllBranches = async () =>
   await prisma.branch.findMany({
+    select:{id:true,name:true,phone:true,email:true,createdAt:true,updatedAt:true},
     orderBy: { createdAt: 'desc' },
   });

@@ -53,6 +53,9 @@ import { ProductOption } from "@/types/product";
 import { useAction } from "next-safe-action/hooks";
 import { cn } from "@/lib/utils";
 import { nanoid } from "nanoid";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { getAllBranches } from "@/actions/auth";
+
 
 export const SalesReturnFormSheet = ({
   salesReturn,
@@ -66,6 +69,8 @@ export const SalesReturnFormSheet = ({
   const [showCustomerSuggestions, setShowCustomerSuggestions] = useState(false);
   const [productSearch, setProductSearch] = useState("");
   const [productOptions, setProductOptions] = useState<ProductOption[]>([]);
+  const [baranchList, setBranchList] = useState<{ name: string; id: string;}[]>([]);
+  
   const itemFieldKeys: SalesReturnItemField[] = [
         "quantity",
         "incTax",
@@ -95,6 +100,8 @@ export const SalesReturnFormSheet = ({
   useEffect(() => {
     const fetchCustomers = async () => {
       const res = await getCustomerListForDropdown();
+      const branches = await getAllBranches()
+      setBranchList(branches);
       setCustomerList(res);
     };
     fetchCustomers();
@@ -217,6 +224,24 @@ export const SalesReturnFormSheet = ({
                   </FormItem>
                 )}
               />
+
+              <FormField control={form.control} name="branchId" render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Business Location</FormLabel>
+                  <Select onValueChange={field.onChange} value={field.value}>
+                    <FormControl>
+                      <SelectTrigger className="w-full"><SelectValue placeholder="Select Branch" /></SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {baranchList.map(branch => (
+                        <SelectItem key={branch.id} value={branch.id}>{branch.name}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )} />
+            
               <FormField
                 control={form.control}
                 name="salesReturnDate"

@@ -22,6 +22,13 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { DialogClose } from "@/components/ui/dialog";
 import { createSupplier, updateSupplier } from "@/actions/supplier-action";
@@ -29,15 +36,19 @@ import { useAction } from "next-safe-action/hooks";
 import { toast } from "sonner";
 import { SupplierFormProps } from "@/types/supplier";
 import { Textarea } from "../ui/textarea";
+import { useEffect, useState } from "react";
+import { getAllBranches } from "@/actions/auth";
 
 export const SupplierFormDialog = ({ supplier, open, openChange }: SupplierFormProps) => {
   const { execute: createSupplierAction, isExecuting: isCreating } = useAction(createSupplier);
   const { execute: updateSupplierAction, isExecuting: isUpdating } = useAction(updateSupplier);
+  const [baranchList, setBranchList] = useState<{ name: string; id: string;}[]>([]);
 
   const form = useForm<z.infer<typeof supplierSchema>>({
     resolver: zodResolver(supplierSchema),
     defaultValues: {
       SupplierId:supplier?.SupplierId || "",
+      branchId:supplier?.branchId || "",
       name: supplier?.name || "",
       email: supplier?.email || "",
       phone: supplier?.phone || "",
@@ -58,6 +69,14 @@ export const SupplierFormDialog = ({ supplier, open, openChange }: SupplierFormP
     }
     close();
   };
+
+  useEffect(() => {
+      const fetchOptions = async () => {
+        const branches = await getAllBranches()
+        setBranchList(branches);
+      }
+      fetchOptions()
+    },[])
 
   return (
     <FormDialog open={open} openChange={openChange} form={form} onSubmit={handleSubmit}>
@@ -147,6 +166,23 @@ export const SupplierFormDialog = ({ supplier, open, openChange }: SupplierFormP
             </FormItem>
           )}
         />
+
+        <FormField control={form.control} name="branchId" render={({ field }) => (
+          <FormItem>
+            <FormLabel>Business Location</FormLabel>
+            <Select onValueChange={field.onChange} value={field.value}>
+              <FormControl>
+                <SelectTrigger className="w-full"><SelectValue placeholder="Select Branch" /></SelectTrigger>
+              </FormControl>
+              <SelectContent>
+                {baranchList.map(branch => (
+                  <SelectItem key={branch.id} value={branch.id}>{branch.name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <FormMessage />
+          </FormItem>
+        )} />
 
         <FormDialogFooter>
           <DialogClose asChild>

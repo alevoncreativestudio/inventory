@@ -1,5 +1,6 @@
 "use server";
 
+import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { actionClient } from "@/lib/safeAction";
 import {
@@ -10,6 +11,7 @@ import {
 import { RawPurchaseReturnItem } from "@/types/purchase-return";
 import { ObjectId } from "mongodb";
 import { revalidatePath } from "next/cache";
+import { headers } from "next/headers";
 
 const mapItemsWithRelation = (items: RawPurchaseReturnItem[]) =>
   items.map((item) => ({
@@ -70,19 +72,31 @@ export const createPurchaseReturn = actionClient
 // GET ALL PURCHASE RETURNS
 export const getPurchaseReturnList = actionClient.action(async () => {
   try {
+    const session = await auth.api.getSession({
+      headers: await headers(),
+    });
+
+    const role = session?.user?.role;
+    const branchId = session?.user?.branch;
+
+    const whereClause = role === "admin" ? {} : { branchId };
+
     const returns = await prisma.purchaseReturn.findMany({
+      where: whereClause,
       orderBy: { returnDate: "desc" },
       include: {
         supplier: true,
         purchaseReturnItem: true,
       },
     });
+
     return { returns };
   } catch (error) {
     console.error("Get Purchase Returns Error:", error);
     return { error: "Something went wrong" };
   }
 });
+
 
 // GET PURCHASE RETURN BY ID
 export const getPurchaseReturnById = actionClient

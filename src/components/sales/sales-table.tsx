@@ -29,17 +29,18 @@ import {
 } from "@/components/ui/card";
 
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+// import {
+//   Select,
+//   SelectContent,
+//   SelectItem,
+//   SelectTrigger,
+//   SelectValue,
+// } from "@/components/ui/select";
 
 import { SaleTableProps } from "@/types/sales";
 import { Search } from "lucide-react";
 import { useState } from "react";
+import { formatCurrency } from "@/lib/utils";
 
 export function SalesTable<TValue>({ columns, data }: SaleTableProps<TValue>) {
   const [sorting, setSorting] = useState<SortingState>([]);
@@ -71,23 +72,13 @@ export function SalesTable<TValue>({ columns, data }: SaleTableProps<TValue>) {
     },
   });
 
-  const formatCurrency = (amount: number) =>
-    new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: "USD",
-    }).format(amount);
 
   const totalPurchaseAmount = data.reduce((acc, row) => acc + (row?.grandTotal ?? 0), 0);
-
   const totalDueAmount = data.reduce((acc,row) => acc+ (row?.dueAmount ?? 0),0)
-
-  const formattedTotalPurchase = formatCurrency(totalPurchaseAmount);
-  const formattedDueAmount = formatCurrency(totalDueAmount);
 
   return (
     <div className="flex flex-col gap-5">
-      {/* Filter Card */}
-      <Card>
+      {/* <Card>
         <CardHeader>
           <div className="space-y-2">
             <CardTitle>Filters</CardTitle>
@@ -97,7 +88,6 @@ export function SalesTable<TValue>({ columns, data }: SaleTableProps<TValue>) {
           </div>
 
           <div className="flex flex-col sm:flex-row gap-4 mt-3">
-            {/* Payment Status Filter */}
             <div className="w-full">
               <label className="text-sm font-medium text-muted-foreground mb-1 block">
                 Filter by Payment Status
@@ -127,7 +117,7 @@ export function SalesTable<TValue>({ columns, data }: SaleTableProps<TValue>) {
             </div>
           </div>
         </CardHeader>
-      </Card>
+      </Card> */}
 
       {/* Table Card */}
       <Card>
@@ -195,10 +185,10 @@ export function SalesTable<TValue>({ columns, data }: SaleTableProps<TValue>) {
 
             <TableFooter className="bg-muted/50 text-sm font-medium border-t">
               <TableRow>
-                <TableCell />
-                <TableCell colSpan={2} className="text-center border-r-2">Total:</TableCell>
-                <TableCell className="border-r-2">{formattedTotalPurchase}</TableCell>
-                <TableCell colSpan={2} className="border-r-2">{formattedDueAmount}</TableCell>
+                <TableCell colSpan={3}/>
+                <TableCell  className="text-center border-r-2">Total:</TableCell>
+                <TableCell className="border-r-2">{formatCurrency(totalPurchaseAmount)}</TableCell>
+                <TableCell colSpan={2} className="border-r-2">{formatCurrency(totalDueAmount)}</TableCell>
               </TableRow>
             </TableFooter>
           </Table>

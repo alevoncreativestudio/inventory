@@ -44,6 +44,14 @@ import { Popover, PopoverTrigger, PopoverContent } from "../ui/popover";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "../ui/command";
 import { cn } from "@/lib/utils";
 import { nanoid } from "nanoid";
+import { getAllBranches } from "@/actions/auth";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../ui/select";
 
 export const PurchaseReturnFormSheet = ({
   purchaseReturn,
@@ -57,6 +65,8 @@ export const PurchaseReturnFormSheet = ({
   const [showSupplierSuggestions, setShowSupplierSuggestions] = useState(false);
   const [productSearch, setProductSearch] = useState("");
   const [productOptions, setProductOptions] = useState<ProductOption[]>([]);
+  const [baranchList, setBranchList] = useState<{ name: string; id: string;}[]>([]);
+  
   const itemFieldKeys: PurchaseReturnItemField[] = [
       "quantity",
       "incTax",
@@ -67,6 +77,8 @@ export const PurchaseReturnFormSheet = ({
   useEffect(() => {
     const fetchSuppliers = async () => {
       const res = await getSupplierListForDropdown();
+      const branches = await getAllBranches()
+      setBranchList(branches);
       setSupplierList(res);
     };
     fetchSuppliers();
@@ -76,6 +88,7 @@ export const PurchaseReturnFormSheet = ({
     resolver: zodResolver(fullPurchaseReturnSchema),
     defaultValues: {
       referenceNo: purchaseReturn?.referenceNo || "",
+      branchId:purchaseReturn?.branchId || "",
       supplierId: purchaseReturn?.supplierId || "",
       returnDate: purchaseReturn?.returnDate ? new Date(purchaseReturn.returnDate) : new Date(),
       totalAmount: purchaseReturn?.totalAmount || 0,
@@ -202,6 +215,24 @@ export const PurchaseReturnFormSheet = ({
                   </FormItem>
                 )}
               />
+
+              <FormField control={form.control} name="branchId" render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Business Location</FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <FormControl>
+                        <SelectTrigger className="w-full"><SelectValue placeholder="Select Branch" /></SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {baranchList.map(branch => (
+                          <SelectItem key={branch.id} value={branch.id}>{branch.name}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )} />
+
               <FormField
                 control={form.control}
                 name="returnDate"

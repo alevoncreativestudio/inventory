@@ -20,6 +20,7 @@ import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { PurchaseDeleteDialog } from "./purchase-delete-dailog";
 import { PurchaseFormSheet } from "./purchase-form";
+import { formatCurrency, formatDate } from "@/lib/utils";
 
 export const purchaseColumns: ColumnDef<Purchase>[] = [
   {
@@ -37,10 +38,10 @@ export const purchaseColumns: ColumnDef<Purchase>[] = [
     accessorKey: "purchaseDate",
     header: "Date",
     cell: ({ row }) => {
-        const date = row.getValue("purchaseDate");
+        const date = row.getValue("purchaseDate") as string | Date;
         return (
         <div>
-            {date ? new Date(date as string).toLocaleDateString("en-GB") : "-"}
+            {date ? formatDate(date) : "-"}
         </div>
         );
     },
@@ -48,6 +49,15 @@ export const purchaseColumns: ColumnDef<Purchase>[] = [
   {
     accessorKey: "location",
     header: "Location",
+    cell:({row}) =>{
+      const Location = row.original.branchId
+
+      return (
+        <span>
+          {Location}
+        </span>
+      )
+    }
   },
   {
     accessorKey: "supplierId",
@@ -83,30 +93,21 @@ export const purchaseColumns: ColumnDef<Purchase>[] = [
         );
     },
     enableColumnFilter:true,
-    },
-
-  {
-    accessorKey: "totalAmount",
-    header: "Grand Total",
-    cell: ({ row }) => {
-    const amount = row.getValue("totalAmount") as number;
-    const formatted = new Intl.NumberFormat("en-US", {
-        style: "currency",
-        currency: "USD",
-    }).format(amount);
-    return <div className="font-medium">{formatted}</div>;
     }
+    ,{
+      accessorKey: "totalAmount",
+      header: "Grand Total",
+      cell: ({ row }) => {
+        const amount = row.getValue("totalAmount") as number;
+        return <div className="font-medium">{formatCurrency(amount)}</div>;
+      },
   },
   {
     accessorKey: "dueAmount",
     header: "Payment Due",
     cell: ({ row }) => {
         const amount = row.getValue("dueAmount") as number;
-        const formatted = new Intl.NumberFormat("en-US", {
-            style: "currency",
-            currency: "USD",
-        }).format(amount);
-        return <div className="font-medium">{formatted}</div>;
+        return <div className="font-medium">{formatCurrency(amount)}</div>;
         }  
     },
   {

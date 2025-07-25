@@ -57,4 +57,15 @@ export type UserFormProps = {
   branches: Branch[]; 
   onSuccess?: () => void;
   initialData?: Partial<UserFormData>;
+  isEdit?:boolean;
 };
+
+export interface UserProfile {
+  id: string;
+  name: string;
+  email: string;
+  image?: string | null;
+  role?: string | null;
+  branch?: string | null;
+}
+

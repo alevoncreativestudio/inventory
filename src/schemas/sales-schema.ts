@@ -4,6 +4,7 @@ export const SalePaymentStatusEnum = z.enum(["Due", "Paid", "Partial"]);
 
 export const salesSchema = z.object({
   invoiceNo: z.string().min(1),
+  branchId: z.string().min(1, "Branch is required"),
   salesdate: z.coerce.date(), 
   customerId: z.string().min(1),
   grandTotal: z.coerce.number().min(0),

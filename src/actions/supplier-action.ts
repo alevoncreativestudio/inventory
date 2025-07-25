@@ -1,5 +1,6 @@
 "use server";
 
+import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { actionClient } from "@/lib/safeAction";
 import {
@@ -9,6 +10,7 @@ import {
 } from "@/schemas/supplier-schema";
 import { ObjectId } from "mongodb";
 import { revalidatePath } from "next/cache";
+import { headers } from "next/headers";
 
 export const createSupplier = actionClient.inputSchema(supplierSchema).action(
   async (values) => {
@@ -27,16 +29,26 @@ export const createSupplier = actionClient.inputSchema(supplierSchema).action(
 
 export const getSupplierList = actionClient.action(async () => {
   try {
+    const session = await auth.api.getSession({
+      headers: await headers(),
+    });
+
+    const role = session?.user?.role;
+    const branchId = session?.user?.branch;
+
+    const whereClause = role === "admin" ? {} : { branchId };
+
     const suppliers = await prisma.supplier.findMany({
+      where: whereClause,
       orderBy: { name: "asc" },
     });
-    revalidatePath("/suppliers");
-    return { data: suppliers };
+    return { suppliers };
   } catch (error) {
     console.log("Get Suppliers Error:", error);
     return { error: "Something went wrong" };
   }
 });
+
 
 export const getSupplierListForDropdown = async () => {
   return await prisma.supplier.findMany({

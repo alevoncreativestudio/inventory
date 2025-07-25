@@ -2,6 +2,7 @@ import { z } from 'zod';
 
 export const supplierSchema = z.object({
   SupplierId:z.string().min(2),
+  branchId: z.string().min(1, "Branch is required"),
   name: z.string().min(2, "Supplier name is required"),
   email: z.string().email("Invalid email"),
   phone: z.string().min(7, "Phone number is required"),

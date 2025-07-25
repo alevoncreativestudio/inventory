@@ -43,19 +43,23 @@ const Page = async ({ params }: PageParamsProps) => {
               </TableRow>
               <TableRow>
                 <TableCell className="font-medium">Price</TableCell>
-                <TableCell>{product?.incTax}</TableCell>
+                <TableCell>₹ {product?.excTax}</TableCell>
+              </TableRow> 
+              <TableRow>
+                <TableCell className="font-medium">Tax Percentage</TableCell>
+                <TableCell>{product?.tax || '-'}%</TableCell>
               </TableRow>
               <TableRow>
                 <TableCell className="font-medium">Tax Price</TableCell>
-                <TableCell>₹ {product?.excTax}</TableCell>
+                <TableCell>₹ {product?.incTax}</TableCell>
               </TableRow>
               <TableRow>
-                <TableCell className="font-medium">Brand</TableCell>
-                <TableCell>{product?.brandId || '-'}</TableCell>
+                <TableCell className="font-medium">Selling Price</TableCell>
+                <TableCell>₹ {product?.sellingPrice}</TableCell>
               </TableRow>
               <TableRow>
-                <TableCell className="font-medium">Category</TableCell>
-                <TableCell>{product?.categoryId || '-'}</TableCell>
+                <TableCell className="font-medium">Available Stock</TableCell>
+                <TableCell>{product?.stock || '-'}</TableCell>
               </TableRow>
             </TableBody>
           </Table>

@@ -32,6 +32,7 @@ import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
 import { useState } from "react";
 import { SalesReturnTableProps } from "@/types/sales-return";
+import { formatCurrency } from "@/lib/utils";
 
 
 
@@ -64,12 +65,6 @@ export function SalesReturnTable<TValue>({ columns, data }: SalesReturnTableProp
       );
     },
   });
-
-  const formatCurrency = (amount: number) =>
-    new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: "USD",
-    }).format(amount);
 
   const totalReturnedAmount = data.reduce((acc, row) => acc + (row?.grandTotal ?? 0), 0);
 

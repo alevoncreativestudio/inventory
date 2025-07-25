@@ -10,11 +10,9 @@ export interface NavItem {
 export interface UserProfile {
   name: string;
   email: string;
-  avatar: string;
 }
 
 export interface SidebarData {
-  demoUser: UserProfile;
   navMain: NavItem[];
   navSecondary: NavItem[];
   admin: NavItem[];

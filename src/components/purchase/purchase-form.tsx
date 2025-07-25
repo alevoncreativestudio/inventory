@@ -57,6 +57,7 @@ import { ProductOption } from "@/types/product";
 import { cn } from "@/lib/utils";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "../ui/command";
 import { nanoid } from "nanoid";
+import { getAllBranches } from "@/actions/auth";
 
 
 export const PurchaseFormSheet = ({
@@ -73,6 +74,8 @@ export const PurchaseFormSheet = ({
   const [supplierList, setSupplierList] = useState<{ name: string; id: string,openingBalance:number }[]>([]);
   const [showSupplierSuggestions, setShowSupplierSuggestions] = useState(false);
   const [selectedSupplierOpeningBalance, setSelectedSupplierOpeningBalance] = useState<number | null>(null);
+  const [baranchList, setBranchList] = useState<{ name: string; id: string;}[]>([]);
+  
   const itemFieldKeys: PurchaseItemField[] = [
     "quantity",
     "excTax",
@@ -86,7 +89,9 @@ export const PurchaseFormSheet = ({
   useEffect(() => {
     const fetchOptions = async () => {
       const res = await getSupplierListForDropdown();
+      const branches = await getAllBranches()
       setSupplierList(res);
+      setBranchList(branches);
     };
     fetchOptions();
   }, []);
@@ -96,6 +101,7 @@ export const PurchaseFormSheet = ({
     defaultValues: {
       supplierId: purchase?.supplierId || "",
       referenceNo: purchase?.referenceNo || "",
+      branchId: purchase?.branchId || "",
       purchaseDate: purchase?.purchaseDate ? new Date(purchase.purchaseDate) : new Date(),
       status: purchase?.status ?? purchaseStatusOption[0],
       totalAmount: purchase?.totalAmount || 0,
@@ -227,6 +233,23 @@ export const PurchaseFormSheet = ({
                   </FormItem>
                 )}
               />
+
+              <FormField control={form.control} name="branchId" render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Business Location</FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <FormControl>
+                        <SelectTrigger className="w-full"><SelectValue placeholder="Select Branch" /></SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {baranchList.map(branch => (
+                          <SelectItem key={branch.id} value={branch.id}>{branch.name}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )} />
 
               <FormField
                 control={form.control}
@@ -461,7 +484,7 @@ export const PurchaseFormSheet = ({
                           <Button variant="outline" className="w-full text-left">
                             {field.value
                               ? new Date(field.value).toLocaleDateString()
-                              : "Pick date"}
+                              : new Date().toLocaleDateString()}
                           </Button>
                         </FormControl>
                       </PopoverTrigger>

@@ -40,6 +40,7 @@ import { fullSalesSchema } from "@/schemas/sales-item-schema";
 import { getProductListForDropdown } from "@/actions/product-actions";
 import { Command,CommandGroup, CommandItem,CommandInput,CommandEmpty,CommandList } from "../ui/command";
 import { nanoid } from "nanoid";
+import { getAllBranches } from "@/actions/auth";
 
 export const SalesFormSheet = ({ sales, open, openChange }: SaleFormProps) => {
   const isControlled = typeof open === "boolean";
@@ -50,16 +51,18 @@ export const SalesFormSheet = ({ sales, open, openChange }: SaleFormProps) => {
   const [productSearch, setProductSearch] = useState("");
   const [productOptions, setProductOptions] = useState<ProductOption[]>([]);
   const [selectedCustomerOpeningBalance, setSelectedCustomerOpeningBalance] = useState<number | null>(null);
+  const [baranchList, setBranchList] = useState<{ name: string; id: string;}[]>([]);
 
   const form = useForm<z.infer<typeof fullSalesSchema>>({
     resolver: zodResolver(fullSalesSchema),
     defaultValues: {
     invoiceNo: sales?.invoiceNo || "",
+    branchId:sales?.branchId || "",
     customerId: sales?.customerId || "",
     grandTotal: sales?.grandTotal ?? 0,
     dueAmount: sales?.dueAmount ?? 0,
     paidAmount:sales?.paidAmount ?? 0,
-    salesdate: sales?.salesdate ? new Date(sales.salesdate) : undefined,
+    salesdate: sales?.salesdate ? new Date(sales.salesdate) : new Date(),
     items: sales?.items || [],
     salesPayment: sales?.payments || [],
   }
@@ -87,6 +90,8 @@ export const SalesFormSheet = ({ sales, open, openChange }: SaleFormProps) => {
   useEffect(() => {
     const fetchCustomers = async () => {
       const result = await getCustomerListForDropdown();
+      const branches = await getAllBranches()
+      setBranchList(branches);
       setCustomerList(result);
     };
     fetchCustomers();
@@ -222,6 +227,23 @@ console.log(customerList);
                   </FormItem>
                 )}
               />
+
+              <FormField control={form.control} name="branchId" render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Business Location</FormLabel>
+                  <Select onValueChange={field.onChange} value={field.value}>
+                    <FormControl>
+                      <SelectTrigger className="w-full"><SelectValue placeholder="Select Branch" /></SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {baranchList.map(branch => (
+                        <SelectItem key={branch.id} value={branch.id}>{branch.name}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )} />
 
 
               <FormField
@@ -448,8 +470,8 @@ console.log(customerList);
                           <FormControl>
                             <Button variant="outline" className="w-full text-left">
                               {field.value
-                                ? new Date(field.value).toLocaleDateString()
-                                : "Pick date"}
+                              ? new Date(field.value).toLocaleDateString()
+                              : new Date().toLocaleDateString()}
                             </Button>
                           </FormControl>
                         </PopoverTrigger>

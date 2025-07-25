@@ -30,7 +30,7 @@ import { toast } from 'sonner';
 
 type CreateUserFormData = UserFormData;
 
-export function UserForm({ roles, branches, onSuccess, initialData }: UserFormProps) {
+export function UserForm({ roles, branches, onSuccess, initialData , isEdit }: UserFormProps) {
   const [formError, setFormError] = useState<string | null>(null);
 
   const form = useForm<CreateUserFormData>({
@@ -254,7 +254,13 @@ export function UserForm({ roles, branches, onSuccess, initialData }: UserFormPr
 
           <div className="flex justify-end pt-4">
             <Button type="submit" disabled={isExecuting} className="w-full">
-              {isExecuting ? 'Creating User...' : 'Create User'}
+              {isExecuting
+                ? isEdit
+                  ? 'Updating User...'
+                  : 'Creating User...'
+                : isEdit
+                ? 'Update User'
+                : 'Create User'}
             </Button>
           </div>
         </form>

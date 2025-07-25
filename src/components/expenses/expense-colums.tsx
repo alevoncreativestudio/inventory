@@ -20,6 +20,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { ExpenseDeleteDialog } from "./expense-delete-dailog"
 import { useState } from "react";
+import { formatCurrency, formatDate } from "@/lib/utils";
 
 export const expenseColumns: ColumnDef<Expense>[] = [
   {
@@ -61,10 +62,10 @@ export const expenseColumns: ColumnDef<Expense>[] = [
     accessorKey: "date",
     header: "Date",
     cell: ({ row }) => {
-        const date = row.getValue("date");
+        const date = row.getValue("date") as string | Date;
         return (
         <div>
-            {date ? new Date(date as string).toLocaleDateString("en-GB") : "-"}
+            {date ? formatDate(date) : "-"}
         </div>
         );
     },
@@ -85,11 +86,7 @@ export const expenseColumns: ColumnDef<Expense>[] = [
     header: "Amount",
     cell: ({ row }) => {
     const amount = row.getValue("amount") as number;
-    const formatted = new Intl.NumberFormat("en-US", {
-        style: "currency",
-        currency: "USD",
-    }).format(amount);
-    return <div className="font-medium">{formatted}</div>;
+    return <div className="font-medium">{formatCurrency(amount)}</div>;
     }
   },
   {

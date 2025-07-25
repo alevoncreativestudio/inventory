@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 import { expenseColumns } from "@/components/expenses/expense-colums";
 import { ExpenseTable } from "@/components/expenses/expense-table";
 import { ExpenseFormDialog } from "@/components/expenses/expense-form";

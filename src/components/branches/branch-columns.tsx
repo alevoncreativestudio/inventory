@@ -39,19 +39,28 @@ export const branchColumns: ColumnDef<Branch>[] = [
           variant="ghost"
           onClick={() => column.toggleSorting(sort === "asc")}
         >
-          Name
-          {renderIcon()}
+          Name {renderIcon()}
         </Button>
-      );
-    },
-    cell: ({ row }) =>  <div className="px-3">{row.getValue('name') as string}</div>,
-  },
-  {
-    id: "action",
-    cell: ({ row }) =>
-      row.original && <BranchDropdeownMenu branch={row.original} />,
-  },
-];
+        );
+      },
+        cell: ({ row }) => <div className="px-3">{row.getValue("name")}</div>,
+      },
+      {
+        accessorKey: "email",
+        header: "Email",
+        cell: ({ row }) => <div>{row.getValue("email")}</div>,
+      },
+      {
+        accessorKey: "phone",
+        header: "Phone",
+        cell: ({ row }) => <div>{row.getValue("phone")}</div>,
+      },
+      {
+        id: "action",
+        cell: ({ row }) =>
+          row.original && <BranchDropdeownMenu branch={row.original} />,
+      },
+    ];
 
 export const BranchDropdeownMenu = ({ branch }: { branch: Branch }) => {
   const [openDelete, setOpenDelete] = useState(false);

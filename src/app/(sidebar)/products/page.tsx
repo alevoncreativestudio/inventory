@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { ProductTable } from "@/components/products/product-table";
 import { ProductFormSheet } from "@/components/products/product-form";
 import { productColumns } from "@/components/products/product-columns";

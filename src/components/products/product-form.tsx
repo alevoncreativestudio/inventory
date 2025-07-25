@@ -41,6 +41,7 @@ import { getCategorylistForDropdown } from "@/actions/category-actions";
 import { getTaxRateListForDropdown } from "@/actions/taxrate-actions";
 import {Table ,TableBody, TableCell, TableHead, TableHeader, TableRow } from "../ui/table";
 import { nanoid } from "nanoid";
+import { getAllBranches } from "@/actions/auth";
 
 interface ProductFormProps {
   product?: Product;
@@ -57,26 +58,31 @@ export const ProductFormSheet = ({ product, open, openChange }: ProductFormProps
   const [brandList, setBrandList] = useState<{ name: string; id: string }[]>([]);
   const [categoryList, setCategoryList] = useState<{ name: string; id: string }[]>([]);
   const [taxRateList, setTaxRateList] = useState<{ name: string; taxRate: string; id: string }[]>([]);
+  const [baranchList, setBranchList] = useState<{ name: string; id: string;}[]>([]);
 
   useEffect(() => {
     const fetchOptions = async () => {
       const brandRes = await getBrandlistForDropdown();
       const categoryRes = await getCategorylistForDropdown();
       const taxRateRes = await getTaxRateListForDropdown();
+      const branches = await getAllBranches()
       setBrandList(brandRes);
       setCategoryList(categoryRes);
       setTaxRateList(taxRateRes);
+      setBranchList(branches);
     };
     fetchOptions();
   }, []);
-  console.log(taxRateList);
+
+  console.log(baranchList);
+  
 
   const form = useForm<z.infer<typeof productSchema>>({
     resolver: zodResolver(productSchema),
     defaultValues: {
       product_name: product?.product_name || "",
       sku: product?.sku || "",
-      barcodeType: product?.barcodeType || "",
+      branchId: product?.branchId || "",
       unit: product?.unit || "",
       stock:product?.stock ?? 0,
       brandId: product?.brandId || "",
@@ -161,25 +167,17 @@ useEffect(() => {
                   </FormItem>
                 )} />
 
-                <FormField control={form.control} name="sku" render={({ field }) => (
+                <FormField control={form.control} name="branchId" render={({ field }) => (
                   <FormItem>
-                    <FormLabel>SKU</FormLabel>
-                    <FormControl><Input placeholder="SKSKU-ABCD" {...field} /></FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )} />
-
-                <FormField control={form.control} name="barcodeType" render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Barcode Type</FormLabel>
+                    <FormLabel>Business Location</FormLabel>
                     <Select onValueChange={field.onChange} value={field.value}>
                       <FormControl>
-                        <SelectTrigger><SelectValue placeholder="Select Barcode Type" /></SelectTrigger>
+                        <SelectTrigger className="w-full"><SelectValue placeholder="Select Branch" /></SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="C128">Code 128 (C128)</SelectItem>
-                        <SelectItem value="EAN13">EAN-13</SelectItem>
-                        <SelectItem value="QR">QR Code</SelectItem>
+                        {baranchList.map(branch => (
+                          <SelectItem key={branch.id} value={branch.id}>{branch.name}</SelectItem>
+                        ))}
                       </SelectContent>
                     </Select>
                     <FormMessage />
@@ -191,7 +189,7 @@ useEffect(() => {
                     <FormLabel>Unit</FormLabel>
                     <Select onValueChange={field.onChange} value={field.value}>
                       <FormControl>
-                        <SelectTrigger><SelectValue placeholder="Select Unit" /></SelectTrigger>
+                        <SelectTrigger className="w-full"><SelectValue placeholder="Select Unit" /></SelectTrigger>
                       </FormControl>
                       <SelectContent>
                         <SelectItem value="pcs">Pieces (pcs)</SelectItem>
@@ -208,7 +206,7 @@ useEffect(() => {
                     <FormLabel>Brand</FormLabel>
                     <Select onValueChange={field.onChange} value={field.value}>
                       <FormControl>
-                        <SelectTrigger><SelectValue placeholder="Select Brand" /></SelectTrigger>
+                        <SelectTrigger className="w-full"><SelectValue placeholder="Select Brand" /></SelectTrigger>
                       </FormControl>
                       <SelectContent>
                         {brandList.map(brand => (
@@ -225,7 +223,7 @@ useEffect(() => {
                     <FormLabel>Category</FormLabel>
                     <Select onValueChange={field.onChange} value={field.value}>
                       <FormControl>
-                        <SelectTrigger><SelectValue placeholder="Select Category" /></SelectTrigger>
+                        <SelectTrigger className="w-full"><SelectValue placeholder="Select Category" /></SelectTrigger>
                       </FormControl>
                       <SelectContent>
                         {categoryList.map(category => (
@@ -245,7 +243,7 @@ useEffect(() => {
                       <FormLabel>Applicable Tax</FormLabel>
                       <Select onValueChange={field.onChange} value={field.value}>
                         <FormControl>
-                          <SelectTrigger><SelectValue placeholder="Select Tax Rate" /></SelectTrigger>
+                          <SelectTrigger className="w-full"><SelectValue placeholder="Select Tax Rate" /></SelectTrigger>
                         </FormControl>
                         <SelectContent>
                           {taxRateList.map(tax => (
@@ -262,7 +260,7 @@ useEffect(() => {
                       <FormLabel>Selling Price Tax Type</FormLabel>
                       <Select onValueChange={field.onChange} value={field.value}>
                         <FormControl>
-                          <SelectTrigger><SelectValue placeholder="Select Type" /></SelectTrigger>
+                          <SelectTrigger className="w-full"><SelectValue placeholder="Select Type" /></SelectTrigger>
                         </FormControl>
                         <SelectContent>
                           <SelectItem value="exclusive">Exclusive</SelectItem>

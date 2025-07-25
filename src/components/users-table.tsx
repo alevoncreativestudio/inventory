@@ -2,7 +2,7 @@
 'use client';
 import { useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
-import { IconSearch, IconDotsVertical, IconTrash } from '@tabler/icons-react';
+import { IconSearch, IconDotsVertical, IconTrash, IconPencil } from '@tabler/icons-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -44,6 +44,8 @@ import { authClient } from '@/lib/auth-client';
 import { updateUserBranchAction } from '@/actions/auth';
 import { useAction } from 'next-safe-action/hooks';
 import { User } from '@prisma/client';
+import { UserForm } from './user-form';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from './ui/dialog';
 
 export function UsersTable({ users, roles, branches }: UsersTableProps) {
   const router = useRouter();
@@ -53,6 +55,9 @@ export function UsersTable({ users, roles, branches }: UsersTableProps) {
   const [isDeleting, setIsDeleting] = useState(false);
   const [updatingRoleUserId, setUpdatingRoleUserId] = useState<string | null>(null);
   const [updatingBranchUserId, setUpdatingBranchUserId] = useState<string | null>(null);
+  const [editingUser, setEditingUser] = useState<User | null>(null);
+  const [showEditDialog, setShowEditDialog] = useState(false);
+
 
   const { execute: updateBranch } = useAction(updateUserBranchAction, {
     onSuccess: ({ data }) => {
@@ -103,8 +108,6 @@ export function UsersTable({ users, roles, branches }: UsersTableProps) {
       toast.success(`User ${userToDelete.name} deleted successfully`);
       setShowDeleteDialog(false);
       setUserToDelete(null);
-
-      // Refresh the page to update the user list
       router.refresh();
     } catch (error) {
       console.error('Delete user error:', error);
@@ -119,8 +122,14 @@ export function UsersTable({ users, roles, branches }: UsersTableProps) {
     setUserToDelete(null);
   };
 
+  const handleEditClick = (user: User) => {
+  setEditingUser(user);
+  setShowEditDialog(true);
+  };
+
+
   const handleRoleUpdate = async (userId: string, newRole: string, currentRole: string) => {
-    if (newRole === currentRole) return; // No change needed
+    if (newRole === currentRole) return;
 
     setUpdatingRoleUserId(userId);
     try {
@@ -130,8 +139,6 @@ export function UsersTable({ users, roles, branches }: UsersTableProps) {
       });
 
       toast.success(`User role updated to ${newRole.toUpperCase()}`);
-
-      // Refresh the page to update the user list
       router.refresh();
     } catch (error) {
       console.error('Update role error:', error);
@@ -146,15 +153,14 @@ export function UsersTable({ users, roles, branches }: UsersTableProps) {
     newBranchId: string,
     currentBranchId: string
   ) => {
-    if (newBranchId === currentBranchId) return; // No change needed
-
+    if (newBranchId === currentBranchId) return;
     setUpdatingBranchUserId(userId);
     updateBranch({ userId, branchId: newBranchId });
   };
 
   const RoleSelect = ({ user }: { user: User }) => {
     const isUpdating = updatingRoleUserId === user.id;
-    const currentRole = user.role || ''; // role
+    const currentRole = user.role || '';
 
     const getRoleDisplayText = (role: string | null) => {
       if (!role) return 'No Role';
@@ -166,7 +172,7 @@ export function UsersTable({ users, roles, branches }: UsersTableProps) {
       switch (role.toLowerCase()) {
         case 'admin':
           return 'text-red-600 dark:text-red-400';
-        case 'staff':
+        case 'user':
           return 'text-green-600 dark:text-green-400';
         default:
           return 'text-gray-600 dark:text-gray-400';
@@ -316,6 +322,10 @@ export function UsersTable({ users, roles, branches }: UsersTableProps) {
                               </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
+                              <DropdownMenuItem onClick={() => handleEditClick(user)}>
+                                <IconPencil className="mr-2 h-4 w-4" />
+                                Edit
+                              </DropdownMenuItem>
                               <DropdownMenuItem
                                 className="text-destructive"
                                 onClick={() => handleDeleteClick(user)}
@@ -336,6 +346,29 @@ export function UsersTable({ users, roles, branches }: UsersTableProps) {
         </CardContent>
       </Card>
 
+      {editingUser && (
+        <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Edit User</DialogTitle>
+            </DialogHeader>
+
+            <UserForm
+              initialData={editingUser}
+              roles={roles}
+              branches={branches}
+              isEdit={true}
+              onSuccess={() => {
+                setShowEditDialog(false);
+                setEditingUser(null);
+                router.refresh();
+              }}
+            />
+          </DialogContent>
+        </Dialog>
+      )}
+
+
       {/* Delete Confirmation Dialog */}
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
         <AlertDialogContent>
@@ -354,7 +387,7 @@ export function UsersTable({ users, roles, branches }: UsersTableProps) {
             <AlertDialogAction
               onClick={handleDeleteConfirm}
               disabled={isDeleting}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              className="bg-destructive text-white hover:bg-destructive/90"
             >
               {isDeleting ? (
                 <>

@@ -1,5 +1,6 @@
 "use server";
 
+import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { actionClient } from "@/lib/safeAction";
 import {
@@ -10,6 +11,7 @@ import {
 import { RawPurchaseItem, RawPurchasePayment } from "@/types/purchase";
 import { ObjectId } from "mongodb";
 import { revalidatePath } from "next/cache";
+import { headers } from "next/headers";
 
 
 const mapItemsWithRelation = (items: RawPurchaseItem[]) =>
@@ -39,7 +41,7 @@ const mapPaymentsWithRelation = (payments: RawPurchasePayment[]) =>
 export const createPurchase = actionClient
   .inputSchema(fullPurchaseSchema)
   .action(async (values) => {
-    try {
+    try {      
       const { 
         items: rawItems,
         payments:rawPayments,
@@ -110,7 +112,17 @@ export const createPurchase = actionClient
 // ✅ GET ALL PURCHASES
 export const getPurchaseList = actionClient.action(async () => {
   try {
+    const session = await auth.api.getSession({
+        headers: await headers()
+    });
+
+    const role = session?.user?.role
+    const branchId = session?.user?.branch
+
+    const whereClause = role === "admin" ? {} : {branchId}
+
     const purchases = await prisma.purchase.findMany({
+      where : whereClause,
       orderBy: { purchaseDate: "desc" },
       include: { supplier: true, items: true, payments:true },
     });

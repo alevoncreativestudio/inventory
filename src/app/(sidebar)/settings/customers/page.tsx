@@ -1,10 +1,12 @@
+export const dynamic = "force-dynamic";
+
 import { customersColumns } from "@/components/customers/customer-columns";
 import { CustomerTable } from "@/components/customers/customer-table";
-import { prisma } from "@/lib/prisma";
 import { CustomerFormDialog } from "@/components/customers/customer-form";
+import { getCustomerList } from "@/actions/customer-action";
 
 export default async function CustomerPage() {
-  const customers = await prisma.customer.findMany();
+  const {data} = await getCustomerList();
 
   return (
     <div className="flex flex-1 flex-col">
@@ -18,7 +20,7 @@ export default async function CustomerPage() {
             <CustomerFormDialog />
           </div>
 
-          <CustomerTable columns={customersColumns} data={customers} />
+          <CustomerTable columns={customersColumns} data={data?.customers ?? []} />
         </div>
       </div>
     </div>

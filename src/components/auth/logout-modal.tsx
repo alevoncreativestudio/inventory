@@ -13,6 +13,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { logoutAction } from "@/actions/auth"; 
+import { useRouter } from "next/navigation";
 
 export const LogoutDialog = ({
   open,
@@ -21,11 +22,13 @@ export const LogoutDialog = ({
   open: boolean;
   setOpen: (open: boolean) => void;
 }) => {
+    const router = useRouter()
 
   const handleLogout = async () => {
       try {
         await logoutAction();
         toast.success("Logged out successfully");
+        router.replace('/login')
       } catch (error) {
         toast.error("Failed to logout");
         console.error("Logout error:", error);

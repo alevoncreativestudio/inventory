@@ -24,6 +24,8 @@ export const BranchFormDialog = ({ branch, open, openChange }: BranchFormProps) 
     resolver: zodResolver(branchSchema),
     defaultValues: {
       name: branch?.name || "",
+      email: branch?.email || "",
+      phone: branch?.phone || "",
     },
   });
 
@@ -78,6 +80,35 @@ export const BranchFormDialog = ({ branch, open, openChange }: BranchFormProps) 
             </FormItem>
           )}
         />
+
+        <FormField
+            control={form.control}
+            name="email"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Email</FormLabel>
+                <FormControl>
+                  <Input placeholder="Email" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="phone"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Phone Number</FormLabel>
+                <FormControl>
+                  <Input placeholder="Phone Number" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
 
         <FormDialogFooter>
           <DialogClose asChild>

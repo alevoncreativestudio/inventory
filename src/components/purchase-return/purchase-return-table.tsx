@@ -32,6 +32,7 @@ import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
 import { useState } from "react";
 import { PurchaseReturnTableProps } from "@/types/purchase-return";
+import { formatCurrency } from "@/lib/utils";
 
 export function PurchaseReturnTable<TValue>({ columns, data }: PurchaseReturnTableProps<TValue>) {
   const [sorting, setSorting] = useState<SortingState>([]);
@@ -62,12 +63,6 @@ export function PurchaseReturnTable<TValue>({ columns, data }: PurchaseReturnTab
       );
     },
   });
-
-  const formatCurrency = (amount: number) =>
-    new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: "USD",
-    }).format(amount);
 
     const totalReturnedAmount = data.reduce((acc, row) => acc + (row?.totalAmount ?? 0), 0);
 
@@ -142,7 +137,7 @@ export function PurchaseReturnTable<TValue>({ columns, data }: PurchaseReturnTab
                 <TableCell colSpan={2} className="text-center border-r-2">
                   Total Returned:
                 </TableCell>
-                <TableCell colSpan={2}>
+                <TableCell>
                   {formatCurrency(totalReturnedAmount)}
                 </TableCell>
               </TableRow>

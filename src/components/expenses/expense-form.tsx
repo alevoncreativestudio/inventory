@@ -34,6 +34,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { getExpenseCategoryDropdown } from "@/actions/expense-category-action";
 import { useEffect, useState } from "react";
 import { ExpenseFormProps } from "@/types/expense";
+import { getAllBranches } from "@/actions/auth";
 
 
 
@@ -47,12 +48,15 @@ export const ExpenseFormDialog = ({
   const { execute: updateProject, isExecuting: isUpdating } = useAction(updateExpense);
 
   const [expenseCategoryList, setExpenseCategoryList] = useState<{ name: string; id: string }[]>([])
+  const [baranchList, setBranchList] = useState<{ name: string; id: string;}[]>([]);
 
 
 
   useEffect(() => {
     const fetchOptions = async () => {
     const expenseCategory = await getExpenseCategoryDropdown()
+    const branches = await getAllBranches()
+    setBranchList(branches);
     setExpenseCategoryList(expenseCategory)
   };
   fetchOptions();
@@ -64,6 +68,7 @@ export const ExpenseFormDialog = ({
     resolver: zodResolver(expenseSchema),
     defaultValues: {
       title: expense?.title || "",
+      branchId:expense?.branchId || "",
       description: expense?.description ?? "",
       amount: expense?.amount ?? undefined,
       date: expense?.date ? new Date(expense.date) : new Date(),
@@ -101,6 +106,23 @@ export const ExpenseFormDialog = ({
             Fill out the expense details. Click save when youre done.
           </FormDialogDescription>
         </FormDialogHeader>
+
+        <FormField control={form.control} name="branchId" render={({ field }) => (
+          <FormItem>
+            <FormLabel>Business Location</FormLabel>
+            <Select onValueChange={field.onChange} value={field.value}>
+              <FormControl>
+                <SelectTrigger className="w-full"><SelectValue placeholder="Select Branch" /></SelectTrigger>
+              </FormControl>
+              <SelectContent>
+                {baranchList.map(branch => (
+                  <SelectItem key={branch.id} value={branch.id}>{branch.name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <FormMessage />
+          </FormItem>
+        )} />
 
         {/* expense Name */}
         <FormField

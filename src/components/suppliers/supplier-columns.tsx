@@ -24,6 +24,7 @@ import { useState } from "react";
 import { SupplierPayDialog } from "./supplier-pay-dialog";
 import { IconCash } from "@tabler/icons-react";
 import { SupplierHistoryListDialog } from "./supplier-payment-dialog";
+import { formatCurrency } from "@/lib/utils";
 
 export const supplierColumns: ColumnDef<Supplier>[] = [
   {
@@ -90,17 +91,26 @@ export const supplierColumns: ColumnDef<Supplier>[] = [
   {
     accessorKey: "openingBalance",
     header: "Opening Bal",
-    cell: ({ row }) => <div className="px-3">{row.getValue("openingBalance")}</div>,
+    cell: ({ row }) => {
+          const amount = row.getValue("openingBalance") as number;
+          return <div className="font-medium">{formatCurrency(amount)}</div>;
+        },
   },
   {
     accessorKey: "purchaseDue",
     header: "Purchase Due",
-    cell: ({ row }) => <div className="px-3">{row.getValue("purchaseDue")}</div>,
+    cell: ({ row }) => {
+          const amount = row.getValue("purchaseDue") as number;
+          return <div className="font-medium">{formatCurrency(amount)}</div>;
+        }
   },
   {
     accessorKey: "purchaseReturnDue",
     header: "Purchase Return Due",
-    cell: ({ row }) => <div className="px-3">{row.getValue("purchaseReturnDue")}</div>,
+    cell: ({ row }) => {
+          const amount = row.getValue("purchaseReturnDue") as number;
+          return <div className="font-medium">{formatCurrency(amount)}</div>;
+        },
   },
   {
     id: "action",

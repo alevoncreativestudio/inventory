@@ -1,5 +1,6 @@
 "use server";
 
+import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { actionClient } from "@/lib/safeAction";
 import {
@@ -10,6 +11,7 @@ import {
 import { RawSalesReturnItem } from "@/types/sales-return";
 import { ObjectId } from "mongodb";
 import { revalidatePath } from "next/cache";
+import { headers } from "next/headers";
 
 // Utility
 const mapItemsWithRelation = (items: RawSalesReturnItem[]) =>
@@ -70,19 +72,31 @@ export const createSalesReturn = actionClient
 // ✅ GET ALL SALES RETURNS
 export const getSalesReturnList = actionClient.action(async () => {
   try {
+    const session = await auth.api.getSession({
+      headers: await headers(),
+    });
+
+    const role = session?.user?.role;
+    const branchId = session?.user?.branch;
+
+    const whereClause = role === "admin" ? {} : { branchId };
+
     const returns = await prisma.salesReturn.findMany({
+      where: whereClause,
       orderBy: { salesReturnDate: "desc" },
       include: {
         customer: true,
         salesReturnItem: true,
       },
     });
+
     return { returns };
   } catch (error) {
     console.error("Get Sales Returns Error:", error);
     return { error: "Something went wrong" };
   }
 });
+
 
 // ✅ GET SALES RETURN BY ID
 export const getSalesReturnById = actionClient

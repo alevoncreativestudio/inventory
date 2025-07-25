@@ -5,9 +5,8 @@ import {
   IconCoin,
   IconCurrency,
   IconDashboard,
-  IconDatabase,
   IconFileText,
-  IconHelp, IconSearch,
+  IconSettings,
   IconShoppingBag,
   IconTruckDelivery,
   IconTruckLoading,
@@ -18,12 +17,6 @@ import { APP_CONFIG } from '@/config/app';
 
 
 export const SIDEBAR_DATA: SidebarData = {
-  demoUser: {
-    name: 'John Doe',
-    email: 'john@company.com',
-    avatar: '/avatars/default.jpg',
-  },
-
   // main navigation for all users
   navMain: [
     {
@@ -73,11 +66,11 @@ export const SIDEBAR_DATA: SidebarData = {
 
   // only admin can see this navigation
   admin: [
-    {
-      title: 'Data Management',
-      url: '/admin/data-management',
-      icon: IconDatabase,
-    },
+    // {
+    //   title: 'Data Management',
+    //   url: '/admin/data-management',
+    //   icon: IconDatabase,
+    // },
     {
       title: 'Reports',
       url: '/admin/reports',
@@ -92,20 +85,10 @@ export const SIDEBAR_DATA: SidebarData = {
 
   // secondary navigation for all users
   navSecondary: [
-    // {
-    //   title: 'Settings',
-    //   url: '/settings',
-    //   icon: IconSettings,
-    // },
     {
-      title: 'Search',
-      url: '/search',
-      icon: IconSearch,
-    },
-    {
-      title: 'Help & Support',
-      url: '/help',
-      icon: IconHelp,
+      title: 'Settings',
+      url: '/settings',
+      icon: IconSettings,
     },
   ],
 };

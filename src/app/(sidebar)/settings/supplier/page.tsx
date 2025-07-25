@@ -1,10 +1,12 @@
+export const dynamic = "force-dynamic";
+
 import { supplierColumns } from "@/components/suppliers/supplier-columns";
 import { SupplierTable } from "@/components/suppliers/supplier-table";
-import { prisma } from "@/lib/prisma";
 import { SupplierFormDialog } from "@/components/suppliers/supplier-form";
+import { getSupplierList } from "@/actions/supplier-action";
 
 export default async function SupplierPage() {
-  const suppliers = await prisma.supplier.findMany();
+  const {data} = await getSupplierList();  
 
   return (
     <div className="flex flex-1 flex-col">
@@ -18,7 +20,7 @@ export default async function SupplierPage() {
             <SupplierFormDialog />
           </div>
 
-          <SupplierTable columns={supplierColumns} data={suppliers} />
+          <SupplierTable columns={supplierColumns} data={data?.suppliers ?? []} />
         </div>
       </div>
     </div>

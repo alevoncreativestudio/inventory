@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { SalesTable } from "@/components/sales/sales-table";
 import { SalesFormSheet } from "@/components/sales/sales-form";
 import { salesColumns } from "@/components/sales/sales-colums";

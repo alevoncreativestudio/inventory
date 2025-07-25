@@ -1,9 +1,11 @@
 "use server";
+import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { actionClient } from "@/lib/safeAction";
 import { getProductByList, productSchema, productUpdateSchema } from "@/schemas/product-schema";
 import { ObjectId } from 'mongodb';
 import { revalidatePath } from 'next/cache';
+import { headers } from "next/headers";
 import { z } from 'zod';
 
 export const createProduct = actionClient
@@ -22,17 +24,32 @@ export const createProduct = actionClient
   });
 
 export const getProductList = actionClient.action(async () => {
-    try{
-        const products = await prisma.product.findMany({
-            orderBy:{ product_name : "desc"},
-            include:{brand:true,category:true}
-        })
-        return { products}
-    }catch(error){
-        console.log("Get Product List error :", error);
-        return {error: "Something went wrong"}
-    }
-})
+  try {
+    const session = await auth.api.getSession({
+      headers: await headers(),
+    });
+
+    const role = session?.user?.role;
+    const branchId = session?.user?.branch;
+
+    const whereClause = role === "admin" ? {} : { branchId };
+
+    const products = await prisma.product.findMany({
+      where: whereClause,
+      orderBy: { product_name: "desc" },
+      include: {
+        brand: true,
+        category: true,
+      },
+    });
+
+    return { products };
+  } catch (error) {
+    console.log("Get Product List error:", error);
+    return { error: "Something went wrong" };
+  }
+});
+
 
 export const getProductListForDropdown = actionClient.inputSchema(
     z.object({ query: z.string().optional() })

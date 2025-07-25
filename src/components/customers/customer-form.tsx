@@ -21,6 +21,13 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea"
 import { DialogClose } from "@/components/ui/dialog";
@@ -28,8 +35,11 @@ import { createCustomer, updateCustomer } from "@/actions/customer-action";
 import { useAction } from "next-safe-action/hooks";
 import { toast } from "sonner";
 import { CustomerFormProps } from "@/types/customer";
+import { useEffect, useState } from "react";
+import { getAllBranches } from "@/actions/auth";
 
 export const CustomerFormDialog = ({ customer, open, openChange }: CustomerFormProps) => {
+  const [baranchList, setBranchList] = useState<{ name: string; id: string;}[]>([]);
   const { execute: createCustomerAction, isExecuting: isCreating } = useAction(createCustomer);
   const { execute: updateCustomerAction, isExecuting: isUpdating } = useAction(updateCustomer);
 
@@ -38,6 +48,7 @@ export const CustomerFormDialog = ({ customer, open, openChange }: CustomerFormP
     defaultValues: {
       CustomerID:customer?.CustomerID || "",
       name: customer?.name || "",
+      branchId:customer?.branchId || "",
       email: customer?.email || "",
       phone: customer?.phone || "",
       address:customer?.address || "",
@@ -57,6 +68,14 @@ export const CustomerFormDialog = ({ customer, open, openChange }: CustomerFormP
     }
     close();
   };
+
+  useEffect(() => {
+    const fetchOptions = async () => {
+      const branches = await getAllBranches()
+      setBranchList(branches);
+    }
+    fetchOptions()
+  },[])
 
   return (
     <FormDialog open={open} openChange={openChange} form={form} onSubmit={handleSubmit}>
@@ -138,7 +157,7 @@ export const CustomerFormDialog = ({ customer, open, openChange }: CustomerFormP
           name="address"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Phone</FormLabel>
+              <FormLabel>Address</FormLabel>
               <FormControl>
                 <Textarea placeholder="Address" {...field} />
               </FormControl>
@@ -146,6 +165,23 @@ export const CustomerFormDialog = ({ customer, open, openChange }: CustomerFormP
             </FormItem>
           )}
         />
+
+        <FormField control={form.control} name="branchId" render={({ field }) => (
+          <FormItem>
+            <FormLabel>Business Location</FormLabel>
+            <Select onValueChange={field.onChange} value={field.value}>
+              <FormControl>
+                <SelectTrigger className="w-full"><SelectValue placeholder="Select Branch" /></SelectTrigger>
+              </FormControl>
+              <SelectContent>
+                {baranchList.map(branch => (
+                  <SelectItem key={branch.id} value={branch.id}>{branch.name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <FormMessage />
+          </FormItem>
+        )} />
 
         <FormDialogFooter>
           <DialogClose asChild>

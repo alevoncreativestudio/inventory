@@ -25,6 +25,7 @@ import { useState } from "react";
 import { CustomerPayDialog } from "./customer-pay-dialog";
 import { IconCash } from "@tabler/icons-react";
 import { CustomerHistoryListDialog } from "./customer-payment-dialog";
+import { formatCurrency } from "@/lib/utils";
 
 export const customersColumns: ColumnDef<Customer>[] = [
   
@@ -92,17 +93,26 @@ export const customersColumns: ColumnDef<Customer>[] = [
   {
     accessorKey: "openingBalance",
     header: "Opening Bal",
-    cell: ({ row }) => <div className="px-3">{row.getValue("openingBalance")}</div>,
+    cell: ({ row }) => {
+        const amount = row.getValue("openingBalance") as number;
+        return <div className="font-medium">{formatCurrency(amount)}</div>;
+      },
   },
   {
     accessorKey: "salesDue",
     header: "Sales Due",
-    cell: ({ row }) => <div className="px-3">{row.getValue("salesDue")}</div>,
+    cell: ({ row }) =>  {
+        const amount = row.getValue("salesDue") as number;
+        return <div className="font-medium">{formatCurrency(amount)}</div>;
+      },
   },
   {
     accessorKey: "salesReturnDue",
     header: "Sales Return Due",
-    cell: ({ row }) => <div className="px-3">{row.getValue("salesReturnDue")}</div>,
+    cell: ({ row }) => {
+        const amount = row.getValue("salesReturnDue") as number;
+        return <div className="font-medium">{formatCurrency(amount)}</div>;
+      },
   },
   {
     id: "action",

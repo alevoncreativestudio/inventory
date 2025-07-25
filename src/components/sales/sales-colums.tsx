@@ -20,6 +20,7 @@ import {
 import { SalesDeleteDialog } from "./sales-delete-dailog";
 import { useState } from "react";
 import { SalesFormSheet } from "./sales-form";
+import { formatCurrency, formatDate } from "@/lib/utils";
 
 export const salesColumns: ColumnDef<Sale>[] = [
   {
@@ -37,13 +38,26 @@ export const salesColumns: ColumnDef<Sale>[] = [
     accessorKey: "salesdate",
     header: "Date",
     cell: ({ row }) => {
-      const date = row.getValue("salesdate");
+      const date = row.getValue("salesdate") as string | Date;
       return (
         <div>
-          {date ? new Date(date as string).toLocaleDateString("en-GB") : "-"}
+          {date ? formatDate(date) : "-"}
         </div>
       );
     },
+  },
+  {
+    accessorKey: "location",
+    header: "Location",
+    cell:({row}) =>{
+      const Location = row.original.branchId
+
+      return (
+        <span>
+          {Location}
+        </span>
+      )
+    }
   },
   {
     accessorKey: "customerId",
@@ -58,11 +72,7 @@ export const salesColumns: ColumnDef<Sale>[] = [
     header: "Grand Total",
     cell: ({ row }) => {
       const amount = row.getValue("grandTotal") as number;
-      const formatted = new Intl.NumberFormat("en-US", {
-        style: "currency",
-        currency: "USD",
-      }).format(amount);
-      return <div className="font-medium">{formatted}</div>;
+      return <div className="font-medium">{formatCurrency(amount)}</div>;
     },
   },
   {
@@ -70,11 +80,7 @@ export const salesColumns: ColumnDef<Sale>[] = [
     header: "Payment Due",
     cell: ({ row }) => {
       const amount = row.getValue("dueAmount") as number;
-      const formatted = new Intl.NumberFormat("en-US", {
-        style: "currency",
-        currency: "USD",
-      }).format(amount);
-      return <div className="font-medium">{formatted}</div>;
+      return <div className="font-medium">{formatCurrency(amount)}</div>;
     },
   },
   {

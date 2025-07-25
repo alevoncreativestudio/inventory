@@ -5,6 +5,7 @@ export const purchaseStatusEnum = z.enum(["Received", "Pending", "Cancelled"]);
 export const purchaseSchema = z.object({
   supplierId: z.string().min(1, "Supplier is required"),
   referenceNo:z.string().min(1),
+  branchId: z.string().min(1, "Branch is required"),
   purchaseDate: z.coerce.date(),
   status: purchaseStatusEnum,
   totalAmount:z.coerce.number(),

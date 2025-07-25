@@ -3,7 +3,7 @@ import { z } from "zod"
 export const productSchema = z.object({
   product_name: z.string().min(2, "Product name is required"),
   sku: z.string().min(1, "SKU is required"),
-  barcodeType: z.string().min(1, "Barcode type is required"),
+  branchId: z.string().min(1, "Branch is required"),
   unit: z.string().min(1, "Unit is required"),
   stock: z.coerce.number().min(0, { message: "Stock cannot be negative" }),
   brandId: z.string().min(1, "Brand must be selected"),

@@ -19,7 +19,6 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import Link from "next/link";
 import { loginSchema } from "@/schemas/user-schema";
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
@@ -56,7 +55,7 @@ export function LoginForm({
         <CardHeader>
           <CardTitle>Login to your account</CardTitle>
           <CardDescription>
-            Enter your email below to login to your account
+            Enter your email and password to login
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -87,12 +86,12 @@ export function LoginForm({
                     <FormItem>
                       <div className="flex items-center justify-between">
                         <FormLabel>Password</FormLabel>
-                        <a
+                        {/* <a
                           href="#"
                           className="text-sm underline-offset-4 hover:underline"
                         >
                           Forgot your password?
-                        </a>
+                        </a> */}
                       </div>
                       <FormControl>
                         <Input type="password" {...field} />
@@ -101,18 +100,17 @@ export function LoginForm({
                     </FormItem>
                   )}
                 />
+                {result?.validationErrors && (
+                  <div className="text-sm font-medium text-red-600">
+                    {result.validationErrors?._errors}
+                  </div>
+                )}
                 <Button type="submit" className="w-full" disabled={isExecuting}>
                   {isExecuting ? <Loader2 className="animate-spin size-4" /> : "Login"}
                 </Button>
               </div>
             </form>
           </Form>
-          <div className="mt-4 text-center text-sm">
-            Don&apos;t have an account?{" "}
-            <Link href="/sign-up" className="underline underline-offset-4">
-              Sign up
-            </Link>
-          </div>
         </CardContent>
       </Card>
     </div>

@@ -1,5 +1,6 @@
 "use server";
 
+import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { actionClient } from "@/lib/safeAction";
 import {
@@ -10,6 +11,7 @@ import {
 import { RawSaleItem, RawSalesPayment } from "@/types/sales";
 import { ObjectId } from "mongodb";
 import { revalidatePath } from "next/cache";
+import { headers } from "next/headers";
 
 const mapItemsWithRelation = (items: RawSaleItem[]) =>
   items.map((item) => ({
@@ -105,16 +107,28 @@ export const createSale = actionClient
 // GET ALL SALES
 export const getSalesList = actionClient.action(async () => {
   try {
+    const session = await auth.api.getSession({
+      headers: await headers(),
+    });
+
+    const role = session?.user?.role;
+    const branchId = session?.user?.branch;
+
+    const whereClause = role === "admin" ? {} : { branchId };
+
     const sales = await prisma.sale.findMany({
+      where: whereClause,
       orderBy: { salesdate: "desc" },
       include: { customer: true, items: true, payments: true },
     });
+
     return { sales };
   } catch (error) {
     console.error("Get Sales List Error:", error);
     return { error: "Something went wrong" };
   }
 });
+
 
 // GET SALE BY ID
 export const getSaleById = actionClient

@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { PurchaseReturnTable } from "@/components/purchase-return/purchase-return-table";
 import { PurchaseReturnFormSheet } from "@/components/purchase-return/purchase-return-form";
 import { purchaseReturnColumns } from "@/components/purchase-return/purchase-return-colums";

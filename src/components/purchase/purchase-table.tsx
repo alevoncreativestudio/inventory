@@ -40,6 +40,7 @@ import {
 import { Search } from "lucide-react";
 import { useState } from "react";
 import { PurchaseTableProps } from "@/types/purchase";
+import { formatCurrency } from "@/lib/utils";
 
 export function PurchaseTable<TValue>({ columns, data }: PurchaseTableProps<TValue>) {
   const [sorting, setSorting] = useState<SortingState>([]);
@@ -71,18 +72,10 @@ export function PurchaseTable<TValue>({ columns, data }: PurchaseTableProps<TVal
     },
   });
 
-  const formatCurrency = (amount: number) =>
-    new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: "USD",
-    }).format(amount);
 
   const totalPurchaseAmount = data.reduce((acc, row) => acc + (row?.totalAmount ?? 0), 0);
 
   const totalDueAmount = data.reduce((acc,row) => acc+ (row?.dueAmount ?? 0),0)
-
-  const formattedTotalPurchase = formatCurrency(totalPurchaseAmount);
-  const formattedDueAmount = formatCurrency(totalDueAmount);
 
   return (
     <div className="flex flex-col gap-5">
@@ -122,7 +115,7 @@ export function PurchaseTable<TValue>({ columns, data }: PurchaseTableProps<TVal
             </div>
 
             {/* Payment Status Filter */}
-            <div className="w-full">
+            {/* <div className="w-full">
               <label className="text-sm font-medium text-muted-foreground mb-1 block">
                 Filter by Payment Status
               </label>
@@ -148,7 +141,7 @@ export function PurchaseTable<TValue>({ columns, data }: PurchaseTableProps<TVal
                   <SelectItem value="Partial">Partial</SelectItem>
                 </SelectContent>
               </Select>
-            </div>
+            </div> */}
           </div>
         </CardHeader>
       </Card>
@@ -212,8 +205,8 @@ export function PurchaseTable<TValue>({ columns, data }: PurchaseTableProps<TVal
               <TableRow>
                 <TableCell colSpan={4} />
                 <TableCell className="text-center border-r-2">Total:</TableCell>
-                <TableCell className="border-r-2">{formattedTotalPurchase}</TableCell>
-                <TableCell colSpan={2} className="border-r-2">{formattedDueAmount}</TableCell>
+                <TableCell className="border-r-2">{formatCurrency(totalPurchaseAmount)}</TableCell>
+                <TableCell colSpan={2} className="border-r-2">{formatCurrency(totalDueAmount)}</TableCell>
               </TableRow>
             </TableFooter>
           </Table>

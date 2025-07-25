@@ -20,6 +20,7 @@ import {
 import { useState } from "react";
 import { PurchaseReturnFormSheet } from "./purchase-return-form";
 import { PurchaseReturnDeleteDialog } from "./purchase-return-delete-dailog";
+import { formatCurrency, formatDate } from "@/lib/utils";
 
 export const purchaseReturnColumns: ColumnDef<PurchaseReturn>[] = [
   {
@@ -37,8 +38,8 @@ export const purchaseReturnColumns: ColumnDef<PurchaseReturn>[] = [
     accessorKey: "returnDate",
     header: "Date",
     cell: ({ row }) => {
-      const date = row.getValue("returnDate");
-      return <div>{date ? new Date(date as string).toLocaleDateString("en-GB") : "-"}</div>;
+      const date = row.getValue("returnDate") as string | Date;
+      return <div>{date ? formatDate(date) : "-"}</div>;
     },
   },
   {
@@ -54,11 +55,7 @@ export const purchaseReturnColumns: ColumnDef<PurchaseReturn>[] = [
     header: "Return Total",
     cell: ({ row }) => {
       const amount = row.getValue("totalAmount") as number;
-      const formatted = new Intl.NumberFormat("en-US", {
-        style: "currency",
-        currency: "USD",
-      }).format(amount);
-      return <div className="font-medium">{formatted}</div>;
+      return <div className="font-medium">{formatCurrency(amount)}</div>;
     },
   },
   {

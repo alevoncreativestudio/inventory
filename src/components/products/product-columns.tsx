@@ -23,6 +23,7 @@ import { Button } from "@/components/ui/button";
 import { ProductDeleteDialog } from "./products-delete-dailog";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { formatCurrency } from "@/lib/utils";
 
 export const productColumns: ColumnDef<Product>[] = [
   {
@@ -55,10 +56,18 @@ export const productColumns: ColumnDef<Product>[] = [
   {
     accessorKey: "excTax",
     header: "Purchase Price",
+    cell: ({ row }) => {
+      const amount = row.getValue("excTax") as number;
+      return <div className="font-medium">{formatCurrency(amount)}</div>;
+    },
   },
   {
     accessorKey: "sellingPrice",
     header: "Selling Price",
+    cell: ({ row }) => {
+      const amount = row.getValue("sellingPrice") as number;
+      return <div className="font-medium">{formatCurrency(amount)}</div>;
+    },
   },
   {
     accessorKey: "stock",
@@ -67,15 +76,7 @@ export const productColumns: ColumnDef<Product>[] = [
   {
     accessorKey:"tax",
     header:"Tax",
-    cell: ({row}) => {
-      const Tax = row.original.tax
-
-      return (
-        <span >
-            {Tax}
-        </span>
-      )
-    }
+    cell: ({ row }) => <div>{row.getValue("tax")}%</div>
   },
   {
     accessorKey: "brand",

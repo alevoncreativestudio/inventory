@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { PurchaseTable } from "@/components/purchase/purchase-table";
 import { PurchaseFormSheet } from "@/components/purchase/purchase-form";
 import { purchaseColumns } from "@/components/purchase/purchase-colums";
