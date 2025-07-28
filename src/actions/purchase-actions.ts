@@ -142,7 +142,7 @@ export const getPurchaseList = actionClient.action(async () => {
     const purchases = await prisma.purchase.findMany({
       where : whereClause,
       orderBy: { purchaseDate: "desc" },
-      include: { supplier: true, items: true, payments:true },
+      include: { supplier: true, items: true, payments:true ,branch:true},
     });
     return { purchases };
   } catch (error) {

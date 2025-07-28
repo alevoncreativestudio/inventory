@@ -140,6 +140,7 @@ export function PurchaseReturnTable<TValue>({ columns, data }: PurchaseReturnTab
                 <TableCell>
                   {formatCurrency(totalReturnedAmount)}
                 </TableCell>
+                <TableCell/>
               </TableRow>
             </TableFooter>
           </Table>

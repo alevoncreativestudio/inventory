@@ -57,7 +57,7 @@ export default async function ProfitAndLossReport() {
                 <TableCell className="text-right">{formatCurrency(totalPurchases)}</TableCell>
               </TableRow>
               <TableRow>
-                <TableCell>Total Sales Return</TableCell>
+                <TableCell>Total Purchase Return</TableCell>
                 <TableCell className="text-right">{formatCurrency(totalPurchasesReturn)}</TableCell>
               </TableRow>
               <TableRow>
@@ -81,8 +81,8 @@ export default async function ProfitAndLossReport() {
         <CardContent className=" py-6 space-y-4">
           <div className="text-lg">
             <span className="font-semibold">Gross Profit: </span>
-            <span className={`font-bold ${netProfit >= 0 ? "text-green-600" : "text-red-600"}`}>
-              {formatCurrency(netProfit)}
+            <span className={`font-bold ${grossProfit >= 0 ? "text-green-600" : "text-red-600"}`}>
+              {formatCurrency(grossProfit)}
             </span>
           </div>
 

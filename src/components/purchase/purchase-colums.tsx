@@ -50,7 +50,7 @@ export const purchaseColumns: ColumnDef<Purchase>[] = [
     accessorKey: "location",
     header: "Location",
     cell:({row}) =>{
-      const Location = row.original.branchId
+      const Location = row.original.branch?.name
 
       return (
         <span>

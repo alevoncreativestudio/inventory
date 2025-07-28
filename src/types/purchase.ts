@@ -1,4 +1,5 @@
 import { 
+  Branch,
   Purchase as PrismaPurchase,
   PurchaseItem as PrismaPurchaseItem,
   PurchasePayment} from "@prisma/client";
@@ -14,6 +15,7 @@ export interface Purchase extends PrismaPurchase {
   supplier: { name: string };
   items: PurchaseItem[];
   payments:PurchasePayment[];
+  branch?:Branch
 }
 
 export interface PurchaseFormProps {

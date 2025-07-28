@@ -441,14 +441,13 @@ useEffect(() => {
                           <FormField control={form.control} name={`items.${idx}.tax`} render={({ field }) => (
                             <FormItem>
                               <Select onValueChange={(value) => {
-                                field.onChange(value); // update the form value
+                                field.onChange(value); 
                                 const quantity = Number(form.getValues(`items.${idx}.quantity`));
                                 const excTax = Number(form.getValues(`items.${idx}.excTax`));
                                 const discount = Number(form.getValues(`items.${idx}.discount`));
                                 const margin = Number(form.getValues(`items.${idx}.margin`));
 
-                                // Parse tax % (e.g., 18 for GST@18%)
-                                const taxRate = Number(value); // make sure value is numeric (e.g. 18)
+                                const taxRate = Number(value); 
 
                                 const incTax = Math.round(excTax * (1 + taxRate));
                                 const subtotal = quantity * excTax;

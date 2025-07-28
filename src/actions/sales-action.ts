@@ -119,7 +119,7 @@ export const getSalesList = actionClient.action(async () => {
     const sales = await prisma.sale.findMany({
       where: whereClause,
       orderBy: { salesdate: "desc" },
-      include: { customer: true, items: true, payments: true },
+      include: { customer: true, items: true, payments: true ,branch:true},
     });
 
     return { sales };

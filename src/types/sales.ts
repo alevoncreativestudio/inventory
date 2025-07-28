@@ -1,4 +1,4 @@
-import { Sale as PrismaSale, SaleItem as PrismaSaleItem, SalesPayment } from "@prisma/client";
+import { Branch, Sale as PrismaSale, SaleItem as PrismaSaleItem, SalesPayment } from "@prisma/client";
 import { ColumnDef } from "@tanstack/react-table";
 
 export interface SaleItem extends PrismaSaleItem {
@@ -11,6 +11,7 @@ export interface Sale extends PrismaSale {
   customer: { name: string };
   items: SaleItem[];
   payments:SalesPayment[];
+  branch?:Branch
 }
 
 export interface SaleFormProps {
