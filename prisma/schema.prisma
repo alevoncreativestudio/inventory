@@ -85,6 +85,9 @@ model PurchaseItem {
   excTax       Float
   incTax       Float
   discount     Float
+  tax          String
+  margin       Float
+  sellingPrice Float
   subtotal     Float
   total        Float
   product      Product  @relation(fields: [productId], references: [id])

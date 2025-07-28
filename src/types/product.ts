@@ -14,10 +14,11 @@ export interface ProductTableProps<TValue> {
 export interface ProductOption {
   id: string;
   product_name: string;
-  sellingPrice:number;
   tax:string;
+  sellingPrice:number;
   stock:number;
   excTax:number;
   incTax:number;
+  margin:number;
   quantity:number;
 }

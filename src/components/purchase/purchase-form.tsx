@@ -24,7 +24,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { useForm, FormProvider, useFieldArray } from "react-hook-form";
+import { useForm, FormProvider, useFieldArray, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import { fullPurchaseSchema } from "@/schemas/purchase-item-schema";
@@ -58,6 +58,7 @@ import { cn } from "@/lib/utils";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "../ui/command";
 import { nanoid } from "nanoid";
 import { getAllBranches } from "@/actions/auth";
+import { getTaxRateListForDropdown } from "@/actions/taxrate-actions";
 
 
 export const PurchaseFormSheet = ({
@@ -75,23 +76,32 @@ export const PurchaseFormSheet = ({
   const [showSupplierSuggestions, setShowSupplierSuggestions] = useState(false);
   const [selectedSupplierOpeningBalance, setSelectedSupplierOpeningBalance] = useState<number | null>(null);
   const [baranchList, setBranchList] = useState<{ name: string; id: string;}[]>([]);
+  const [taxRateList, setTaxRateList] = useState<{ name: string; taxRate: string; id: string }[]>([]);
   
   const itemFieldKeys: PurchaseItemField[] = [
     "quantity",
     "excTax",
+    "tax",
     "discount",
     "incTax",
+    "margin",
     "subtotal",
     "total",
+    "sellingPrice",
   ];
+
+  const itemFieldKeysWithoutTax = itemFieldKeys.filter((key) => key !== "tax");
 
 
   useEffect(() => {
     const fetchOptions = async () => {
       const res = await getSupplierListForDropdown();
       const branches = await getAllBranches()
+      const taxRateRes = await getTaxRateListForDropdown();
       setSupplierList(res);
       setBranchList(branches);
+      setTaxRateList(taxRateRes);
+
     };
     fetchOptions();
   }, []);
@@ -122,6 +132,26 @@ export const PurchaseFormSheet = ({
     control: form.control,
     name: "items",
   });
+
+const excTax = useWatch({ control: form.control, name: "items.0.excTax" });
+const incTax = useWatch({ control: form.control, name: "items.0.incTax" });
+const taxRate = useWatch({ control: form.control, name: "items.0.tax" });
+const margin = useWatch({ control: form.control, name: "items.0.margin" });
+const sellingPriceTaxType = useWatch({ control: form.control, name: "items.0.sellingPrice" });
+
+useEffect(() => {
+  const exc = Number(excTax) || 0;
+  const inc = Number(incTax) || 0;
+  const tax = Number(taxRate) || 0;
+  const mgn = Number(margin) || 0;
+
+  const newInc = exc + (exc * (tax * 100)) / 100;
+  if (!isNaN(newInc)) form.setValue("items.0.incTax", parseFloat(newInc.toFixed(2)));
+
+  const selling = inc + (inc * mgn) / 100;
+
+  if (!isNaN(selling)) form.setValue("items.0.sellingPrice", parseFloat(selling.toFixed(2)));
+}, [excTax, incTax, taxRate, margin, sellingPriceTaxType, form]);
 
 
   useEffect(() => {
@@ -336,7 +366,12 @@ export const PurchaseFormSheet = ({
                   </PopoverTrigger>
                   <PopoverContent className="w-full p-0">
                     <Command shouldFilter={false}>
-                      <CommandInput placeholder="Search product..." value={productSearch} onValueChange={setProductSearch} />
+                      <CommandInput 
+                      placeholder="Search product..." 
+                      value={productSearch} 
+                      onValueChange={setProductSearch} 
+                      />
+
                       <CommandList>
                         <CommandEmpty>No products found.</CommandEmpty>
                         <CommandGroup>
@@ -353,6 +388,9 @@ export const PurchaseFormSheet = ({
                                   discount: 0,
                                   excTax: p.excTax,
                                   incTax: p.incTax,
+                                  tax:p.tax,
+                                  margin:p.margin,
+                                  sellingPrice:p.sellingPrice,
                                   subtotal: p.excTax,
                                   total:p.incTax,
                                 });
@@ -376,12 +414,15 @@ export const PurchaseFormSheet = ({
                   <TableRow>
                     <TableHead>Product Name</TableHead>
                     <TableHead>Available Stock</TableHead>
+                    <TableHead>Available Stock</TableHead>
                     <TableHead>Qty</TableHead>
                     <TableHead>Unit Cost(Before Tax)</TableHead>
                     <TableHead>Discount</TableHead>
                     <TableHead>Cost (include Tax)</TableHead>
+                    <TableHead>Margin(%)</TableHead>
                     <TableHead>Subtotal</TableHead>
                     <TableHead>Total</TableHead>
+                    <TableHead>Selling Price</TableHead>
                     <TableHead />
                   </TableRow>
                 </TableHeader>
@@ -396,7 +437,46 @@ export const PurchaseFormSheet = ({
                         {f.stock}
                       </TableCell>
 
-                      {itemFieldKeys.map((key) => (
+                      <TableCell>
+                          <FormField control={form.control} name={`items.${idx}.tax`} render={({ field }) => (
+                            <FormItem>
+                              <Select onValueChange={(value) => {
+                                field.onChange(value); // update the form value
+                                const quantity = Number(form.getValues(`items.${idx}.quantity`));
+                                const excTax = Number(form.getValues(`items.${idx}.excTax`));
+                                const discount = Number(form.getValues(`items.${idx}.discount`));
+                                const margin = Number(form.getValues(`items.${idx}.margin`));
+
+                                // Parse tax % (e.g., 18 for GST@18%)
+                                const taxRate = Number(value); // make sure value is numeric (e.g. 18)
+
+                                const incTax = Math.round(excTax * (1 + taxRate));
+                                const subtotal = quantity * excTax;
+                                const totalBeforeDiscount = quantity * incTax;
+                                const total = totalBeforeDiscount - discount;
+                                const sellingPrice = Math.round(incTax * (1 + margin / 100) * 100) / 100;
+
+                                form.setValue(`items.${idx}.incTax`, incTax);
+                                form.setValue(`items.${idx}.subtotal`, subtotal);
+                                form.setValue(`items.${idx}.total`, total);
+                                form.setValue(`items.${idx}.sellingPrice`, sellingPrice);
+                              }} 
+                              value={field.value}>
+                                <FormControl>
+                                  <SelectTrigger className="w-full"><SelectValue placeholder="Select Tax Rate" /></SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                  {taxRateList.map(tax => (
+                                    <SelectItem key={tax.id} value={tax.taxRate}>{tax.name}</SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                              <FormMessage />
+                            </FormItem>
+                          )} />
+                        </TableCell>
+
+                      {itemFieldKeysWithoutTax.map((key) => (
                         <TableCell key={key}>
                           <FormField
                             control={form.control}
@@ -408,16 +488,23 @@ export const PurchaseFormSheet = ({
                                   {...field}
                                   value={field.value ?? ""}
                                   onBlur={() => {
-                                    const qty = Number(form.getValues(`items.${idx}.quantity`));
-                                    const discount = Number(form.getValues(`items.${idx}.discount`));
-                                    const tax = Number(form.getValues(`items.${idx}.incTax`));
+                                      const quantity = Number(form.getValues(`items.${idx}.quantity`));
+                                      const excTax = Number(form.getValues(`items.${idx}.excTax`));
+                                      const discount = Number(form.getValues(`items.${idx}.discount`));
+                                      const incTax = Number(form.getValues(`items.${idx}.incTax`));
+                                      const margin = Number(form.getValues(`items.${idx}.margin`));
+                                      const sellingPrice = Number(form.getValues(`items.${idx}.sellingPrice`));
 
-                                    const subtotal = qty * tax;
-                                    const total = subtotal - discount;
+                                      const subtotal = quantity * excTax;
+                                      const totalBeforeDiscount = quantity * incTax;
+                                      const total = totalBeforeDiscount - discount;
 
-                                    form.setValue(`items.${idx}.subtotal`, subtotal);
-                                    form.setValue(`items.${idx}.total`, total);
-                                  }}
+                                      form.setValue(`items.${idx}.subtotal`, subtotal);
+                                      form.setValue(`items.${idx}.total`, total);
+
+                                      form.setValue(`items.${idx}.sellingPrice`, sellingPrice);
+                                      form.setValue(`items.${idx}.margin`, margin);
+                                    }}
                                 />
                               </FormControl>
                             )}

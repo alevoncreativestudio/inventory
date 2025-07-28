@@ -31,6 +31,9 @@ export type PurchaseItemField =
   | "quantity"
   | "excTax"
   | "incTax"
+  | "tax"
+  | "margin"
+  | "sellingPrice"
   | "discount"
   | "subtotal"
   | "total";
@@ -55,6 +58,9 @@ export type RawPurchaseItem = {
   quantity: number;
   excTax: number;
   incTax:number;
+  tax:string;
+  margin:number;
+  sellingPrice:number;
   discount: number;
   subtotal: number;
   total: number;

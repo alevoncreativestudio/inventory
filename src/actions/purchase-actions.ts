@@ -20,6 +20,9 @@ const mapItemsWithRelation = (items: RawPurchaseItem[]) =>
     quantity: item.quantity,
     excTax: item.excTax,
     incTax:item.incTax,
+    tax:item.tax,
+    margin:item.margin,
+    sellingPrice:item.sellingPrice,
     discount: item.discount,
     subtotal: item.subtotal,
     total: item.total,
@@ -79,6 +82,21 @@ export const createPurchase = actionClient
           await prisma.product.update({
             where: { id: item.productId },
             data: {
+              excTax: {
+                set:item.excTax
+              },
+              incTax: {
+                set:item.incTax
+              },
+              margin: {
+                set:item.margin
+              },
+              sellingPrice: {
+                set:item.sellingPrice
+              },
+              tax: {
+                set:item.tax
+              },
               stock: {
                 increment: item.quantity,
               },
@@ -218,6 +236,21 @@ export const updatePurchase = actionClient
           prisma.product.update({
             where: { id: item.productId },
             data: {
+              excTax: {
+                set:item.excTax
+              },
+              incTax: {
+                set:item.incTax
+              },
+              margin: {
+                set:item.margin
+              },
+              sellingPrice: {
+                set:item.sellingPrice
+              },
+              tax: {
+                set:item.tax
+              },
               stock: {
                 increment: item.quantity,
               },
