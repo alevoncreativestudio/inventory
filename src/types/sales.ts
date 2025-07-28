@@ -11,7 +11,7 @@ export interface Sale extends PrismaSale {
   customer: { name: string };
   items: SaleItem[];
   payments:SalesPayment[];
-  branch?:Branch
+  branch?:Branch | null;
 }
 
 export interface SaleFormProps {

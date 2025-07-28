@@ -15,7 +15,7 @@ export interface Purchase extends PrismaPurchase {
   supplier: { name: string };
   items: PurchaseItem[];
   payments:PurchasePayment[];
-  branch?:Branch
+  branch?:Branch | null;
 }
 
 export interface PurchaseFormProps {
