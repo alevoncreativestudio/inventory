@@ -1,11 +1,13 @@
 import {
   IconBox,
   IconBrandShopee,
+  IconBuilding,
   IconCategory,
   IconCoin,
   IconCurrency,
   IconDashboard,
   IconFileText,
+  IconPercentage,
   IconSettings,
   IconShoppingBag,
   IconTruckDelivery,
@@ -100,6 +102,16 @@ export const SIDEBAR_DATA: SidebarData = {
       url: "/admin/users",
       icon: IconUserPlus,
     },
+    { 
+      title: "Tax Rates", 
+      url: "/settings/taxrates",
+      icon: IconPercentage, 
+     },
+    { 
+      title: "Branches", 
+      url: "/settings/branches",
+      icon: IconBuilding, 
+    },
   ],
 
   // secondary navigation for all users
@@ -112,8 +124,6 @@ export const SIDEBAR_DATA: SidebarData = {
         { title: "Expense Category", url: "/settings/expensescategory" },
         { title: "Customers", url: "/settings/customers" },
         { title: "Supplier", url: "/settings/supplier" },
-        { title: "Tax Rates", url: "/settings/taxrates" },
-        { title: "Branches", url: "/settings/branches" },
       ],
     },
   ],

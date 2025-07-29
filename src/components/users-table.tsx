@@ -233,7 +233,7 @@ export function UsersTable({ users, roles, branches }: UsersTableProps) {
           onValueChange={(newBranchId) => handleBranchUpdate(user.id, newBranchId, currentBranchId)}
           disabled={isUpdating}
         >
-          <SelectTrigger className="w-32 h-8 border-none shadow-none p-2 hover:bg-muted/50 focus:ring-1 focus:ring-ring">
+          <SelectTrigger className="w-36 h-8 border-none shadow-none p-2 hover:bg-muted/50 focus:ring-1 focus:ring-ring">
             <SelectValue>
               <span className="text-sm font-medium text-blue-600 dark:text-blue-400">
                 {getBranchDisplayText(currentBranchId)}

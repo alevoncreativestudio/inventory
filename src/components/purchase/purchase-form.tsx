@@ -484,6 +484,7 @@ useEffect(() => {
                               <FormControl>
                                 <Input
                                   type="number"
+                                  className="min-w-18"
                                   {...field}
                                   value={field.value ?? ""}
                                   onBlur={() => {
