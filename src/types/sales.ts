@@ -55,4 +55,5 @@ export interface RawSalesPayment {
   paidOn: Date;
   paymentMethod: string;
   paymentNote?: string | null;
+  dueDate?: Date | null;
 }

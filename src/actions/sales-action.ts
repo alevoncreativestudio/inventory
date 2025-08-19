@@ -33,6 +33,7 @@ const mapPaymentsWithRelation = (payments: RawSalesPayment[]) =>
     paidOn: payment.paidOn,
     paymentMethod: payment.paymentMethod,
     paymentNote: payment.paymentNote,
+    dueDate:payment.dueDate
   }));
 
 // CREATE SALE

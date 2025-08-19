@@ -73,5 +73,6 @@ export interface RawPurchasePayment {
   paidOn: Date;
   paymentMethod: string;
   paymentNote?: string | null;
+  dueDate?: Date | null;
 }
 

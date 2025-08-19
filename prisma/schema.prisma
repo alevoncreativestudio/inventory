@@ -214,6 +214,7 @@ model PurchasePayment {
   paidOn        DateTime
   paymentMethod String
   paymentNote   String?
+  dueDate       DateTime?
   purchaseId    String   @db.ObjectId
 
   purchase      Purchase @relation(fields: [purchaseId], references: [id])
@@ -228,6 +229,7 @@ model SalesPayment {
   paidOn        DateTime
   paymentMethod String
   paymentNote   String?
+  dueDate       DateTime?
   salesId       String   @db.ObjectId
 
   sale          Sale @relation(fields: [salesId], references: [id])

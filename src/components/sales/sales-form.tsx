@@ -536,6 +536,54 @@ console.log(customerList);
                   </div>
                 </div>
               </div>
+
+              {/* Conditionally show Due Date if amount is due */}
+              {(() => {
+                const total = form
+                  .watch("items")
+                  .reduce((sum, item) => sum + (Number(item.total) || 0), 0);
+                const paid = form
+                  .watch("salesPayment")
+                  .reduce((sum, p) => sum + (Number(p.amount) || 0), 0);
+                const due = total - paid;
+
+                if (due > 0) {
+                  return (
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <FormField
+                      control={form.control}
+                      name="salesPayment.0.dueDate"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Due Date</FormLabel>
+                          <Popover>
+                            <PopoverTrigger asChild>
+                              <FormControl>
+                                <Button variant="outline" className="w-full text-left">
+                                  {field.value
+                                    ? new Date(field.value).toLocaleDateString()
+                                    : "Select date"}
+                                </Button>
+                              </FormControl>
+                            </PopoverTrigger>
+                            <PopoverContent>
+                              <Calendar
+                                mode="single"
+                                selected={field.value ? new Date(field.value) : undefined}
+                                onSelect={field.onChange}
+                                captionLayout="dropdown"
+                              />
+                            </PopoverContent>
+                          </Popover>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  );
+                }
+                return null;
+              })()}
             </Card>
 
 

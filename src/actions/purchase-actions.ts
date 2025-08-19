@@ -37,6 +37,7 @@ const mapPaymentsWithRelation = (payments: RawPurchasePayment[]) =>
     paidOn: payment.paidOn,
     paymentMethod: payment.paymentMethod,
     paymentNote: payment.paymentNote,
+    dueDate:payment.dueDate
   }));
 
 

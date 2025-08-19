@@ -185,7 +185,7 @@ export function SalesTable<TValue>({ columns, data }: SaleTableProps<TValue>) {
 
             <TableFooter className="bg-muted/50 text-sm font-medium border-t">
               <TableRow>
-                <TableCell colSpan={3}/>
+                <TableCell colSpan={4}/>
                 <TableCell  className="text-center border-r-2">Total:</TableCell>
                 <TableCell className="border-r-2">{formatCurrency(totalPurchaseAmount)}</TableCell>
                 <TableCell colSpan={2} className="border-r-2">{formatCurrency(totalDueAmount)}</TableCell>

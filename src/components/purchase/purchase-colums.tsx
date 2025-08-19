@@ -93,8 +93,59 @@ export const purchaseColumns: ColumnDef<Purchase>[] = [
         );
     },
     enableColumnFilter:true,
-    }
-    ,{
+    },
+    {
+    id: "paymentStatus",
+    header: "Payment Status",
+    cell: ({ row }) => {
+      const payments = row.original.payments ?? [];
+      const dueDate = payments.find((p) => p.dueDate)?.dueDate;
+      const dueAmount = row.original.dueAmount ?? 0;
+
+      // fully paid
+      if (dueAmount === 0) {
+        return (
+          <span className="inline-flex items-center rounded-full px-2.5 py-0.5 text-sm font-medium bg-green-100 text-green-800">
+            Paid
+          </span>
+        );
+      }
+
+      if (!dueDate) {
+        return (
+          <span className="inline-flex items-center rounded-full px-2.5 py-0.5 text-sm font-medium bg-gray-100 text-gray-800">
+            No Due Date
+          </span>
+        );
+      }
+
+      const today = new Date();
+      const due = new Date(dueDate);
+
+      if (due < today) {
+        return (
+          <span className="inline-flex items-center rounded-full px-2.5 py-0.5 text-sm font-medium bg-red-100 text-red-800">
+            Overdue
+          </span>
+        );
+      }
+
+      return (
+        <span className="inline-flex items-center rounded-full px-2.5 py-0.5 text-sm font-medium bg-blue-100 text-blue-800">
+          Upcoming Payment
+        </span>
+      );
+    },
+  },
+  {
+      accessorKey: "dueAmount",
+      header: "Payment Due",
+      cell: ({ row }) => {
+          const amount = row.getValue("dueAmount") as number;
+          return <div className="font-medium">{formatCurrency(amount)}</div>;
+          }  
+    },
+  {
       accessorKey: "totalAmount",
       header: "Grand Total",
       cell: ({ row }) => {
@@ -102,14 +153,7 @@ export const purchaseColumns: ColumnDef<Purchase>[] = [
         return <div className="font-medium">{formatCurrency(amount)}</div>;
       },
   },
-  {
-    accessorKey: "dueAmount",
-    header: "Payment Due",
-    cell: ({ row }) => {
-        const amount = row.getValue("dueAmount") as number;
-        return <div className="font-medium">{formatCurrency(amount)}</div>;
-        }  
-    },
+
   {
     id: "actions",
     cell: ({ row }) => <PurchaseActions purchase={row.original} />,

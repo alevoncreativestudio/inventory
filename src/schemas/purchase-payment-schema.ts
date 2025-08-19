@@ -5,6 +5,7 @@ export const purchasePaymentSchema = z.object({
   paidOn: z.date(),
   paymentMethod: z.string().min(1),
   paymentNote: z.string().nullable().optional(),
+  dueDate:z.coerce.date().nullable().optional(),
 });
 
 export const paymentUpdateSchema = purchasePaymentSchema.extend({

@@ -540,54 +540,61 @@ useEffect(() => {
             </Card>
             <Card className="p-4 space-y-4">
               <h3 className="text-lg font-semibold">Add Payment</h3>
+
               {selectedSupplierOpeningBalance !== null && (
                 <div className="text-sm text-muted-foreground mt-1">
                   Opening Balance: ₹ {selectedSupplierOpeningBalance.toFixed(2)}
                 </div>
               )}
+
               <div className="grid md:grid-cols-2 gap-4">
+                {/* Amount Payed */}
                 <FormField
                   control={form.control}
                   name="payments.0.amount"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Amount Payed</FormLabel>
+                      <FormLabel>Amount Paid</FormLabel>
                       <FormControl>
-                        <Input type="number" {...field} value={field.value ?? ""}/>
+                        <Input type="number" {...field} value={field.value ?? ""} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
+
+                {/* Paid On */}
                 <FormField
                   control={form.control}
                   name="payments.0.paidOn"
                   render={({ field }) => (
                     <FormItem>
-                    <FormLabel>Purchase Date</FormLabel>
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <FormControl>
-                          <Button variant="outline" className="w-full text-left">
-                            {field.value
-                              ? new Date(field.value).toLocaleDateString()
-                              : new Date().toLocaleDateString()}
-                          </Button>
-                        </FormControl>
-                      </PopoverTrigger>
-                      <PopoverContent>
-                        <Calendar
-                          mode="single"
-                          selected={new Date(field.value)}
-                          onSelect={field.onChange}
-                          captionLayout="dropdown"
-                        />
-                      </PopoverContent>
-                    </Popover>
-                    <FormMessage />
-                  </FormItem>
+                      <FormLabel>Payment Date</FormLabel>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <FormControl>
+                            <Button variant="outline" className="w-full text-left">
+                              {field.value
+                                ? new Date(field.value).toLocaleDateString()
+                                : new Date().toLocaleDateString()}
+                            </Button>
+                          </FormControl>
+                        </PopoverTrigger>
+                        <PopoverContent>
+                          <Calendar
+                            mode="single"
+                            selected={field.value ? new Date(field.value) : undefined}
+                            onSelect={field.onChange}
+                            captionLayout="dropdown"
+                          />
+                        </PopoverContent>
+                      </Popover>
+                      <FormMessage />
+                    </FormItem>
                   )}
                 />
+
+                {/* Payment Method */}
                 <FormField
                   control={form.control}
                   name="payments.0.paymentMethod"
@@ -601,8 +608,10 @@ useEffect(() => {
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          {['cash', 'card', 'bank'].map((method) => (
-                            <SelectItem key={method} value={method}>{method}</SelectItem>
+                          {["cash", "card", "bank"].map((method) => (
+                            <SelectItem key={method} value={method}>
+                              {method}
+                            </SelectItem>
                           ))}
                         </SelectContent>
                       </Select>
@@ -610,6 +619,8 @@ useEffect(() => {
                     </FormItem>
                   )}
                 />
+
+                {/* Payment Note */}
                 <FormField
                   control={form.control}
                   name="payments.0.paymentNote"
@@ -617,26 +628,83 @@ useEffect(() => {
                     <FormItem>
                       <FormLabel>Payment Note</FormLabel>
                       <FormControl>
-                        <Input {...field} value={field.value ?? ''} />
+                        <Input {...field} value={field.value ?? ""} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
               </div>
+
+              {/* Due Section */}
               <div className="flex justify-end pr-4">
                 <div className="text-right space-y-1">
                   <div className="text-muted-foreground text-sm">Due Amount:</div>
                   <div className="text-xl font-semibold">
                     ₹{" "}
                     {(
-                      form.watch("items").reduce((sum, item) => sum + (Number(item.total) || 0), 0) -
-                      form.watch("payments").reduce((sum, p) => sum + (Number(p.amount) || 0), 0)
+                      form.watch("items").reduce(
+                        (sum, item) => sum + (Number(item.total) || 0),
+                        0
+                      ) -
+                      form.watch("payments").reduce(
+                        (sum, p) => sum + (Number(p.amount) || 0),
+                        0
+                      )
                     ).toFixed(2)}
                   </div>
                 </div>
               </div>
+
+              {/* Conditionally show Due Date if amount is due */}
+              {(() => {
+                const total = form
+                  .watch("items")
+                  .reduce((sum, item) => sum + (Number(item.total) || 0), 0);
+                const paid = form
+                  .watch("payments")
+                  .reduce((sum, p) => sum + (Number(p.amount) || 0), 0);
+                const due = total - paid;
+
+                if (due > 0) {
+                  return (
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <FormField
+                      control={form.control}
+                      name="payments.0.dueDate"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Due Date</FormLabel>
+                          <Popover>
+                            <PopoverTrigger asChild>
+                              <FormControl>
+                                <Button variant="outline" className="w-full text-left">
+                                  {field.value
+                                    ? new Date(field.value).toLocaleDateString()
+                                    : "Select date"}
+                                </Button>
+                              </FormControl>
+                            </PopoverTrigger>
+                            <PopoverContent>
+                              <Calendar
+                                mode="single"
+                                selected={field.value ? new Date(field.value) : undefined}
+                                onSelect={field.onChange}
+                                captionLayout="dropdown"
+                              />
+                            </PopoverContent>
+                          </Popover>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  );
+                }
+                return null;
+              })()}
             </Card>
+
 
             <SheetFooter>
               <Button type="submit" disabled={isCreating || isUpdating}>
