@@ -73,6 +73,37 @@ export const purchaseColumns: ColumnDef<Purchase>[] = [
     }
   },
   {
+    accessorKey: "items",
+    header: "Products",
+    cell: ({ row }) => {
+      const items = row.original.items || [];
+      const productNames = items
+        .map(item => item.product?.product_name || 'Unknown Product')
+        .filter(Boolean);
+      
+      if (productNames.length === 0) {
+        return <span className="text-muted-foreground">No products</span>;
+      }
+      
+      if (productNames.length === 1) {
+        return <span>{productNames[0]}</span>;
+      }
+      
+      return (
+        <div className="max-w-[200px]">
+          <div className="truncate" title={productNames.join(', ')}>
+            {productNames[0]}
+            {productNames.length > 1 && (
+              <span className="text-muted-foreground ml-1">
+                +{productNames.length - 1} more
+              </span>
+            )}
+          </div>
+        </div>
+      );
+    },
+  },
+  {
   accessorKey: "status",
   header: "Purchase Status",
   cell: ({ row }) => {

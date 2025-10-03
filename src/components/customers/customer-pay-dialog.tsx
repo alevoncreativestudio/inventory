@@ -78,10 +78,11 @@ export const CustomerPayDialog: FC<{
           <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
             <Card className="p-4 space-y-4">
               <p><strong>Customer name:</strong> {customer.name}</p>
-              <p><strong>Total Sales Due:</strong> ${customer.salesDue ?? 0}</p>
-              <p><strong>Opening Balance:</strong> ${customer.openingBalance ?? 0}</p>
+              <p><strong>Total Sales Due:</strong> ₹{customer.salesDue ?? 0}</p>
+              <p><strong>Opening Balance:</strong> ₹{customer.openingBalance ?? 0}</p>
             </Card>
 
+          <div className="grid grid-cols-2 gap-4">
             <FormField
               control={form.control}
               name="method"
@@ -90,7 +91,7 @@ export const CustomerPayDialog: FC<{
                   <FormLabel>Payment Method</FormLabel>
                   <Select onValueChange={field.onChange} defaultValue={field.value}>
                     <FormControl>
-                      <SelectTrigger>
+                      <SelectTrigger className="w-full">
                         <SelectValue placeholder="Select method" />
                       </SelectTrigger>
                     </FormControl>
@@ -131,6 +132,7 @@ export const CustomerPayDialog: FC<{
                 </FormItem>
               )}
             />
+          </div>
 
             <FormField
               control={form.control}

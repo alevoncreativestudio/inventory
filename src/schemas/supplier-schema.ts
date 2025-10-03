@@ -6,7 +6,7 @@ export const supplierSchema = z.object({
   name: z.string().min(2, "Supplier name is required"),
   email: z.string().email("Invalid email"),
   phone: z.string().min(7, "Phone number is required"),
-  openingBalance: z.coerce.number().optional(),
+  openingBalance: z.coerce.number(),
   address: z.string().min(1),
   purchaseDue:z.coerce.number().optional(),
   purchaseReturnDue:z.coerce.number().optional()

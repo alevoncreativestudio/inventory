@@ -21,7 +21,6 @@ export const createBalancePayment = actionClient
         await prisma.supplier.update({
           where: { id: payment.supplierId },
           data: {
-            openingBalance: { decrement: amount },
             purchaseDue: { decrement: amount },
           },
         });
@@ -62,7 +61,6 @@ export const createBalancePayment = actionClient
         await prisma.customer.update({
           where: { id: payment.customerId },
           data: {
-            openingBalance: { increment: amount },
             salesDue: { decrement: amount },
           },
         });

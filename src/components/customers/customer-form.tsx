@@ -52,6 +52,7 @@ export const CustomerFormDialog = ({ customer, open, openChange }: CustomerFormP
       email: customer?.email || "",
       phone: customer?.phone || "",
       address:customer?.address || "",
+      openingBalance:customer?.openingBalance || undefined,
     },
   });
 
@@ -96,6 +97,7 @@ export const CustomerFormDialog = ({ customer, open, openChange }: CustomerFormP
           </FormDialogDescription>
         </FormDialogHeader>
 
+        <div className="grid grid-cols-2 gap-4">
         <FormField
           control={form.control}
           name="CustomerID"
@@ -123,7 +125,9 @@ export const CustomerFormDialog = ({ customer, open, openChange }: CustomerFormP
             </FormItem>
           )}
         />
+        </div>
 
+        <div className="grid grid-cols-2 gap-4">
         <FormField
           control={form.control}
           name="email"
@@ -151,15 +155,22 @@ export const CustomerFormDialog = ({ customer, open, openChange }: CustomerFormP
             </FormItem>
           )}
         />
+        </div>
+
+        <div className="grid grid-cols-2 gap-4">
 
         <FormField
           control={form.control}
-          name="address"
+          name="openingBalance"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Address</FormLabel>
+              <FormLabel>Opening Balance</FormLabel>
               <FormControl>
-                <Textarea placeholder="Address" {...field} />
+                <Input type="number" 
+                placeholder="000.00"
+                {...field} 
+                value={field.value ?? ""}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -182,6 +193,21 @@ export const CustomerFormDialog = ({ customer, open, openChange }: CustomerFormP
             <FormMessage />
           </FormItem>
         )} />
+        </div>
+
+        <FormField
+          control={form.control}
+          name="address"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Address</FormLabel>
+              <FormControl>
+                <Textarea placeholder="Address" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
         <FormDialogFooter>
           <DialogClose asChild>

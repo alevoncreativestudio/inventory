@@ -80,10 +80,11 @@ export const SupplierPayDialog: FC<{
           <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
             <Card className="p-4 space-y-4">
               <p><strong>Supplier name:</strong> {supplier.name}</p>
-              <p><strong>Total Purchase Due:</strong> ${supplier.purchaseDue ?? 0}</p>
-              <p><strong>Opening Balance:</strong> ${supplier.openingBalance ?? 0}</p>
+              <p><strong>Total Purchase Due:</strong> ₹{supplier.purchaseDue ?? 0}</p>
+              <p><strong>Opening Balance:</strong> ₹{supplier.openingBalance ?? 0}</p>
             </Card>
 
+        <div className="grid grid-cols-2 gap-4">
             <FormField
               control={form.control}
               name="method"
@@ -92,7 +93,7 @@ export const SupplierPayDialog: FC<{
                   <FormLabel>Payment Method</FormLabel>
                   <Select onValueChange={field.onChange} defaultValue={field.value}>
                     <FormControl>
-                      <SelectTrigger>
+                      <SelectTrigger className="w-full">
                         <SelectValue placeholder="Select method" />
                       </SelectTrigger>
                     </FormControl>
@@ -112,7 +113,7 @@ export const SupplierPayDialog: FC<{
                 name="paidOn"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Return Date</FormLabel>
+                    <FormLabel>Payment Date</FormLabel>
                     <Popover>
                       <PopoverTrigger asChild>
                         <FormControl>
@@ -133,7 +134,7 @@ export const SupplierPayDialog: FC<{
                   </FormItem>
                 )}
               />
-
+            </div>
             <FormField
               control={form.control}
               name="amount"

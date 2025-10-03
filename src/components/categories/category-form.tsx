@@ -34,10 +34,10 @@ export const CategoryFormDialog = ({ category, open, openChange }: CategoryFormP
   ) => {
     if (category) {
       await updateProject({ id: category.id, ...data });
-      toast.success("Project updated successfully");
+      toast.success("Category updated successfully");
     } else {
       await createProject(data);
-      toast.success("Project created successfully");
+      toast.success("Category created successfully");
     }
     close();
   };

@@ -8,7 +8,7 @@ export interface SaleItem extends PrismaSaleItem {
 }
 
 export interface Sale extends PrismaSale {
-  customer: { name: string };
+  customer: { name: string, openingBalance: number };
   items: SaleItem[];
   payments:SalesPayment[];
   branch?:Branch | null;

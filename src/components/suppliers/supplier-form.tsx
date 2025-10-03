@@ -52,7 +52,8 @@ export const SupplierFormDialog = ({ supplier, open, openChange }: SupplierFormP
       name: supplier?.name || "",
       email: supplier?.email || "",
       phone: supplier?.phone || "",
-      address:supplier?.address || ""
+      address:supplier?.address || "",
+      openingBalance:supplier?.openingBalance || undefined,
     },
   });
 
@@ -97,6 +98,7 @@ export const SupplierFormDialog = ({ supplier, open, openChange }: SupplierFormP
           </FormDialogDescription>
         </FormDialogHeader>
 
+      <div className="grid grid-cols-2 gap-4">
         <FormField
           control={form.control}
           name="SupplierId"
@@ -124,21 +126,10 @@ export const SupplierFormDialog = ({ supplier, open, openChange }: SupplierFormP
             </FormItem>
           )}
         />
+      </div>
 
-        <FormField
-          control={form.control}
-          name="email"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Email</FormLabel>
-              <FormControl>
-                <Input placeholder="Email address" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
+      <div className="grid grid-cols-2 gap-4">
+        
         <FormField
           control={form.control}
           name="phone"
@@ -155,17 +146,39 @@ export const SupplierFormDialog = ({ supplier, open, openChange }: SupplierFormP
 
         <FormField
           control={form.control}
-          name="address"
+          name="email"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Phone</FormLabel>
+              <FormLabel>Email</FormLabel>
               <FormControl>
-                <Textarea placeholder="Address" {...field} />
+                <Input placeholder="Email address" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
+
+      </div>
+        
+      <div className="grid grid-cols-2 gap-4">
+        <FormField
+          control={form.control}
+          name="openingBalance"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Opening Balance</FormLabel>
+              <FormControl>
+                <Input type="number" 
+                placeholder="000.00"
+                {...field} 
+                value={field.value ?? ""}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
 
         <FormField control={form.control} name="branchId" render={({ field }) => (
           <FormItem>
@@ -183,6 +196,21 @@ export const SupplierFormDialog = ({ supplier, open, openChange }: SupplierFormP
             <FormMessage />
           </FormItem>
         )} />
+      </div>
+
+        <FormField
+          control={form.control}
+          name="address"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Phone</FormLabel>
+              <FormControl>
+                <Textarea placeholder="Address" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
         <FormDialogFooter>
           <DialogClose asChild>

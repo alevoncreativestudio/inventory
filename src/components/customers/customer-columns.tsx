@@ -78,17 +78,17 @@ export const customersColumns: ColumnDef<Customer>[] = [
   {
     accessorKey: "email",
     header: "Email",
-    cell: ({ row }) => <div className="px-3">{row.getValue("email")}</div>,
+    cell: ({ row }) => <div>{row.getValue("email")}</div>,
   },
   {
     accessorKey: "phone",
     header: "Phone",
-    cell: ({ row }) => <div className="px-3">{row.getValue("phone")}</div>,
+    cell: ({ row }) => <div>{row.getValue("phone")}</div>,
   },
   {
     accessorKey: "address",
     header: "Address",
-    cell: ({ row }) => <div className="px-3">{row.getValue("address")}</div>,
+    cell: ({ row }) => <div>{row.getValue("address")}</div>,
   },
   {
     accessorKey: "openingBalance",

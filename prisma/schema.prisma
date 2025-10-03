@@ -285,44 +285,46 @@ model ExpenseCategory {
 }
 
 model Supplier {
-  id                String @id @default(auto()) @map("_id") @db.ObjectId
-  SupplierId        String
-  name              String @unique
-  email             String @unique
-  phone             String @unique
-  openingBalance    Float  @default(0)
-  address           String
-  purchaseDue       Float  @default(0)
-  purchaseReturnDue Float  @default(0)
+  id                  String @id @default(auto()) @map("_id") @db.ObjectId
+  SupplierId          String
+  name                String @unique
+  email               String @unique
+  phone               String @unique
+  openingBalance      Float 
+  outstandingPayments Float  @default(0)
+  address             String
+  purchaseDue         Float  @default(0)
+  purchaseReturnDue   Float  @default(0)
 
-  branchId          String?   @db.ObjectId
-  branch            Branch?   @relation(fields: [branchId], references: [id])
+  branchId            String?   @db.ObjectId
+  branch              Branch?   @relation(fields: [branchId], references: [id])
 
-  purchase       Purchase[]
-  purchaseReturn PurchaseReturn[]
-  BalancePayment BalancePayment[]
+  purchase            Purchase[]
+  purchaseReturn      PurchaseReturn[]
+  BalancePayment      BalancePayment[]
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
 }
 
 model Customer {
-  id             String @id @default(auto()) @map("_id") @db.ObjectId
-  CustomerID     String
-  name           String @unique
-  email          String @unique
-  phone          String @unique
-  openingBalance Float  @default(0)
-  address        String
-  salesDue       Float  @default(0)
-  salesReturnDue Float  @default(0)
+  id                  String @id @default(auto()) @map("_id") @db.ObjectId
+  CustomerID          String
+  name                String @unique
+  email               String @unique
+  phone               String @unique
+  openingBalance      Float 
+  outstandingPayments Float  @default(0)
+  address             String
+  salesDue            Float  @default(0)
+  salesReturnDue      Float  @default(0)
 
-  branchId       String?   @db.ObjectId
-  branch         Branch?   @relation(fields: [branchId], references: [id])
+  branchId            String?   @db.ObjectId
+  branch              Branch?   @relation(fields: [branchId], references: [id])
 
-  sale           Sale[]
-  salesReturn    SalesReturn[]
-  BalancePayment BalancePayment[]
+  sale                Sale[]
+  salesReturn         SalesReturn[]
+  BalancePayment      BalancePayment[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

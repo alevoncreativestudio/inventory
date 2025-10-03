@@ -88,11 +88,8 @@ export const createSale = actionClient
       await prisma.customer.update({
         where: { id: sale.customerId },
         data: {
-          openingBalance: {
-            decrement: dueAmount,
-          },
           salesDue:{
-            set:totalSalesDue
+            increment:totalSalesDue
           }
         },
       });
@@ -120,7 +117,16 @@ export const getSalesList = actionClient.action(async () => {
     const sales = await prisma.sale.findMany({
       where: whereClause,
       orderBy: { salesdate: "desc" },
-      include: { customer: true, items: true, payments: true ,branch:true},
+      include: { 
+        customer: true, 
+        items: { 
+          include: { 
+            product: true 
+          } 
+        }, 
+        payments: true, 
+        branch: true
+      },
     });
 
     return { sales };

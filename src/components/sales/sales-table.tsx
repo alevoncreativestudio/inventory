@@ -75,6 +75,7 @@ export function SalesTable<TValue>({ columns, data }: SaleTableProps<TValue>) {
 
   const totalPurchaseAmount = data.reduce((acc, row) => acc + (row?.grandTotal ?? 0), 0);
   const totalDueAmount = data.reduce((acc,row) => acc+ (row?.dueAmount ?? 0),0)
+  const totalPaidAmount = data.reduce((acc,row) => acc+ (row?.paidAmount ?? 0),0)
 
   return (
     <div className="flex flex-col gap-5">
@@ -185,10 +186,11 @@ export function SalesTable<TValue>({ columns, data }: SaleTableProps<TValue>) {
 
             <TableFooter className="bg-muted/50 text-sm font-medium border-t">
               <TableRow>
-                <TableCell colSpan={4}/>
+                <TableCell colSpan={6}/>
                 <TableCell  className="text-center border-r-2">Total:</TableCell>
-                <TableCell className="border-r-2">{formatCurrency(totalPurchaseAmount)}</TableCell>
-                <TableCell colSpan={2} className="border-r-2">{formatCurrency(totalDueAmount)}</TableCell>
+                <TableCell className="border-r-2">{formatCurrency(totalPaidAmount)}</TableCell>
+                <TableCell className="border-r-2">{formatCurrency(totalDueAmount)}</TableCell>
+                <TableCell colSpan={2} className="border-r-2">{formatCurrency(totalPurchaseAmount)}</TableCell>
               </TableRow>
             </TableFooter>
           </Table>
