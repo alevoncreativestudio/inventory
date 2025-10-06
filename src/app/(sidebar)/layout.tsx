@@ -32,7 +32,7 @@ export default async function RootLayout({
       <AppSidebar variant="floating" user={session?.user}/>
       <SidebarInset>
         <SiteHeader />
-        <main className="p-6">{children}</main>
+        <main className="p-6 bg-blue-100 min-h-[calc(100vh-1rem)]">{children}</main>
       </SidebarInset>
     </SidebarProvider>
   );

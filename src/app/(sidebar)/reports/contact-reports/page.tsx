@@ -11,6 +11,7 @@ import {
 import { prisma } from "@/lib/prisma";
 import { formatCurrency } from "@/lib/utils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export default async function ContactReportPage() {
   const supplierReports = await prisma.supplier.findMany({
@@ -69,10 +70,16 @@ export default async function ContactReportPage() {
   return (
     <div>
       <div className="my-4">
-        <h1 className="text-2xl font-bold tracking-tight">Customer and Supplier Reports</h1>
+        <h1 className="text-2xl font-bold tracking-tight">Contact Reports</h1>
       </div>
 
-      <div className="grid grid-cols-1 gap-6">
+      <Tabs defaultValue="customers" className="w-full">
+        <TabsList className="inline-flex h-10 items-center justify-center rounded-md bg-muted p-1 text-muted-foreground">
+          <TabsTrigger value="customers">Customer Report</TabsTrigger>
+          <TabsTrigger value="suppliers">Supplier Report</TabsTrigger>
+        </TabsList>
+        
+        <TabsContent value="customers" className="mt-6">
           <Card className="p-4">
             <CardHeader>
               <CardTitle>Customer Report</CardTitle>
@@ -81,14 +88,14 @@ export default async function ContactReportPage() {
             <CardContent className="overflow-x-auto">
               <Table>
                 <TableCaption>A summary of customer transactions.</TableCaption>
-                <TableHeader>
+                <TableHeader className="bg-primary">
                   <TableRow>
-                    <TableHead>Name</TableHead>
-                    <TableHead className="text-right">Sales</TableHead>
-                    <TableHead className="text-right">Total Payed</TableHead>
-                    <TableHead className="text-right">Sales Returns</TableHead>
-                    <TableHead className="text-right">Opening Bal</TableHead>
-                    <TableHead className="text-right">Balance</TableHead>
+                    <TableHead className="text-primary-foreground">Name</TableHead>
+                    <TableHead className="text-right text-primary-foreground">Sales</TableHead>
+                    <TableHead className="text-right text-primary-foreground">Total Payed</TableHead>
+                    <TableHead className="text-right text-primary-foreground">Sales Returns</TableHead>
+                    <TableHead className="text-right text-primary-foreground">Opening Bal</TableHead>
+                    <TableHead className="text-right text-primary-foreground">Balance</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -126,7 +133,9 @@ export default async function ContactReportPage() {
               </Table>
             </CardContent>
           </Card>
-
+        </TabsContent>
+        
+        <TabsContent value="suppliers" className="mt-6">
           <Card className="p-4">
             <CardHeader>
               <CardTitle>Supplier Report</CardTitle>
@@ -135,14 +144,14 @@ export default async function ContactReportPage() {
             <CardContent className="overflow-x-auto">
               <Table>
                 <TableCaption>A summary of supplier transactions.</TableCaption>
-                <TableHeader>
+                <TableHeader className="bg-primary">
                   <TableRow>
-                    <TableHead>Name</TableHead>
-                    <TableHead className="text-right">Purchases</TableHead>
-                    <TableHead className="text-right">Total Payed</TableHead>
-                    <TableHead className="text-right">Purchase Returns</TableHead>
-                    <TableHead className="text-right">Opening Bal</TableHead>
-                    <TableHead className="text-right">Balance</TableHead>
+                    <TableHead className="text-primary-foreground">Name</TableHead>
+                    <TableHead className="text-right text-primary-foreground">Purchases</TableHead>
+                    <TableHead className="text-right text-primary-foreground">Total Payed</TableHead>
+                    <TableHead className="text-right text-primary-foreground">Purchase Returns</TableHead>
+                    <TableHead className="text-right text-primary-foreground">Opening Bal</TableHead>
+                    <TableHead className="text-right text-primary-foreground">Balance</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -180,7 +189,8 @@ export default async function ContactReportPage() {
               </Table>
             </CardContent>
           </Card>
-      </div>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }

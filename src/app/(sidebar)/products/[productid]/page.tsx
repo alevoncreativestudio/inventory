@@ -3,6 +3,8 @@ import { ObjectId } from 'mongodb';
 import { notFound } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Badge } from '@/components/ui/badge';
+import { formatCurrency } from '@/lib/utils';
 
 export interface PageParamsProps {
   params: Promise<{ productid: string }>;
@@ -23,48 +25,174 @@ const Page = async ({ params }: PageParamsProps) => {
   const { data:product } = data;
 
   return (
-    <div className="@container/main flex flex-1 flex-col gap-2">
-      <Card>
-        <CardHeader>
-          <CardTitle>Product Details</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow className='font-bold'>
-                <TableHead>Field</TableHead>
-                <TableHead>Value</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              <TableRow>
-                <TableCell className="font-medium">Product Name</TableCell>
-                <TableCell>{product?.product_name}</TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell className="font-medium">Price</TableCell>
-                <TableCell>₹ {product?.excTax}</TableCell>
-              </TableRow> 
-              <TableRow>
-                <TableCell className="font-medium">Tax Percentage</TableCell>
-                <TableCell>{product?.tax || '-'}%</TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell className="font-medium">Tax Price</TableCell>
-                <TableCell>₹ {product?.incTax}</TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell className="font-medium">Selling Price</TableCell>
-                <TableCell>₹ {product?.sellingPrice}</TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell className="font-medium">Available Stock</TableCell>
-                <TableCell>{product?.stock || '-'}</TableCell>
-              </TableRow>
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
+    <div className="flex flex-1 flex-col gap-6 p-6">
+      {/* Header with Product Name and Actions */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold">{product?.product_name}</h1>
+        </div>
+      </div>
+
+      {/* Main Product Information */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Left Column - Product Details */}
+        <div className="lg:col-span-2 space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Product Information</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-4">
+                  <div>
+                    <label className="text-sm font-medium text-muted-foreground">SKU</label>
+                    <p className="text-sm">{product?.sku}</p>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-muted-foreground">Brand</label>
+                    <p className="text-sm">{product?.brand?.name || 'N/A'}</p>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-muted-foreground">Unit</label>
+                    <p className="text-sm">{product?.unit}</p>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-muted-foreground">Barcode Type</label>
+                    <p className="text-sm">C128</p>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-muted-foreground">Available in locations</label>
+                    <p className="text-sm">{product?.branch?.name || 'N/A'}</p>
+                  </div>
+                </div>
+                <div className="space-y-4">
+                  <div>
+                    <label className="text-sm font-medium text-muted-foreground">Category</label>
+                    <p className="text-sm">{product?.category?.name || 'N/A'}</p>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-muted-foreground">Sub category</label>
+                    <p className="text-sm">-</p>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-muted-foreground">Manage Stock?</label>
+                    <p className="text-sm">Yes</p>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-muted-foreground">Expires in</label>
+                    <p className="text-sm">Not Applicable</p>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-muted-foreground">Applicable Tax</label>
+                    <p className="text-sm">{product?.tax || 'None'}%</p>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-muted-foreground">Selling Price Tax Type</label>
+                    <p className="text-sm">{product?.sellingPriceTaxType || 'Exclusive'}</p>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-muted-foreground">Product Type</label>
+                    <p className="text-sm">Simple</p>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Variations Table */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Variations</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Variations</TableHead>
+                    <TableHead>SKU</TableHead>
+                    <TableHead>Default Purchase Price (Exc. tax)</TableHead>
+                    <TableHead>Default Purchase Price (Inc. tax)</TableHead>
+                    <TableHead>Margin (%)</TableHead>
+                    <TableHead>Default Selling Price (Exc. tax)</TableHead>
+                    <TableHead>Default Selling Price (Inc. tax)</TableHead>
+                    <TableHead>Variation Images</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  <TableRow>
+                    <TableCell>Default</TableCell>
+                    <TableCell>{product?.sku}</TableCell>
+                    <TableCell>{formatCurrency(product?.excTax || 0)}</TableCell>
+                    <TableCell>{formatCurrency(product?.incTax || 0)}</TableCell>
+                    <TableCell>{product?.margin || 0}%</TableCell>
+                    <TableCell>{formatCurrency(product?.sellingPrice || 0)}</TableCell>
+                    <TableCell>{formatCurrency(product?.sellingPrice || 0)}</TableCell>
+                    <TableCell>-</TableCell>
+                  </TableRow>
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
+
+          {/* Product Stock Details */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Product Stock Details</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>SKU</TableHead>
+                    <TableHead>Product</TableHead>
+                    <TableHead>Location</TableHead>
+                    <TableHead>Unit Price</TableHead>
+                    <TableHead>Current stock</TableHead>
+                    <TableHead>Current Stock Value</TableHead>
+                    <TableHead>Total unit sold</TableHead>
+                    <TableHead>Total Unit Transfered</TableHead>
+                    <TableHead>Total Unit Adjusted</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  <TableRow>
+                    <TableCell>{product?.sku}</TableCell>
+                    <TableCell>{product?.product_name}</TableCell>
+                    <TableCell>{product?.branch?.name || 'N/A'}</TableCell>
+                    <TableCell>{formatCurrency(product?.sellingPrice || 0)}</TableCell>
+                    <TableCell>
+                      <Badge variant="outline">
+                        {product?.stock || 0} {product?.unit}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>{formatCurrency((product?.stock || 0) * (product?.sellingPrice || 0))}</TableCell>
+                    <TableCell>0.00 {product?.unit}</TableCell>
+                    <TableCell>0.00 {product?.unit}</TableCell>
+                    <TableCell>0.00 {product?.unit}</TableCell>
+                  </TableRow>
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Right Column - Product Image Placeholder */}
+        <div className="lg:col-span-1">
+          <Card>
+            <CardHeader>
+              <CardTitle>Product Image</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="aspect-square bg-muted rounded-lg flex items-center justify-center">
+                <div className="text-center text-muted-foreground">
+                  <div className="text-4xl mb-2">📦</div>
+                  <p className="text-sm">No image available</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
     </div>
   );
 };

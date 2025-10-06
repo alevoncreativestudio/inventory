@@ -77,7 +77,7 @@ export default async function ProfitAndLossReport() {
         </CardContent>
       </Card>
 
-      <Card className="col-span-1 lg:col-span-2">
+      <Card className="col-span-1 lg:col-span-2 mt-5">
         <CardContent className=" py-6 space-y-4">
           <div className="text-lg">
             <span className="font-semibold">Gross Profit: </span>

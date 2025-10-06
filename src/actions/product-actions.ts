@@ -90,6 +90,11 @@ export const getProductById = actionClient
     }
     const product = await prisma.product.findUnique({
       where: { id },
+      include: {
+        brand: true,
+        category: true,
+        branch: true,
+      },
     });
     return { data: product };
   });

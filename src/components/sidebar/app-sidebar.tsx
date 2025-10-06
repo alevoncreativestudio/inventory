@@ -25,7 +25,7 @@ interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
 export function AppSidebar({ user, ...props }: AppSidebarProps) {
   return (
     <Sidebar collapsible="icon" {...props}>
-      <SidebarHeader>
+      <SidebarHeader  className="bg-secondary text-secondary-foreground">
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton
@@ -42,14 +42,14 @@ export function AppSidebar({ user, ...props }: AppSidebarProps) {
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>
-      <SidebarContent>
+      <SidebarContent className="bg-primary text-primary-foreground">
         <NavMain items={SIDEBAR_DATA.navMain} />
         {user?.role === "admin" && (
           <NavGroup label="Admin Area" items={SIDEBAR_DATA.admin} />
         )}
         <NavGroup items={SIDEBAR_DATA.navSecondary} className="mt-auto" />
       </SidebarContent>
-      <SidebarFooter>{user && <NavUser user={user} />}</SidebarFooter>
+      <SidebarFooter className="bg-sidebar-primary text-primary-foreground">{user && <NavUser user={user} />}</SidebarFooter>
     </Sidebar>
   );
 }

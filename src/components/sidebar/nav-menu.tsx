@@ -17,7 +17,6 @@ import {
 import { NavItem } from "@/types/navigation";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { clsx } from "clsx";
 
 interface NavMenuProps {
   items: NavItem[];
@@ -36,10 +35,7 @@ export const NavMenu = ({ items, ...rest }: NavMenuProps) => {
             <SidebarMenuButton 
               asChild 
               isActive={pathname === item.url}
-              className={clsx(
-                "text-sidebar-foreground hover:text-white hover:bg-green-600",
-                pathname === item.url && "!bg-green-600 !text-white"
-              )}
+               className="text-primary-foreground hover:text-black"
             >
               <Link href={item.url}>
                 {item.icon && <item.icon />}
@@ -65,10 +61,7 @@ const SubMenu = ({ item }: { item: NavItem }) => {
         <CollapsibleTrigger asChild>
           <SidebarMenuButton
             isActive={isActive}
-            className={clsx(
-              "text-sidebar-foreground hover:text-white hover:bg-green-600",
-              isActive && "!bg-green-600 !text-white"
-            )}
+             className="text-primary-foreground hover:text-black"
           >
             {item.icon && <item.icon />}
             <span>{item.title}</span>
@@ -89,10 +82,7 @@ const SubMenu = ({ item }: { item: NavItem }) => {
                 <SidebarMenuSubButton 
                   asChild 
                   isActive={pathname === subItem.url}
-                  className={clsx(
-                    "text-sidebar-foreground hover:text-white hover:bg-green-600",
-                    pathname === subItem.url && "!bg-green-600 !text-white"
-                  )}
+                   className="text-primary-foreground hover:text-black"
                 >
                   <Link href={subItem.url}>
                     {subItem.icon && <subItem.icon />}

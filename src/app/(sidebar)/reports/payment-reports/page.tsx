@@ -11,6 +11,7 @@ import { prisma } from "@/lib/prisma";
 import { formatCurrency } from "@/lib/utils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { format } from "date-fns";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export default async function PaymentReportPage() {
   const [salesPayments, purchasePayments, balancePayments] = await Promise.all([
@@ -75,69 +76,83 @@ export default async function PaymentReportPage() {
   ].sort((a, b) => b.date.getTime() - a.date.getTime());
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-      <Card>
-        <CardHeader>
-          <CardTitle>Sales Payments</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableCaption>All incoming payments from customers</TableCaption>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Customer</TableHead>
-                <TableHead>Method</TableHead>
-                <TableHead>Date</TableHead>
-                <TableHead className="text-right">Amount</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {combinedSalesPayments.map((payment) => (
-                <TableRow key={payment.id}>
-                  <TableCell>{payment.name}</TableCell>
-                  <TableCell>{payment.method}</TableCell>
-                  <TableCell>{format(new Date(payment.date), "dd MMM yyyy")}</TableCell>
-                  <TableCell className="text-right text-green-600 font-medium">
-                    {formatCurrency(payment.amount)}
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
+    <div>
+      <div className="my-4">
+        <h1 className="text-2xl font-bold tracking-tight">Payment Reports</h1>
+      </div>
 
-      {/* Purchase Payments */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Purchase Payments</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableCaption>All outgoing payments to suppliers</TableCaption>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Supplier</TableHead>
-                <TableHead>Method</TableHead>
-                <TableHead>Date</TableHead>
-                <TableHead className="text-right">Amount</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {combinedPurchasePayments.map((payment) => (
-                <TableRow key={payment.id}>
-                  <TableCell>{payment.name}</TableCell>
-                  <TableCell>{payment.method}</TableCell>
-                  <TableCell>{format(new Date(payment.date), "dd MMM yyyy")}</TableCell>
-                  <TableCell className="text-right text-red-600 font-medium">
-                    {formatCurrency(payment.amount)}
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
+      <Tabs defaultValue="sales" className="w-full">
+        <TabsList className="inline-flex h-10 items-center justify-center rounded-md bg-muted p-1 text-muted-foreground">
+          <TabsTrigger value="sales">Sales Payments</TabsTrigger>
+          <TabsTrigger value="purchases">Purchase Payments</TabsTrigger>
+        </TabsList>
+        
+        <TabsContent value="sales" className="mt-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Sales Payments</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <Table>
+                <TableCaption>All incoming payments from customers</TableCaption>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Customer</TableHead>
+                    <TableHead>Method</TableHead>
+                    <TableHead>Date</TableHead>
+                    <TableHead className="text-right">Amount</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {combinedSalesPayments.map((payment) => (
+                    <TableRow key={payment.id}>
+                      <TableCell>{payment.name}</TableCell>
+                      <TableCell>{payment.method}</TableCell>
+                      <TableCell>{format(new Date(payment.date), "dd MMM yyyy")}</TableCell>
+                      <TableCell className="text-right text-green-600 font-medium">
+                        {formatCurrency(payment.amount)}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
+        </TabsContent>
+        
+        <TabsContent value="purchases" className="mt-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Purchase Payments</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <Table>
+                <TableCaption>All outgoing payments to suppliers</TableCaption>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Supplier</TableHead>
+                    <TableHead>Method</TableHead>
+                    <TableHead>Date</TableHead>
+                    <TableHead className="text-right">Amount</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {combinedPurchasePayments.map((payment) => (
+                    <TableRow key={payment.id}>
+                      <TableCell>{payment.name}</TableCell>
+                      <TableCell>{payment.method}</TableCell>
+                      <TableCell>{format(new Date(payment.date), "dd MMM yyyy")}</TableCell>
+                      <TableCell className="text-right text-red-600 font-medium">
+                        {formatCurrency(payment.amount)}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }

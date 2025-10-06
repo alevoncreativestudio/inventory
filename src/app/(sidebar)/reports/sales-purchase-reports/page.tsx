@@ -1,6 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { prisma } from "@/lib/prisma";
 import { formatCurrency } from "@/lib/utils";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export default async function PurchaseSaleSummaryPage() {
   const purchases = await prisma.purchase.findMany({
@@ -31,72 +32,86 @@ export default async function PurchaseSaleSummaryPage() {
   const totalDueAmount = totalPurchaseDue - totalSalesDue;
 
   return (
-
-      <div>
-        <div className="my-4">
-        <h1 className="text-2xl font-bold tracking-tight">Sales and Purchase Report</h1>
-        </div>
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Purchases</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-2">
-                  <div className="flex justify-between">
-                    <span>Total Purchase(inc Tax):</span>
-                    <span>{formatCurrency(totalPurchase)}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Purchase Return:</span>
-                    <span>{formatCurrency(totalPurchaseReturn)}</span>
-                  </div>
-                  <div className="flex justify-between font-medium">
-                    <span>Purchase Due:</span>
-                    <span>{formatCurrency(totalPurchaseDue)}</span>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle>Sales</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-2">
-                  <div className="flex justify-between">
-                    <span>Total Sale(inc Tax):</span>
-                    <span>{formatCurrency(totalSales)}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Sales Return:</span>
-                    <span>{formatCurrency(totalSalesReturn)}</span>
-                  </div>
-                  <div className="flex justify-between font-medium">
-                    <span>Sale Due:</span>
-                    <span>{formatCurrency(totalSalesDue)}</span>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card className="col-span-1 lg:col-span-2">
-                <CardContent className=" py-6 space-y-4">
-                  <div className="text-lg">
-                    <div className="font-semibold">Overall ((Sale - Sale Return) - (Purchase - Purchase Return)): </div>
-                  </div>
-                  <div className="text-lg">
-                    <span className="font-semibold">Sale - Purchase: </span>
-                    <span className={`font-bold ${netProfit >= 0 ? "text-green-600" : "text-red-600"}`}>
-                      {formatCurrency(netProfit)}
-                    </span>
-                  </div>
-
-                  <div className="text-lg">
-                    <span className="font-semibold">Due Amount: </span>
-                    <span className="text-red-600 font-bold">{formatCurrency(totalDueAmount)}</span>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
+    <div>
+      <div className="my-4">
+        <h1 className="text-2xl font-bold tracking-tight">Sales and Purchase Reports</h1>
       </div>
-            
+
+      <Tabs defaultValue="sales" className="w-full">
+        <TabsList className="inline-flex h-10 items-center justify-center rounded-md bg-muted p-1 text-muted-foreground">
+          <TabsTrigger value="sales">Sales Report</TabsTrigger>
+          <TabsTrigger value="purchases">Purchase Report</TabsTrigger>
+        </TabsList>
+        
+        <TabsContent value="sales" className="mt-6">
+          <div className="grid grid-cols-1 gap-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Sales Summary</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-2">
+                <div className="flex justify-between">
+                  <span>Total Sale(inc Tax):</span>
+                  <span>{formatCurrency(totalSales)}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Sales Return:</span>
+                  <span>{formatCurrency(totalSalesReturn)}</span>
+                </div>
+                <div className="flex justify-between font-medium">
+                  <span>Sale Due:</span>
+                  <span>{formatCurrency(totalSalesDue)}</span>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
+        
+        <TabsContent value="purchases" className="mt-6">
+          <div className="grid grid-cols-1 gap-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Purchase Summary</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-2">
+                <div className="flex justify-between">
+                  <span>Total Purchase(inc Tax):</span>
+                  <span>{formatCurrency(totalPurchase)}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Purchase Return:</span>
+                  <span>{formatCurrency(totalPurchaseReturn)}</span>
+                </div>
+                <div className="flex justify-between font-medium">
+                  <span>Purchase Due:</span>
+                  <span>{formatCurrency(totalPurchaseDue)}</span>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
+      </Tabs>
+
+      <div className="mt-6">
+        <Card>
+          <CardContent className="py-6 space-y-4">
+            <div className="text-lg">
+              <div className="font-semibold">Overall ((Sale - Sale Return) - (Purchase - Purchase Return)): </div>
+            </div>
+            <div className="text-lg">
+              <span className="font-semibold">Sale - Purchase: </span>
+              <span className={`font-bold ${netProfit >= 0 ? "text-green-600" : "text-red-600"}`}>
+                {formatCurrency(netProfit)}
+              </span>
+            </div>
+
+            <div className="text-lg">
+              <span className="font-semibold">Due Amount: </span>
+              <span className="text-red-600 font-bold">{formatCurrency(totalDueAmount)}</span>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
   );
 }
