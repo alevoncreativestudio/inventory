@@ -61,7 +61,7 @@ export function BrandTable<TValue>({ columns, data }: BrandTableProps<TValue>) {
 
   return (
     <div className="flex flex-col gap-5">
-      <Card>
+      {/* <Card>
         <CardHeader>
           <div className="space-y-2">
             <CardTitle>Filters</CardTitle>
@@ -79,11 +79,23 @@ export function BrandTable<TValue>({ columns, data }: BrandTableProps<TValue>) {
             />
           </div>
         </CardContent>
-      </Card>
+      </Card> */}
       <Card>
-        <CardHeader>
+        <CardHeader className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+          <div> 
           <CardTitle>Brand</CardTitle>
           <CardDescription>A list of all Brand</CardDescription>
+          </div>
+
+          <div className="relative w-full sm:w-1/2 md:w-1/4">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+            <Input
+              placeholder="Search by Ref no or supplier"
+              value={globalFilter}
+              onChange={(e) => setGlobalFilter(e.target.value)}
+              className="pl-9"
+            />
+          </div>
         </CardHeader>
         <CardContent>
           <Table>

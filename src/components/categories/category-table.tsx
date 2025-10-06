@@ -55,7 +55,7 @@ export function CategoryTable<TValue>({ columns, data }: CategoryTableProps<TVal
 
   return (
     <div className="flex flex-col gap-5">
-        <Card>
+        {/* <Card>
       <CardHeader>
         <div className="space-y-2">
           <CardTitle>Filters</CardTitle>
@@ -72,21 +72,27 @@ export function CategoryTable<TValue>({ columns, data }: CategoryTableProps<TVal
             className="pl-9"
         />
         </div>
-        {/* <div className="flex flex-wrap items-center gap-3">
-            <Button variant="outline">
-                <Funnel className="h-4 w-4 mr-0 sm:mr-0 md:mr-2" />
-                <span className="hidden md:inline">Filter</span>
-            </Button>
-        </div> */}
       </CardContent>
-    </Card>
+    </Card> */}
 
     <Card>
-      <CardHeader>
+      <CardHeader className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+        <div>
           <div className="space-y-2">
             <CardTitle>Categories</CardTitle>
             <CardDescription>A list of all Categories</CardDescription>
           </div>
+        </div>
+
+        <div className="relative w-full sm:w-1/2 md:w-1/4">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+          <Input
+            placeholder="Search by Ref no or supplier"
+            value={globalFilter}
+            onChange={(e) => setGlobalFilter(e.target.value)}
+            className="pl-9"
+          />
+        </div>
       </CardHeader>
       <CardContent>
         <Table>

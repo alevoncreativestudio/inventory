@@ -2,6 +2,7 @@ import {
   IconBox,
   IconBrandShopee,
   IconBuilding,
+  IconCards,
   IconCategory,
   IconCoin,
   IconCurrency,
@@ -26,11 +27,6 @@ export const SIDEBAR_DATA: SidebarData = {
       icon: IconDashboard,
     },
     {
-      title: "Products",
-      url: "/products",
-      icon: IconBox,
-    },
-    {
       title: "Purchase",
       url: "/purchase",
       icon: IconShoppingBag,
@@ -51,19 +47,14 @@ export const SIDEBAR_DATA: SidebarData = {
       icon: IconTruckLoading,
     },
     {
-      title: "Brands",
-      url: "/brands",
-      icon: IconBrandShopee,
-    },
-    {
-      title: "Categories",
-      url: "/categories",
-      icon: IconCategory,
-    },
-    {
       title: "Expenses",
       url: "/expenses",
       icon: IconCurrency,
+    },
+    {
+      title: "Expenses Category",
+      url: "/expensescategory",
+      icon: IconCards,
     },
   ],
 
@@ -74,6 +65,21 @@ export const SIDEBAR_DATA: SidebarData = {
     //   url: '/admin/data-management',
     //   icon: IconDatabase,
     // },
+    {
+      title: "Products",
+      url: "/admin/products",
+      icon: IconBox,
+    },
+    {
+      title: "Brands",
+      url: "/admin/brands",
+      icon: IconBrandShopee,
+    },
+    {
+      title: "Categories",
+      url: "/admin/categories",
+      icon: IconCategory,
+    },
     {
       title: "Reports",
       url: "/admin/reports",
@@ -104,12 +110,12 @@ export const SIDEBAR_DATA: SidebarData = {
     },
     { 
       title: "Tax Rates", 
-      url: "/settings/taxrates",
+      url: "/admin/taxrates",
       icon: IconPercentage, 
      },
     { 
       title: "Branches", 
-      url: "/settings/branches",
+      url: "/admin/branches",
       icon: IconBuilding, 
     },
   ],
@@ -121,7 +127,6 @@ export const SIDEBAR_DATA: SidebarData = {
       url: "/settings",
       icon: IconSettings,
       children: [
-        { title: "Expense Category", url: "/settings/expensescategory" },
         { title: "Customers", url: "/settings/customers" },
         { title: "Supplier", url: "/settings/supplier" },
       ],

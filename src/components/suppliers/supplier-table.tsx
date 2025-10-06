@@ -57,7 +57,7 @@ export function SupplierTable<TValue>({ columns, data }: SupplierTableProps<TVal
 
   return (
     <div className="flex flex-col gap-5">
-      <Card>
+      {/* <Card>
         <CardHeader>
           <div className="space-y-2">
             <CardTitle>Filters</CardTitle>
@@ -65,6 +65,15 @@ export function SupplierTable<TValue>({ columns, data }: SupplierTableProps<TVal
           </div>
         </CardHeader>
         <CardContent>
+          
+        </CardContent>
+      </Card> */}
+      <Card>
+      <CardHeader className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+          <div>
+          <CardTitle>Suppliers</CardTitle>
+          <CardDescription>A list of all suppliers</CardDescription>
+          </div>
           <div className="relative">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
@@ -74,12 +83,6 @@ export function SupplierTable<TValue>({ columns, data }: SupplierTableProps<TVal
               className="pl-9"
             />
           </div>
-        </CardContent>
-      </Card>
-      <Card>
-        <CardHeader>
-          <CardTitle>Suppliers</CardTitle>
-          <CardDescription>A list of all suppliers</CardDescription>
         </CardHeader>
         <CardContent>
           <Table>

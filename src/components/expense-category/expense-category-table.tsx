@@ -61,7 +61,7 @@ export function ExpenseTable<TValue>({ columns, data }: ExpenseCategoryTableProp
 
   return (
     <div className="flex flex-col gap-5">
-      <Card>
+      {/* <Card>
         <CardHeader>
           <div className="space-y-2">
             <CardTitle>Filters</CardTitle>
@@ -69,7 +69,7 @@ export function ExpenseTable<TValue>({ columns, data }: ExpenseCategoryTableProp
           </div>
         </CardHeader>
         <CardContent>
-          <div className="relative">
+        <div className="relative">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
               placeholder="Search Expense Category..."
@@ -79,11 +79,23 @@ export function ExpenseTable<TValue>({ columns, data }: ExpenseCategoryTableProp
             />
           </div>
         </CardContent>
-      </Card>
+      </Card> */}
       <Card>
-        <CardHeader>
+      <CardHeader className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+          <div>
           <CardTitle>Expense Category</CardTitle>
           <CardDescription>A list of all Expense Category</CardDescription>
+          </div>
+
+          <div className="relative w-full sm:w-1/2 md:w-1/4">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+          <Input
+            placeholder="Search by Ref no or supplier"
+            value={globalFilter}
+            onChange={(e) => setGlobalFilter(e.target.value)}
+            className="pl-9"
+          />
+        </div>
         </CardHeader>
         <CardContent>
           <Table>

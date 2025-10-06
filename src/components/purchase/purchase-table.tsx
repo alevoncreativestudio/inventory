@@ -80,7 +80,7 @@ export function PurchaseTable<TValue>({ columns, data }: PurchaseTableProps<TVal
   return (
     <div className="flex flex-col gap-5">
       {/* Filter Card */}
-      <Card>
+      {/* <Card>
         <CardHeader>
           <div className="space-y-2">
             <CardTitle>Filters</CardTitle>
@@ -88,63 +88,14 @@ export function PurchaseTable<TValue>({ columns, data }: PurchaseTableProps<TVal
           </div>
 
           <div className="flex flex-col sm:flex-row gap-4 mt-3">
-            {/* Purchase Status Filter */}
             <div className="w-full">
               <label className="text-sm font-medium text-muted-foreground mb-1 block">
                 Filter by Purchase Status
-              </label>
-              <Select
-                onValueChange={(value) =>
-                  table.setColumnFilters((prev) => [
-                    ...prev.filter((f) => f.id !== "status"),
-                    { id: "status", value: value === "all" ? undefined : value },
-                  ])
-                }
-                defaultValue="all"
-              >
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Select Purchase Status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All</SelectItem>
-                  <SelectItem value="Received">Received</SelectItem>
-                  <SelectItem value="Pending">Pending</SelectItem>
-                  <SelectItem value="Cancelled">Cancelled</SelectItem>
-                </SelectContent>
-              </Select>
+              </label>           
             </div>
-
-            {/* Payment Status Filter */}
-            {/* <div className="w-full">
-              <label className="text-sm font-medium text-muted-foreground mb-1 block">
-                Filter by Payment Status
-              </label>
-              <Select
-                onValueChange={(value) =>
-                  table.setColumnFilters((prev) => [
-                    ...prev.filter((f) => f.id !== "paymentStatus"),
-                    {
-                      id: "paymentStatus",
-                      value: value === "all" ? undefined : value,
-                    },
-                  ])
-                }
-                defaultValue="all"
-              >
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Select Payment Status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All</SelectItem>
-                  <SelectItem value="Due">Due</SelectItem>
-                  <SelectItem value="Paid">Paid</SelectItem>
-                  <SelectItem value="Partial">Partial</SelectItem>
-                </SelectContent>
-              </Select>
-            </div> */}
           </div>
         </CardHeader>
-      </Card>
+      </Card> */}
 
       {/* Table Card */}
       <Card>
@@ -163,6 +114,25 @@ export function PurchaseTable<TValue>({ columns, data }: PurchaseTableProps<TVal
               className="pl-9"
             />
           </div>
+          <Select
+                onValueChange={(value) =>
+                  table.setColumnFilters((prev) => [
+                    ...prev.filter((f) => f.id !== "status"),
+                    { id: "status", value: value === "all" ? undefined : value },
+                  ])
+                }
+                defaultValue="all"
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select Purchase Status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All</SelectItem>
+                  <SelectItem value="Received">Received</SelectItem>
+                  <SelectItem value="Pending">Pending</SelectItem>
+                  <SelectItem value="Cancelled">Cancelled</SelectItem>
+                </SelectContent>
+              </Select>
         </CardHeader>
 
         <CardContent>

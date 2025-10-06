@@ -70,13 +70,22 @@ export function PurchaseReturnTable<TValue>({ columns, data }: PurchaseReturnTab
   return (
     <div className="flex flex-col gap-5">
       {/* Filter/Search */}
-      <Card>
+      {/* <Card>
         <CardHeader>
           <div className="space-y-2">
             <CardTitle>Filters</CardTitle>
             <CardDescription>Search returns by reference number or customer</CardDescription>
           </div>
 
+          
+        </CardHeader>
+      </Card> */}
+      <Card>
+        <CardHeader className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+          <div>
+            <CardTitle>Purchase Returns</CardTitle>
+            <CardDescription>List of all purchase return records</CardDescription>
+          </div>
           <div className="relative w-full sm:w-1/2 md:w-1/4 mt-3">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
             <Input
@@ -87,14 +96,6 @@ export function PurchaseReturnTable<TValue>({ columns, data }: PurchaseReturnTab
             />
           </div>
         </CardHeader>
-      </Card>
-      <Card>
-        <CardHeader className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-          <div>
-            <CardTitle>Purchase Returns</CardTitle>
-            <CardDescription>List of all purchase return records</CardDescription>
-          </div>
-        </CardHeader>
 
         <CardContent>
           <Table>
@@ -102,7 +103,8 @@ export function PurchaseReturnTable<TValue>({ columns, data }: PurchaseReturnTab
               {table.getHeaderGroups().map((headerGroup) => (
                 <TableRow key={headerGroup.id}>
                   {headerGroup.headers.map((header) => (
-                    <TableHead key={header.id}>
+                    <TableHead key={header.id}
+                    className="bg-primary text-primary-foreground">
                       {header.isPlaceholder
                         ? null
                         : flexRender(header.column.columnDef.header, header.getContext())}

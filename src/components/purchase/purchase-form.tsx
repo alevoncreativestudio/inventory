@@ -396,7 +396,7 @@ export const PurchaseFormSheet = ({
                   <TableRow>
                     <TableHead>Product Name</TableHead>
                     <TableHead>Available Stock</TableHead>
-                    <TableHead>Available Stock</TableHead>
+                    <TableHead>Applicable Tax</TableHead>
                     <TableHead>Qty</TableHead>
                     <TableHead>Unit Cost(Before Tax)</TableHead>
                     <TableHead>Discount</TableHead>
@@ -469,24 +469,25 @@ export const PurchaseFormSheet = ({
                                   className="min-w-18"
                                   {...field}
                                   value={field.value ?? ""}
-                                  onBlur={() => {
-                                      const quantity = Number(form.getValues(`items.${idx}.quantity`));
-                                      const excTax = Number(form.getValues(`items.${idx}.excTax`));
-                                      const discount = Number(form.getValues(`items.${idx}.discount`));
-                                      const incTax = Number(form.getValues(`items.${idx}.incTax`));
-                                      const margin = Number(form.getValues(`items.${idx}.margin`));
-                                      const sellingPrice = Number(form.getValues(`items.${idx}.sellingPrice`));
-
-                                      const subtotal = quantity * excTax;
-                                      const totalBeforeDiscount = quantity * incTax;
-                                      const total = totalBeforeDiscount - discount;
-
-                                      form.setValue(`items.${idx}.subtotal`, subtotal);
-                                      form.setValue(`items.${idx}.total`, total);
-
-                                      form.setValue(`items.${idx}.sellingPrice`, sellingPrice);
-                                      form.setValue(`items.${idx}.margin`, margin);
-                                    }}
+                                  onChange={(e) => {
+                                    const value = Number(e.target.value);
+                                    field.onChange(value); // update field
+                                    const quantity = Number(form.getValues(`items.${idx}.quantity`));
+                                    const excTax = Number(form.getValues(`items.${idx}.excTax`));
+                                    const discount = Number(form.getValues(`items.${idx}.discount`));
+                                    const incTax = Number(form.getValues(`items.${idx}.incTax`));
+                                    const margin = Number(form.getValues(`items.${idx}.margin`));
+                                  
+                                    const subtotal = quantity * excTax;
+                                    const totalBeforeDiscount = quantity * incTax;
+                                    const total = totalBeforeDiscount - discount;
+                                    const sellingPrice = Math.round(incTax * (1 + margin / 100) * 100) / 100;
+                                  
+                                    form.setValue(`items.${idx}.subtotal`, subtotal, { shouldDirty: true });
+                                    form.setValue(`items.${idx}.total`, total, { shouldDirty: true });
+                                    form.setValue(`items.${idx}.sellingPrice`, sellingPrice, { shouldDirty: true });
+                                  }}
+                                  
                                 />
                               </FormControl>
                             )}
@@ -688,10 +689,12 @@ export const PurchaseFormSheet = ({
             </Card>
 
 
-            <SheetFooter className="flex justify-end gap-2">
+            <SheetFooter>
+              <div className="mt-4 flex justify-end gap-2">
               <Button type="submit" disabled={isCreating || isUpdating}>
                 {isCreating || isUpdating ? "Saving..." : "Save"}
               </Button>
+              </div>
             </SheetFooter>
           </form>
         </FormProvider>

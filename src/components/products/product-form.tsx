@@ -342,10 +342,12 @@ useEffect(() => {
                   </TableBody>
                 </Table>
               </Card>
-              <SheetFooter className="flex justify-end gap-2">
+              <SheetFooter>
+              <div className="mt-4 flex justify-end gap-2">
                 <Button type="submit" disabled={isCreating || isUpdating}>
                   {isCreating || isUpdating ? "Saving..." : "Save"}
                 </Button>
+              </div>
               </SheetFooter>
             </form>
           </FormProvider>

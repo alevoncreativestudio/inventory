@@ -21,7 +21,7 @@ import {
 import { SalesDeleteDialog } from "./sales-delete-dailog";
 import { useState } from "react";
 import { SalesFormSheet } from "./sales-form";
-import { SalesDetailsSheet } from "./sales-details-sheet";
+import { useRouter } from "next/navigation";
 import { formatCurrency, formatDate } from "@/lib/utils";
 
 export const salesColumns: ColumnDef<Sale>[] = [
@@ -153,7 +153,7 @@ export const salesColumns: ColumnDef<Sale>[] = [
 const SalesActions = ({ sale }: { sale: Sale }) => {
   const [openEdit, setOpenEdit] = useState(false);
   const [openDelete, setOpenDelete] = useState(false);
-  const [openView, setOpenView] = useState(false);
+  const router = useRouter();
 
   return (
     <div className="text-right">
@@ -164,7 +164,7 @@ const SalesActions = ({ sale }: { sale: Sale }) => {
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
-          <DropdownMenuItem onSelect={() => setOpenView(true)}>
+          <DropdownMenuItem onSelect={() => router.push(`/sales/${sale.id}`)}>
             <Eye className="size-4 mr-2" /> View
           </DropdownMenuItem>
           <DropdownMenuItem onSelect={() => setOpenEdit(true)}>
@@ -178,7 +178,6 @@ const SalesActions = ({ sale }: { sale: Sale }) => {
 
       <SalesFormSheet open={openEdit} openChange={setOpenEdit} sales={sale} />
       <SalesDeleteDialog sale={sale} open={openDelete} setOpen={setOpenDelete} />
-      <SalesDetailsSheet sale={sale} open={openView} openChange={setOpenView} />
     </div>
   );
 };

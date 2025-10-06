@@ -21,8 +21,9 @@ import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { PurchaseDeleteDialog } from "./purchase-delete-dailog";
 import { PurchaseFormSheet } from "./purchase-form";
-import { PurchaseDetailsSheet } from "./purchase-details-sheet";
+// Removed sheet import; we'll navigate to a dynamic page for view
 import { formatCurrency, formatDate } from "@/lib/utils";
+import { useRouter } from "next/navigation";
 
 export const purchaseColumns: ColumnDef<Purchase>[] = [
   {
@@ -165,7 +166,7 @@ export const purchaseColumns: ColumnDef<Purchase>[] = [
 const PurchaseActions = ({ purchase }: { purchase: Purchase }) => {
   const [openEdit, setOpenEdit] = useState(false);
   const [openDelete, setOpenDelete] = useState(false);
-  const [openView, setOpenView] = useState(false);
+  const router = useRouter();
 
   return (
     <div className="text-right">
@@ -176,7 +177,7 @@ const PurchaseActions = ({ purchase }: { purchase: Purchase }) => {
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
-          <DropdownMenuItem onSelect={() => setOpenView(true)}>
+          <DropdownMenuItem onSelect={() => router.push(`/purchase/${purchase.id}`)}>
             <Eye className="size-4 mr-2" /> View
           </DropdownMenuItem>
           <DropdownMenuItem onSelect={() => setOpenEdit(true)}>
@@ -189,7 +190,6 @@ const PurchaseActions = ({ purchase }: { purchase: Purchase }) => {
       </DropdownMenu>
       <PurchaseFormSheet open={openEdit} openChange={setOpenEdit} purchase={purchase} />
       <PurchaseDeleteDialog purchase={purchase} open={openDelete} setOpen={setOpenDelete} />
-      <PurchaseDetailsSheet purchase={purchase} open={openView} openChange={setOpenView} />
     </div>
   );
 };

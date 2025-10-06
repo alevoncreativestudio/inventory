@@ -37,10 +37,10 @@ export default async function ProfitAndLossReport() {
         <CardContent className="overflow-x-auto">
           <Table>
             <TableCaption>Profit and loss summary</TableCaption>
-            <TableHeader>
+            <TableHeader className="bg-primary">
               <TableRow>
-                <TableHead>Description</TableHead>
-                <TableHead className="text-right">Amount</TableHead>
+                <TableHead className="text-primary-foreground">Description</TableHead>
+                <TableHead className="text-right text-primary-foreground">Amount</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>

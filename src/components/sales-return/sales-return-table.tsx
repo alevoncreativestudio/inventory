@@ -71,13 +71,24 @@ export function SalesReturnTable<TValue>({ columns, data }: SalesReturnTableProp
   return (
     <div className="flex flex-col gap-5">
       {/* Search Filter */}
-      <Card>
+      {/* <Card>
         <CardHeader>
           <div className="space-y-2">
             <CardTitle>Filters</CardTitle>
             <CardDescription>Search returns by reference number or supplier</CardDescription>
           </div>
 
+          
+        </CardHeader>
+      </Card> */}
+
+      {/* Table */}
+      <Card>
+        <CardHeader className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+          <div>
+            <CardTitle>Sales Returns</CardTitle>
+            <CardDescription>A list of all sales returns</CardDescription>
+          </div>
           <div className="relative w-full sm:w-1/2 md:w-1/4 mt-3">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
             <Input
@@ -86,16 +97,6 @@ export function SalesReturnTable<TValue>({ columns, data }: SalesReturnTableProp
               onChange={(e) => setGlobalFilter(e.target.value)}
               className="pl-9"
             />
-          </div>
-        </CardHeader>
-      </Card>
-
-      {/* Table */}
-      <Card>
-        <CardHeader className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-          <div>
-            <CardTitle>Sales Returns</CardTitle>
-            <CardDescription>A list of all sales returns</CardDescription>
           </div>
         </CardHeader>
 

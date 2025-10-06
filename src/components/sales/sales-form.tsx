@@ -362,7 +362,9 @@ console.log(customerList);
                                       type="number"
                                       {...field}
                                       value={field.value ?? ""}
-                                      onBlur={() => {
+                                      onChange={(e) => {
+                                        const value = Number(e.target.value);
+                                        field.onChange(value); // update field
                                         const qty = Number(form.getValues(`items.${idx}.quantity`));
                                         const discount = Number(form.getValues(`items.${idx}.discount`));
                                         const tax = Number(form.getValues(`items.${idx}.incTax`));
@@ -392,7 +394,9 @@ console.log(customerList);
                                     type="number"
                                     {...field}
                                     value={field.value ?? ""}
-                                    onBlur={() => {
+                                    onChange={(e) => {
+                                      const value = Number(e.target.value);
+                                      field.onChange(value); // update field
                                       const qty = Number(form.getValues(`items.${idx}.quantity`));
                                       const discount = Number(form.getValues(`items.${idx}.discount`));
                                       const tax = Number(form.getValues(`items.${idx}.incTax`));
@@ -588,9 +592,11 @@ console.log(customerList);
 
 
             <SheetFooter>
+              <div className="mt-4 flex justify-end gap-2">
               <Button type="submit" disabled={isCreating || isUpdating}>
                 {isCreating || isUpdating ? "Saving..." : "Save"}
               </Button>
+              </div>
             </SheetFooter>
           </form>
         </FormProvider>

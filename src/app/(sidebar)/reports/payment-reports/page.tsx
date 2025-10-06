@@ -95,12 +95,12 @@ export default async function PaymentReportPage() {
             <CardContent>
               <Table>
                 <TableCaption>All incoming payments from customers</TableCaption>
-                <TableHeader>
+                <TableHeader className="bg-primary">
                   <TableRow>
-                    <TableHead>Customer</TableHead>
-                    <TableHead>Method</TableHead>
-                    <TableHead>Date</TableHead>
-                    <TableHead className="text-right">Amount</TableHead>
+                    <TableHead className="text-primary-foreground">Customer</TableHead>
+                    <TableHead className="text-primary-foreground">Method</TableHead>
+                    <TableHead className="text-primary-foreground">Date</TableHead>
+                    <TableHead className="text-right text-primary-foreground">Amount</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -128,12 +128,12 @@ export default async function PaymentReportPage() {
             <CardContent>
               <Table>
                 <TableCaption>All outgoing payments to suppliers</TableCaption>
-                <TableHeader>
+                <TableHeader className="bg-primary">
                   <TableRow>
-                    <TableHead>Supplier</TableHead>
-                    <TableHead>Method</TableHead>
-                    <TableHead>Date</TableHead>
-                    <TableHead className="text-right">Amount</TableHead>
+                    <TableHead className="text-primary-foreground">Supplier</TableHead>
+                    <TableHead className="text-primary-foreground">Method</TableHead>
+                    <TableHead className="text-primary-foreground">Date</TableHead>
+                    <TableHead className="text-right text-primary-foreground">Amount</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
