@@ -15,11 +15,13 @@ import {
   Edit2,
   MoreHorizontal,
   Trash2,
+  Eye,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { PurchaseDeleteDialog } from "./purchase-delete-dailog";
 import { PurchaseFormSheet } from "./purchase-form";
+import { PurchaseDetailsSheet } from "./purchase-details-sheet";
 import { formatCurrency, formatDate } from "@/lib/utils";
 
 export const purchaseColumns: ColumnDef<Purchase>[] = [
@@ -71,37 +73,6 @@ export const purchaseColumns: ColumnDef<Purchase>[] = [
         </span>
       )
     }
-  },
-  {
-    accessorKey: "items",
-    header: "Products",
-    cell: ({ row }) => {
-      const items = row.original.items || [];
-      const productNames = items
-        .map(item => item.product?.product_name || 'Unknown Product')
-        .filter(Boolean);
-      
-      if (productNames.length === 0) {
-        return <span className="text-muted-foreground">No products</span>;
-      }
-      
-      if (productNames.length === 1) {
-        return <span>{productNames[0]}</span>;
-      }
-      
-      return (
-        <div className="max-w-[200px]">
-          <div className="truncate" title={productNames.join(', ')}>
-            {productNames[0]}
-            {productNames.length > 1 && (
-              <span className="text-muted-foreground ml-1">
-                +{productNames.length - 1} more
-              </span>
-            )}
-          </div>
-        </div>
-      );
-    },
   },
   {
   accessorKey: "status",
@@ -194,6 +165,7 @@ export const purchaseColumns: ColumnDef<Purchase>[] = [
 const PurchaseActions = ({ purchase }: { purchase: Purchase }) => {
   const [openEdit, setOpenEdit] = useState(false);
   const [openDelete, setOpenDelete] = useState(false);
+  const [openView, setOpenView] = useState(false);
 
   return (
     <div className="text-right">
@@ -204,6 +176,9 @@ const PurchaseActions = ({ purchase }: { purchase: Purchase }) => {
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
+          <DropdownMenuItem onSelect={() => setOpenView(true)}>
+            <Eye className="size-4 mr-2" /> View
+          </DropdownMenuItem>
           <DropdownMenuItem onSelect={() => setOpenEdit(true)}>
             <Edit2 className="size-4 mr-2" /> Edit
           </DropdownMenuItem>
@@ -214,6 +189,7 @@ const PurchaseActions = ({ purchase }: { purchase: Purchase }) => {
       </DropdownMenu>
       <PurchaseFormSheet open={openEdit} openChange={setOpenEdit} purchase={purchase} />
       <PurchaseDeleteDialog purchase={purchase} open={openDelete} setOpen={setOpenDelete} />
+      <PurchaseDetailsSheet purchase={purchase} open={openView} openChange={setOpenView} />
     </div>
   );
 };

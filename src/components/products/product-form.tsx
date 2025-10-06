@@ -342,7 +342,7 @@ useEffect(() => {
                   </TableBody>
                 </Table>
               </Card>
-              <SheetFooter>
+              <SheetFooter className="flex justify-end gap-2">
                 <Button type="submit" disabled={isCreating || isUpdating}>
                   {isCreating || isUpdating ? "Saving..." : "Save"}
                 </Button>

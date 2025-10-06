@@ -9,6 +9,7 @@ import {
   Edit2,
   MoreHorizontal,
   Trash2,
+  Eye,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -20,6 +21,7 @@ import {
 import { SalesDeleteDialog } from "./sales-delete-dailog";
 import { useState } from "react";
 import { SalesFormSheet } from "./sales-form";
+import { SalesDetailsSheet } from "./sales-details-sheet";
 import { formatCurrency, formatDate } from "@/lib/utils";
 
 export const salesColumns: ColumnDef<Sale>[] = [
@@ -65,37 +67,6 @@ export const salesColumns: ColumnDef<Sale>[] = [
     cell: ({ row }) => {
       const customer = row.original.customer.name;
       return <span>{customer}</span>;
-    },
-  },
-  {
-    accessorKey: "items",
-    header: "Products",
-    cell: ({ row }) => {
-      const items = row.original.items || [];
-      const productNames = items
-        .map(item => item.product?.product_name || 'Unknown Product')
-        .filter(Boolean);
-      
-      if (productNames.length === 0) {
-        return <span className="text-muted-foreground">No products</span>;
-      }
-      
-      if (productNames.length === 1) {
-        return <span>{productNames[0]}</span>;
-      }
-      
-      return (
-        <div className="max-w-[200px]">
-          <div className="truncate" title={productNames.join(', ')}>
-            {productNames[0]}
-            {productNames.length > 1 && (
-              <span className="text-muted-foreground ml-1">
-                +{productNames.length - 1} more
-              </span>
-            )}
-          </div>
-        </div>
-      );
     },
   },
     {
@@ -182,6 +153,7 @@ export const salesColumns: ColumnDef<Sale>[] = [
 const SalesActions = ({ sale }: { sale: Sale }) => {
   const [openEdit, setOpenEdit] = useState(false);
   const [openDelete, setOpenDelete] = useState(false);
+  const [openView, setOpenView] = useState(false);
 
   return (
     <div className="text-right">
@@ -192,6 +164,9 @@ const SalesActions = ({ sale }: { sale: Sale }) => {
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
+          <DropdownMenuItem onSelect={() => setOpenView(true)}>
+            <Eye className="size-4 mr-2" /> View
+          </DropdownMenuItem>
           <DropdownMenuItem onSelect={() => setOpenEdit(true)}>
             <Edit2 className="size-4 mr-2" /> Edit
           </DropdownMenuItem>
@@ -203,6 +178,7 @@ const SalesActions = ({ sale }: { sale: Sale }) => {
 
       <SalesFormSheet open={openEdit} openChange={setOpenEdit} sales={sale} />
       <SalesDeleteDialog sale={sale} open={openDelete} setOpen={setOpenDelete} />
+      <SalesDetailsSheet sale={sale} open={openView} openChange={setOpenView} />
     </div>
   );
 };

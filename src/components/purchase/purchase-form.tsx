@@ -24,7 +24,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { useForm, FormProvider, useFieldArray, useWatch } from "react-hook-form";
+import { useForm, FormProvider, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import { fullPurchaseSchema } from "@/schemas/purchase-item-schema";
@@ -112,7 +112,7 @@ export const PurchaseFormSheet = ({
       supplierId: purchase?.supplierId || "",
       referenceNo: purchase?.referenceNo || "",
       branchId: purchase?.branchId || "",
-      purchaseDate: purchase?.purchaseDate ? new Date(purchase.purchaseDate) : new Date(),
+      purchaseDate: purchase?.purchaseDate ? (purchase.purchaseDate instanceof Date ? purchase.purchaseDate : new Date(purchase.purchaseDate)) : new Date(),
       status: purchase?.status ?? purchaseStatusOption[0],
       totalAmount: purchase?.totalAmount || 0,
       dueAmount:purchase?.dueAmount || 0,
@@ -133,25 +133,7 @@ export const PurchaseFormSheet = ({
     name: "items",
   });
 
-const excTax = useWatch({ control: form.control, name: "items.0.excTax" });
-const incTax = useWatch({ control: form.control, name: "items.0.incTax" });
-const taxRate = useWatch({ control: form.control, name: "items.0.tax" });
-const margin = useWatch({ control: form.control, name: "items.0.margin" });
-const sellingPriceTaxType = useWatch({ control: form.control, name: "items.0.sellingPrice" });
-
-useEffect(() => {
-  const exc = Number(excTax) || 0;
-  const inc = Number(incTax) || 0;
-  const tax = Number(taxRate) || 0;
-  const mgn = Number(margin) || 0;
-
-  const newInc = exc + (exc * (tax * 100)) / 100;
-  if (!isNaN(newInc)) form.setValue("items.0.incTax", parseFloat(newInc.toFixed(2)));
-
-  const selling = inc + (inc * mgn) / 100;
-
-  if (!isNaN(selling)) form.setValue("items.0.sellingPrice", parseFloat(selling.toFixed(2)));
-}, [excTax, incTax, taxRate, margin, sellingPriceTaxType, form]);
+// Removed useWatch hooks that were causing empty items to be created
 
 
   useEffect(() => {
@@ -305,7 +287,7 @@ useEffect(() => {
                         <FormControl>
                           <Button variant="outline" className="w-full text-left">
                             {field.value
-                              ? new Date(field.value).toLocaleDateString()
+                              ? (field.value instanceof Date ? field.value.toLocaleDateString() : new Date(field.value).toLocaleDateString())
                               : "Pick date"}
                           </Button>
                         </FormControl>
@@ -313,7 +295,7 @@ useEffect(() => {
                       <PopoverContent>
                         <Calendar
                           mode="single"
-                          selected={new Date(field.value)}
+                          selected={field.value ? new Date(field.value) : undefined}
                           onSelect={field.onChange}
                           captionLayout="dropdown"
                         />
@@ -428,7 +410,7 @@ useEffect(() => {
                 </TableHeader>
 
                 <TableBody>
-                  {fields.map((f, idx) => (
+                  {fields.filter(f => f.productId && f.product_name).map((f, idx) => (
                     <TableRow key={f.id}>
                       <TableCell>
                         {f.product_name || "—"}
@@ -706,7 +688,7 @@ useEffect(() => {
             </Card>
 
 
-            <SheetFooter>
+            <SheetFooter className="flex justify-end gap-2">
               <Button type="submit" disabled={isCreating || isUpdating}>
                 {isCreating || isUpdating ? "Saving..." : "Save"}
               </Button>

@@ -62,7 +62,7 @@ export const SalesFormSheet = ({ sales, open, openChange }: SaleFormProps) => {
     grandTotal: sales?.grandTotal ?? 0,
     dueAmount: sales?.dueAmount ?? 0,
     paidAmount:sales?.paidAmount ?? 0,
-    salesdate: sales?.salesdate ? new Date(sales.salesdate) : new Date(),
+    salesdate: sales?.salesdate ? (sales.salesdate instanceof Date ? sales.salesdate : new Date(sales.salesdate)) : new Date(),
     items: sales?.items || [],
     salesPayment: sales?.payments || [],
   }
@@ -255,7 +255,7 @@ console.log(customerList);
                     <Popover>
                       <PopoverTrigger asChild>
                         <FormControl>
-                          <Button variant="outline" className={cn("w-full text-left", !field.value && "text-muted-foreground")}>{field.value ? new Date(field.value).toLocaleDateString() : <Calendar1 className="h-4 w-4" />}</Button>
+                          <Button variant="outline" className={cn("w-full text-left", !field.value && "text-muted-foreground")}>{field.value ? (field.value instanceof Date ? field.value.toLocaleDateString() : new Date(field.value).toLocaleDateString()) : <Calendar1 className="h-4 w-4" />}</Button>
                         </FormControl>
                       </PopoverTrigger>
                       <PopoverContent>
