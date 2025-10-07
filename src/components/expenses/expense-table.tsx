@@ -61,15 +61,22 @@ export function ExpenseTable<TValue>({ columns, data }: ExpenseTableProps<TValue
 
   return (
     <div className="flex flex-col gap-5">
-        <Card>
+        {/* <Card>
       <CardHeader>
         <div className="space-y-2">
           <CardTitle>Filters</CardTitle>
           <CardDescription>Filter expense by name</CardDescription>
         </div>
       </CardHeader>
-      <CardContent className="flex gap-4 md:items-center justify-between">
-        <div className="relative w-full">
+    </Card> */}
+
+    <Card>
+    <CardHeader className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+          <div>
+            <CardTitle>Expenses</CardTitle>
+            <CardDescription>A list of all Expenses</CardDescription>
+          </div>
+          <div className="relative w-full sm:w-1/2 md:w-1/4">
         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
         <Input
             placeholder="Search by title,description,category"
@@ -78,42 +85,6 @@ export function ExpenseTable<TValue>({ columns, data }: ExpenseTableProps<TValue
             className="pl-9"
         />
         </div>
-        {/* <div>
-            <Select>
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Select Expense Category" />
-                  </SelectTrigger>
-                <SelectContent>
-                  {[
-                    { id: "allcategory", name : "All Category"},
-                    { id: "officeappliances", name: "Office Appliances" },
-                    { id: "travel", name: "Travel" },
-                    { id: "market", name: "Market" },
-                    { id: "software", name: "Software" },
-                    { id: "other", name: "Other" },
-                    ].map((category) => (
-                    <SelectItem key={category?.id} value={category?.id}>
-                      {category?.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-        </div> */}
-        {/* <div className="flex flex-wrap items-center gap-3">
-            <Button variant="outline">
-                <Funnel className="h-4 w-4 mr-0 sm:mr-0 md:mr-2" />
-                <span className="hidden md:inline">Filter</span>
-            </Button>
-        </div> */}
-      </CardContent>
-    </Card>
-
-    <Card>
-      <CardHeader>
-          <div className="space-y-2">
-            <CardTitle>Expenses</CardTitle>
-            <CardDescription>A list of all Expenses</CardDescription>
-          </div>
       </CardHeader>
       <CardContent>
         <Table>
