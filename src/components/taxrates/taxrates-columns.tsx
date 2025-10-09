@@ -5,17 +5,10 @@ import { TaxRateFormDialog } from "./taxrates-form";
 
 import { ColumnDef } from "@tanstack/react-table";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
   ArrowDown,
   ArrowUp,
   ArrowUpDown,
   Edit2,
-  MoreHorizontal,
   Trash2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -52,44 +45,40 @@ export const taxRatesColumns: ColumnDef<TaxRates>[] = [
     cell: ({ row }) => <div>{row.getValue("taxRate")}%</div>
   },
   {
-    id: "action",
+    id: "actions",
+    header: "Actions",
     cell: ({ row }) =>
-      row.original && <TaxrateDropdeownMenu taxRate={row.original} />,
+      row.original && <TaxrateActions taxRate={row.original} />,
   },
 ];
 
-export const TaxrateDropdeownMenu = ({ taxRate }: { taxRate: TaxRates }) => {
+export const TaxrateActions = ({ taxRate }: { taxRate: TaxRates }) => {
   const [openDelete, setOpenDelete] = useState(false);
   const [openEdit, setOpenEdit] = useState(false);
 
   return (
-    <div className="text-right">
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant="ghost" className="h-8 w-8 p-0">
-            <span className="sr-only">Open menu</span>
-            <MoreHorizontal className="h-4 w-4" />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
-          <DropdownMenuItem onSelect={() => setOpenEdit(!openEdit)}>
-            <Edit2 className="size-4" />
-            Edit Tax Rate
-          </DropdownMenuItem>
-          <DropdownMenuItem
-            className="text-destructive"
-            onSelect={() => setOpenDelete(!openDelete)}
-          >
-            <Trash2 className="size-4" />
-            Delete Tax Rate
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
+    <div className="flex items-center gap-2">
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={() => setOpenEdit(true)}
+        className="h-8 w-8 p-0"
+      >
+        <Edit2 className="h-4 w-4" />
+      </Button>
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={() => setOpenDelete(true)}
+        className="h-8 w-8 p-0 text-destructive hover:text-destructive"
+      >
+        <Trash2 className="h-4 w-4" />
+      </Button>
 
       {/* Edit Dialog */}
       <TaxRateFormDialog open={openEdit} openChange={setOpenEdit} tax={taxRate} />
 
-      {/* Dialogs */}
+      {/* Delete Dialog */}
       <TaxRateDeleteDialog
         taxRate={taxRate}
         open={openDelete}

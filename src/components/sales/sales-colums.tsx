@@ -7,17 +7,10 @@ import {
   ArrowUp,
   ArrowUpDown,
   Edit2,
-  MoreHorizontal,
   Trash2,
   Eye,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { SalesDeleteDialog } from "./sales-delete-dailog";
 import { useState } from "react";
 import { SalesFormSheet } from "./sales-form";
@@ -146,6 +139,7 @@ export const salesColumns: ColumnDef<Sale>[] = [
   },
   {
     id: "actions",
+    header: "Actions",
     cell: ({ row }) => <SalesActions sale={row.original} />,
   },
 ];
@@ -156,25 +150,31 @@ const SalesActions = ({ sale }: { sale: Sale }) => {
   const router = useRouter();
 
   return (
-    <div className="text-right">
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant="ghost" className="h-8 w-8 p-0">
-            <MoreHorizontal className="h-4 w-4" />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
-          <DropdownMenuItem onSelect={() => router.push(`/sales/${sale.id}`)}>
-            <Eye className="size-4 mr-2" /> View
-          </DropdownMenuItem>
-          <DropdownMenuItem onSelect={() => setOpenEdit(true)}>
-            <Edit2 className="size-4 mr-2" /> Edit
-          </DropdownMenuItem>
-          <DropdownMenuItem onSelect={() => setOpenDelete(true)} className="text-destructive">
-            <Trash2 className="size-4 mr-2" /> Delete
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
+    <div className="flex items-center gap-2">
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={() => router.push(`/sales/${sale.id}`)}
+        className="h-8 w-8 p-0"
+      >
+        <Eye className="h-4 w-4" />
+      </Button>
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={() => setOpenEdit(true)}
+        className="h-8 w-8 p-0"
+      >
+        <Edit2 className="h-4 w-4" />
+      </Button>
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={() => setOpenDelete(true)}
+        className="h-8 w-8 p-0 text-destructive hover:text-destructive"
+      >
+        <Trash2 className="h-4 w-4" />
+      </Button>
 
       <SalesFormSheet open={openEdit} openChange={setOpenEdit} sales={sale} />
       <SalesDeleteDialog sale={sale} open={openDelete} setOpen={setOpenDelete} />

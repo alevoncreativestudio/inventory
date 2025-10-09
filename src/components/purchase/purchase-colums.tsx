@@ -3,17 +3,10 @@
 import { Purchase } from "@/types/purchase";
 import { ColumnDef } from "@tanstack/react-table";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
   ArrowDown,
   ArrowUp,
   ArrowUpDown,
   Edit2,
-  MoreHorizontal,
   Trash2,
   Eye,
 } from "lucide-react";
@@ -159,6 +152,7 @@ export const purchaseColumns: ColumnDef<Purchase>[] = [
 
   {
     id: "actions",
+    header: "Actions",
     cell: ({ row }) => <PurchaseActions purchase={row.original} />,
   },
 ];
@@ -169,25 +163,32 @@ const PurchaseActions = ({ purchase }: { purchase: Purchase }) => {
   const router = useRouter();
 
   return (
-    <div className="text-right">
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant="ghost" className="h-8 w-8 p-0">
-            <MoreHorizontal className="h-4 w-4" />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
-          <DropdownMenuItem onSelect={() => router.push(`/purchase/${purchase.id}`)}>
-            <Eye className="size-4 mr-2" /> View
-          </DropdownMenuItem>
-          <DropdownMenuItem onSelect={() => setOpenEdit(true)}>
-            <Edit2 className="size-4 mr-2" /> Edit
-          </DropdownMenuItem>
-          <DropdownMenuItem onSelect={() => setOpenDelete(true)} className="text-destructive">
-            <Trash2 className="size-4 mr-2" /> Delete
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
+    <div className="flex items-center gap-2">
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={() => router.push(`/purchase/${purchase.id}`)}
+        className="h-8 w-8 p-0"
+      >
+        <Eye className="h-4 w-4" />
+      </Button>
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={() => setOpenEdit(true)}
+        className="h-8 w-8 p-0"
+      >
+        <Edit2 className="h-4 w-4" />
+      </Button>
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={() => setOpenDelete(true)}
+        className="h-8 w-8 p-0 text-destructive hover:text-destructive"
+      >
+        <Trash2 className="h-4 w-4" />
+      </Button>
+      
       <PurchaseFormSheet open={openEdit} openChange={setOpenEdit} purchase={purchase} />
       <PurchaseDeleteDialog purchase={purchase} open={openDelete} setOpen={setOpenDelete} />
     </div>

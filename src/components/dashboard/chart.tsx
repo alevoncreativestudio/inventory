@@ -47,7 +47,7 @@ const chartConfig = {
     color: "hsl(var(--chart-1))",
   },
   purchases: {
-    label: "Purchases", 
+    label: "Purchases",
     color: "hsl(var(--chart-2))",
   },
 } satisfies ChartConfig
@@ -72,10 +72,17 @@ export function ChartAreaInteractive({ data }: ChartAreaInteractiveProps) {
   })
 
   return (
-    <Card className="@container/card">
-      <CardHeader>
-        <CardTitle>Sales vs Purchases</CardTitle>
-        <CardDescription>
+    <Card
+      className="relative overflow-hidden border-none bg-gradient-to-br from-indigo-50 via-white to-emerald-50 dark:from-indigo-900/30 dark:via-gray-900 dark:to-emerald-900/30 shadow-md transition-all duration-500 hover:shadow-lg"
+    >
+      {/* Soft decorative background blur effect */}
+      <div className="absolute inset-0 opacity-30 blur-3xl bg-gradient-to-br from-indigo-300/30 to-emerald-300/30 pointer-events-none" />
+
+      <CardHeader className="relative z-10">
+        <CardTitle className="text-gray-800 dark:text-gray-100">
+          Sales vs Purchases
+        </CardTitle>
+        <CardDescription className="text-gray-600 dark:text-gray-400">
           <span className="hidden @[540px]/card:block">
             Total for the last 3 months
           </span>
@@ -109,7 +116,8 @@ export function ChartAreaInteractive({ data }: ChartAreaInteractiveProps) {
           </Select>
         </CardAction>
       </CardHeader>
-      <CardContent className="px-2 pt-4 sm:px-6 sm:pt-6">
+
+      <CardContent className="relative z-10 px-2 pt-4 sm:px-6 sm:pt-6">
         <ChartContainer
           config={chartConfig}
           className="aspect-auto h-[250px] w-full"
@@ -118,20 +126,21 @@ export function ChartAreaInteractive({ data }: ChartAreaInteractiveProps) {
             <defs>
               <linearGradient id="fillSales" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="5%" stopColor="hsl(var(--chart-1))" stopOpacity={0.8} />
-                <stop offset="95%" stopColor="hsl(var(--chart-1))" stopOpacity={0.1} />
+                <stop offset="95%" stopColor="hsl(var(--chart-1))" stopOpacity={0.05} />
               </linearGradient>
               <linearGradient id="fillPurchases" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="5%" stopColor="hsl(var(--chart-2))" stopOpacity={0.8} />
-                <stop offset="95%" stopColor="hsl(var(--chart-2))" stopOpacity={0.1} />
+                <stop offset="95%" stopColor="hsl(var(--chart-2))" stopOpacity={0.05} />
               </linearGradient>
             </defs>
-            <CartesianGrid vertical={false} />
+            <CartesianGrid vertical={false} stroke="#e5e7eb" />
             <XAxis
               dataKey="date"
               tickLine={false}
               axisLine={false}
               tickMargin={8}
               minTickGap={32}
+              tick={{ fill: "#6b7280" }}
               tickFormatter={(value) => {
                 const date = new Date(value)
                 return date.toLocaleDateString("en-US", {
@@ -159,14 +168,14 @@ export function ChartAreaInteractive({ data }: ChartAreaInteractiveProps) {
               type="natural"
               fill="url(#fillSales)"
               stroke="hsl(var(--chart-1))"
-              stackId="a"
+              strokeWidth={2}
             />
             <Area
               dataKey="purchases"
               type="natural"
               fill="url(#fillPurchases)"
               stroke="hsl(var(--chart-2))"
-              stackId="a"
+              strokeWidth={2}
             />
           </AreaChart>
         </ChartContainer>

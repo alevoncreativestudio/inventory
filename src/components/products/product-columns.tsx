@@ -5,18 +5,11 @@ import { ProductFormSheet } from "./product-form";
 
 import { ColumnDef } from "@tanstack/react-table";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
   ArrowDown,
   ArrowUp,
   ArrowUpDown,
   Edit2,
   Eye,
-  MoreHorizontal,
   Trash2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -105,47 +98,44 @@ export const productColumns: ColumnDef<Product>[] = [
     }
   },
   {
-    id: "action",
+    id: "actions",
+    header: "Actions",
     cell: ({ row }) =>
-      row.original && <ProductDropdeownMenu product={row.original} />,
+      row.original && <ProductActions product={row.original} />,
   },
 ];
 
-export const ProductDropdeownMenu = ({ product }: { product: Product }) => {
+export const ProductActions = ({ product }: { product: Product }) => {
   const [openDelete, setOpenDelete] = useState(false);
   const [openEdit, setOpenEdit] = useState(false);
   const router = useRouter();
 
   return (
-    <div className="text-right">
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant="ghost" className="h-8 w-8 p-0">
-            <span className="sr-only">Open menu</span>
-            <MoreHorizontal className="h-4 w-4" />
-          </Button>
-        </DropdownMenuTrigger>
-
-        <DropdownMenuContent align="end">
-          <DropdownMenuItem onSelect={() => router.push(`/admin/products/${product.id}`)}>
-            <Eye className="size-4 mr-2" />
-            View
-          </DropdownMenuItem>
-
-          <DropdownMenuItem onSelect={() => setOpenEdit(true)}>
-            <Edit2 className="size-4 mr-2" />
-            Edit Product
-          </DropdownMenuItem>
-
-          <DropdownMenuItem
-            className="text-destructive"
-            onSelect={() => setOpenDelete(true)}
-          >
-            <Trash2 className="size-4 mr-2" />
-            Delete Product
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
+    <div className="flex items-center gap-2">
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={() => router.push(`/admin/products/${product.id}`)}
+        className="h-8 w-8 p-0"
+      >
+        <Eye className="h-4 w-4" />
+      </Button>
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={() => setOpenEdit(true)}
+        className="h-8 w-8 p-0"
+      >
+        <Edit2 className="h-4 w-4" />
+      </Button>
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={() => setOpenDelete(true)}
+        className="h-8 w-8 p-0 text-destructive hover:text-destructive"
+      >
+        <Trash2 className="h-4 w-4" />
+      </Button>
 
       {/* Sheet opens on Edit */}
       <ProductFormSheet

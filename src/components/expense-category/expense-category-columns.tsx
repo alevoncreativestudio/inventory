@@ -5,17 +5,10 @@ import { ExpenseCategoryFormDialog } from "./expense-category-form";
 
 import { ColumnDef } from "@tanstack/react-table";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
   ArrowDown,
   ArrowUp,
   ArrowUpDown,
   Edit2,
-  MoreHorizontal,
   Trash2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -47,44 +40,40 @@ export const expenseCategoryColumns: ColumnDef<ExpenseCategory>[] = [
     cell: ({ row }) =>  <div className="px-3">{row.getValue('name') as string}</div>,
   },
   {
-    id: "action",
+    id: "actions",
+    header: "Actions",
     cell: ({ row }) =>
-      row.original && <ExpenseCategoryDropdeownMenu expenseCategory={row.original} />,
+      row.original && <ExpenseCategoryActions expenseCategory={row.original} />,
   },
 ];
 
-export const ExpenseCategoryDropdeownMenu = ({ expenseCategory }: { expenseCategory: ExpenseCategory }) => {
+export const ExpenseCategoryActions = ({ expenseCategory }: { expenseCategory: ExpenseCategory }) => {
   const [openDelete, setOpenDelete] = useState(false);
   const [openEdit, setOpenEdit] = useState(false);
 
   return (
-    <div className="text-right">
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant="ghost" className="h-8 w-8 p-0">
-            <span className="sr-only">Open menu</span>
-            <MoreHorizontal className="h-4 w-4" />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
-          <DropdownMenuItem onSelect={() => setOpenEdit(!openEdit)}>
-            <Edit2 className="size-4" />
-            Edit Expense Category
-          </DropdownMenuItem>
-          <DropdownMenuItem
-            className="text-destructive"
-            onSelect={() => setOpenDelete(!openDelete)}
-          >
-            <Trash2 className="size-4" />
-            Delete Expense Category
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
+    <div className="flex items-center gap-2">
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={() => setOpenEdit(true)}
+        className="h-8 w-8 p-0"
+      >
+        <Edit2 className="h-4 w-4" />
+      </Button>
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={() => setOpenDelete(true)}
+        className="h-8 w-8 p-0 text-destructive hover:text-destructive"
+      >
+        <Trash2 className="h-4 w-4" />
+      </Button>
 
       {/* Edit Dialog */}
       <ExpenseCategoryFormDialog open={openEdit} openChange={setOpenEdit} expenseCategory={expenseCategory} />
 
-      {/* Dialogs */}
+      {/* Delete Dialog */}
       <ExpenseCategoryDeleteDialog
         expenseCategory={expenseCategory}
         open={openDelete}

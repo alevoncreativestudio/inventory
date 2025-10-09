@@ -5,18 +5,11 @@ import { SupplierFormDialog } from "./supplier-form";
 import { SupplierDeleteDialog } from "./supplier-delete-dailog";
 import { ColumnDef } from "@tanstack/react-table";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
   ArrowDown,
   ArrowUp,
   ArrowUpDown,
   Clock1,
   Edit2,
-  MoreHorizontal,
   Trash2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -113,49 +106,53 @@ export const supplierColumns: ColumnDef<Supplier>[] = [
         },
   },
   {
-    id: "action",
+    id: "actions",
+    header: "Actions",
     cell: ({ row }) =>
-      row.original && <SupplierDropdownMenu supplier={row.original} />,
+      row.original && <SupplierActions supplier={row.original} />,
   },
 ];
 
-export const SupplierDropdownMenu = ({ supplier }: { supplier: Supplier }) => {
+export const SupplierActions = ({ supplier }: { supplier: Supplier }) => {
   const [openDelete, setOpenDelete] = useState(false);
   const [openEdit, setOpenEdit] = useState(false);
   const [openPay,setOpenPay] = useState(false);
   const [openPayment,setOpenPayment] = useState(false);
 
   return (
-    <div className="text-right">
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant="ghost" className="h-8 w-8 p-0">
-            <span className="sr-only">Open menu</span>
-            <MoreHorizontal className="h-4 w-4" />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
-          <DropdownMenuItem onSelect={() => setOpenPay(true)}>
-            <IconCash color="blue" className="size-4 mr-2" />
-            Pay
-          </DropdownMenuItem>
-          <DropdownMenuItem onSelect={() => setOpenPayment(true)}>
-            <Clock1 className="size-4 mr-2" />
-            Payment History
-          </DropdownMenuItem>
-          <DropdownMenuItem onSelect={() => setOpenEdit(true)}>
-            <Edit2 className="size-4 mr-2" />
-            Edit Supplier
-          </DropdownMenuItem>
-          <DropdownMenuItem
-            className="text-destructive"
-            onSelect={() => setOpenDelete(true)}
-          >
-            <Trash2 className="size-4 mr-2" />
-            Delete Supplier
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
+    <div className="flex items-center gap-2">
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={() => setOpenPay(true)}
+        className="h-8 w-8 p-0"
+      >
+        <IconCash className="h-4 w-4" />
+      </Button>
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={() => setOpenPayment(true)}
+        className="h-8 w-8 p-0"
+      >
+        <Clock1 className="h-4 w-4" />
+      </Button>
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={() => setOpenEdit(true)}
+        className="h-8 w-8 p-0"
+      >
+        <Edit2 className="h-4 w-4" />
+      </Button>
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={() => setOpenDelete(true)}
+        className="h-8 w-8 p-0 text-destructive hover:text-destructive"
+      >
+        <Trash2 className="h-4 w-4" />
+      </Button>
 
       <SupplierFormDialog
         open={openEdit}

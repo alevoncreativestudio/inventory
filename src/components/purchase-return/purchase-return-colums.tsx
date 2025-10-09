@@ -8,15 +8,8 @@ import {
   ArrowUp,
   ArrowUpDown,
   Edit2,
-  MoreHorizontal,
   Trash2,
 } from "lucide-react";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { useState } from "react";
 import { PurchaseReturnFormSheet } from "./purchase-return-form";
 import { PurchaseReturnDeleteDialog } from "./purchase-return-delete-dailog";
@@ -60,6 +53,7 @@ export const purchaseReturnColumns: ColumnDef<PurchaseReturn>[] = [
   },
   {
     id: "actions",
+    header: "Actions",
     cell: ({ row }) => <PurchaseReturnActions purchaseReturn={row.original} />,
   },
 ];
@@ -69,22 +63,24 @@ const PurchaseReturnActions = ({ purchaseReturn }: { purchaseReturn: PurchaseRet
   const [openDelete, setOpenDelete] = useState(false);
 
   return (
-    <div className="text-right">
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant="ghost" className="h-8 w-8 p-0">
-            <MoreHorizontal className="h-4 w-4" />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
-          <DropdownMenuItem onSelect={() => setOpenEdit(true)}>
-            <Edit2 className="size-4 mr-2" /> Edit
-          </DropdownMenuItem>
-          <DropdownMenuItem onSelect={() => setOpenDelete(true)} className="text-destructive">
-            <Trash2 className="size-4 mr-2" /> Delete
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
+    <div className="flex items-center gap-2">
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={() => setOpenEdit(true)}
+        className="h-8 w-8 p-0"
+      >
+        <Edit2 className="h-4 w-4" />
+      </Button>
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={() => setOpenDelete(true)}
+        className="h-8 w-8 p-0 text-destructive hover:text-destructive"
+      >
+        <Trash2 className="h-4 w-4" />
+      </Button>
+      
       <PurchaseReturnFormSheet open={openEdit} openChange={setOpenEdit} purchaseReturn={purchaseReturn} />
       <PurchaseReturnDeleteDialog purchaseReturn={purchaseReturn} open={openDelete} setOpen={setOpenDelete} />
     </div>
