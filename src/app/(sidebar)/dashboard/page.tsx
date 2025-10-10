@@ -13,9 +13,6 @@ import {
   IconUsers,
   IconPackage,
   IconCurrencyDollar,
-  IconSearch,
-  IconBell,
-  IconUser,
   IconRefresh,
   IconStar,
   IconHeart,
@@ -123,7 +120,7 @@ export default async function Dashboard() {
             </div>
             <p className="text-sm text-gray-600">Your inventory dashboard overview</p>
           </div>
-          <div className="flex items-center gap-4">
+          {/* <div className="flex items-center gap-4">
             <div className="relative">
               <IconSearch className="h-5 w-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
               <input 
@@ -139,7 +136,7 @@ export default async function Dashboard() {
             <div className="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center">
               <IconUser className="h-5 w-5 text-gray-600" />
             </div>
-          </div>
+          </div> */}
         </div>
       </div>
 

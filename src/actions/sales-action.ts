@@ -148,7 +148,16 @@ export const getSaleById = actionClient
 
     const sale = await prisma.sale.findUnique({
       where: { id },
-      include: { items: true, customer: true, payments: true },
+      include: { 
+        items: { 
+          include: { 
+            product: true 
+          } 
+        }, 
+        customer: true, 
+        payments: true,
+        branch: true
+      },
     });
 
     return { data: sale };

@@ -17,7 +17,7 @@ export function NavGroup({
 }: NavGroupProps & React.ComponentPropsWithoutRef<typeof SidebarGroup>) {
   return (
     <SidebarGroup {...props}>
-      <SidebarGroupLabel>{label}</SidebarGroupLabel>
+      <SidebarGroupLabel className="text-white">{label}</SidebarGroupLabel>
       <NavMenu items={items} />
     </SidebarGroup>
   );
