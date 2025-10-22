@@ -16,7 +16,7 @@ import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { SupplierPayDialog } from "./supplier-pay-dialog";
 import { IconCash } from "@tabler/icons-react";
-import { SupplierHistoryListDialog } from "./supplier-payment-dialog";
+import { SupplierPaymentHistoryModal } from "./supplier-payment-history-modal";
 import { formatCurrency } from "@/lib/utils";
 
 export const supplierColumns: ColumnDef<Supplier>[] = [
@@ -166,10 +166,11 @@ export const SupplierActions = ({ supplier }: { supplier: Supplier }) => {
         setOpen={setOpenPay}
       />
 
-      <SupplierHistoryListDialog
+      <SupplierPaymentHistoryModal
         open={openPayment}
-        setOpen={setOpenPayment}
+        onOpenChange={setOpenPayment}
         supplierId={supplier?.id}
+        supplierName={supplier?.name}
       />
 
       <SupplierDeleteDialog

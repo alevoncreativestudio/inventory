@@ -288,11 +288,11 @@ model Supplier {
   id                  String @id @default(auto()) @map("_id") @db.ObjectId
   SupplierId          String
   name                String @unique
-  email               String @unique
-  phone               String @unique
+  email               String? @unique
+  phone               String? @unique
   openingBalance      Float 
   outstandingPayments Float  @default(0)
-  address             String
+  address             String?
   purchaseDue         Float  @default(0)
   purchaseReturnDue   Float  @default(0)
 
@@ -311,11 +311,11 @@ model Customer {
   id                  String @id @default(auto()) @map("_id") @db.ObjectId
   CustomerID          String
   name                String @unique
-  email               String @unique
-  phone               String @unique
+  email               String? @unique
+  phone               String? @unique
   openingBalance      Float 
   outstandingPayments Float  @default(0)
-  address             String
+  address             String?
   salesDue            Float  @default(0)
   salesReturnDue      Float  @default(0)
 

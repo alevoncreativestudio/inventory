@@ -17,7 +17,7 @@ import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { CustomerPayDialog } from "./customer-pay-dialog";
 import { IconCash } from "@tabler/icons-react";
-import { CustomerHistoryListDialog } from "./customer-payment-dialog";
+import { CustomerPaymentHistoryModal } from "./customer-payment-history-modal";
 import { formatCurrency } from "@/lib/utils";
 
 export const customersColumns: ColumnDef<Customer>[] = [
@@ -162,10 +162,11 @@ export const CustomerActions = ({ customer }: { customer: Customer }) => {
         customer={customer}
       />
 
-      <CustomerHistoryListDialog
+      <CustomerPaymentHistoryModal
         open={openPayment}
-        setOpen={setOpenPayment}
+        onOpenChange={setOpenPayment}
         customerId={customer?.id}
+        customerName={customer?.name}
       />
 
       <CustomerPayDialog 

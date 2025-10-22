@@ -104,7 +104,7 @@ export const SupplierFormDialog = ({ supplier, open, openChange }: SupplierFormP
           name="SupplierId"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Customer ID</FormLabel>
+              <FormLabel>Supplier ID</FormLabel>
               <FormControl>
                 <Input placeholder="S0001" {...field} />
               </FormControl>
@@ -135,7 +135,7 @@ export const SupplierFormDialog = ({ supplier, open, openChange }: SupplierFormP
           name="phone"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Phone</FormLabel>
+              <FormLabel>Phone (Optional)</FormLabel>
               <FormControl>
                 <Input placeholder="Phone number" {...field} />
               </FormControl>
@@ -149,7 +149,7 @@ export const SupplierFormDialog = ({ supplier, open, openChange }: SupplierFormP
           name="email"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Email</FormLabel>
+              <FormLabel>Email (Optional)</FormLabel>
               <FormControl>
                 <Input placeholder="Email address" {...field} />
               </FormControl>
@@ -203,7 +203,7 @@ export const SupplierFormDialog = ({ supplier, open, openChange }: SupplierFormP
           name="address"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Phone</FormLabel>
+              <FormLabel>Address (Optional)</FormLabel>
               <FormControl>
                 <Textarea placeholder="Address" {...field} />
               </FormControl>

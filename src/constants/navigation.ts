@@ -1,18 +1,15 @@
 import {
+  IconAddressBook,
   IconBox,
   IconBrandShopee,
   IconBuilding,
-  IconCards,
   IconCategory,
   IconCoin,
   IconCurrency,
   IconDashboard,
   IconFileText,
   IconPercentage,
-  IconSettings,
   IconShoppingBag,
-  IconTruckDelivery,
-  IconTruckLoading,
   IconUserPlus,
 } from "@tabler/icons-react";
 import type { SidebarData } from "@/types/navigation";
@@ -30,31 +27,54 @@ export const SIDEBAR_DATA: SidebarData = {
       title: "Purchase",
       url: "/purchase",
       icon: IconShoppingBag,
-    },
-    {
-      title: "Purchase Return",
-      url: "/purchase-return",
-      icon: IconTruckDelivery,
+      children: [
+        {
+          title: "List Purchases",
+          url: "/purchase",
+        },
+        {
+          title: "Add Purchase",
+          url: "/purchase/new",
+        },
+        {
+          title: "Purchase Return",
+          url: "/purchase-return",
+        },
+      ],
     },
     {
       title: "Sales",
       url: "/sales",
       icon: IconCoin,
-    },
-    {
-      title: "Sales Return",
-      url: "/sales-return",
-      icon: IconTruckLoading,
+      children: [
+        {
+          title: "List Sales",
+          url: "/sales",
+        },
+        {
+          title: "Add Sale",
+          url: "/sales/new",
+        },
+        {
+          title: "Sales Return",
+          url: "/sales-return",
+        },
+      ],
     },
     {
       title: "Expenses",
       url: "/expenses",
       icon: IconCurrency,
-    },
-    {
-      title: "Expenses Category",
-      url: "/expensescategory",
-      icon: IconCards,
+      children: [
+        {
+          title: "Expenses",
+          url: "/expenses",
+        },
+        {
+          title: "Expenses Category",
+          url: "/expensescategory",
+        },
+      ],
     },
   ],
 
@@ -79,6 +99,21 @@ export const SIDEBAR_DATA: SidebarData = {
       title: "Categories",
       url: "/admin/categories",
       icon: IconCategory,
+    },
+    {
+      title: "Contacts",
+      url: "/admin/contacts",
+      icon: IconAddressBook,
+      children: [
+        {
+          title: "Customers",
+          url: "/settings/customers",
+        },
+        {
+          title: "Suppliers",
+          url: "/settings/supplier",
+        },
+      ],
     },
     {
       title: "Reports",
@@ -121,17 +156,7 @@ export const SIDEBAR_DATA: SidebarData = {
   ],
 
   // secondary navigation for all users
-  navSecondary: [
-    {
-      title: "Settings",
-      url: "/settings",
-      icon: IconSettings,
-      children: [
-        { title: "Customers", url: "/settings/customers" },
-        { title: "Supplier", url: "/settings/supplier" },
-      ],
-    },
-  ],
+  navSecondary: [],
 };
 
 export const COMPANY_INFO = {

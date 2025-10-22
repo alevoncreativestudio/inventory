@@ -133,7 +133,7 @@ export const CustomerFormDialog = ({ customer, open, openChange }: CustomerFormP
           name="email"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Email</FormLabel>
+              <FormLabel>Email (Optional)</FormLabel>
               <FormControl>
                 <Input placeholder="Email address" {...field} />
               </FormControl>
@@ -147,7 +147,7 @@ export const CustomerFormDialog = ({ customer, open, openChange }: CustomerFormP
           name="phone"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Phone</FormLabel>
+              <FormLabel>Phone (Optional)</FormLabel>
               <FormControl>
                 <Input placeholder="Phone number" {...field} />
               </FormControl>
@@ -200,7 +200,7 @@ export const CustomerFormDialog = ({ customer, open, openChange }: CustomerFormP
           name="address"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Address</FormLabel>
+              <FormLabel>Address (Optional)</FormLabel>
               <FormControl>
                 <Textarea placeholder="Address" {...field} />
               </FormControl>

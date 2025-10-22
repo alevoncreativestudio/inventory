@@ -1,9 +1,11 @@
 export const dynamic = "force-dynamic";
 
 import { SalesTable } from "@/components/sales/sales-table";
-import { SalesFormSheet } from "@/components/sales/sales-form";
 import { salesColumns } from "@/components/sales/sales-colums";
 import { getSalesList } from "@/actions/sales-action";
+import { Button } from "@/components/ui/button";
+import { Plus } from "lucide-react";
+import Link from "next/link";
 
 export default async function SalesPage() {
   const { data } = await getSalesList();
@@ -17,7 +19,12 @@ export default async function SalesPage() {
               <h1 className="text-2xl font-bold tracking-tight">Sales</h1>
               <p className="text-muted-foreground">Manage your sales</p>
             </div>
-            <SalesFormSheet />
+            <Link href="/sales/new">
+              <Button>
+                <Plus className="mr-2 h-4 w-4" />
+                Add Sale
+              </Button>
+            </Link>
           </div>
 
           <SalesTable columns={salesColumns} data={data?.sales ?? []} />
