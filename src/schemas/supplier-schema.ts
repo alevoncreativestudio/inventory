@@ -3,7 +3,7 @@ import { z } from 'zod';
 export const supplierSchema = z.object({
   SupplierId:z.string().min(2),
   branchId: z.string().min(1, "Branch is required"),
-  name: z.string().min(2, "Supplier is required"),
+  name: z.string().min(2, "Supplier name is required"),
   email: z.string().optional(),
   phone: z.string().optional(),
   openingBalance: z.coerce.number(),
