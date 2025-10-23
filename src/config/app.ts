@@ -1,6 +1,6 @@
 export const APP_CONFIG = {
-  name: 'Next Admin',
-  description: 'Next Admin Template',
+  name: 'Inventory',
+  description: 'Inventory Management System',
   version: '1.0.0',
   author: {
     name: 'Rashid MP',
