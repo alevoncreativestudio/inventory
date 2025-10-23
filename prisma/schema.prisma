@@ -69,8 +69,8 @@ model Purchase {
 
 
 enum purchaseStatus {
+  Purchase_Order
   Received
-  Pending
   Cancelled
 }
 

@@ -107,11 +107,11 @@ export const SIDEBAR_DATA: SidebarData = {
       children: [
         {
           title: "Customers",
-          url: "/settings/customers",
+          url: "/admin/customers",
         },
         {
           title: "Suppliers",
-          url: "/settings/supplier",
+          url: "/admin/supplier",
         },
       ],
     },
@@ -135,6 +135,10 @@ export const SIDEBAR_DATA: SidebarData = {
         {
           title: "Profit & Loss Report",
           url: "/reports/pnl-reports",
+        },
+        {
+          title: "Stock Report",
+          url: "/reports/stock-reports",
         },
       ],
     },

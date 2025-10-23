@@ -51,6 +51,7 @@ interface ProductFormProps {
 
 export const ProductFormSheet = ({ product, open, openChange }: ProductFormProps) => {
   const isControlled = typeof open !== "undefined" && typeof openChange === "function";
+  const [internalOpen, setInternalOpen] = useState(false);
 
   const { execute: createProject, isExecuting: isCreating } = useAction(createProduct);
   const { execute: updateProject, isExecuting: isUpdating } = useAction(updateProduct);
@@ -136,11 +137,22 @@ useEffect(() => {
       await createProject(data);
       toast.success("Product created successfully");
     }
-    if (isControlled && openChange) openChange(false);
+    
+    // Auto-close the sheet after successful submission
+    if (isControlled && openChange) {
+      openChange(false);
+    } else {
+      // For uncontrolled sheets, close the internal state
+      setInternalOpen(false);
+      form.reset();
+    }
   };
 
   return (
-    <Sheet open={isControlled ? open : undefined} onOpenChange={isControlled ? openChange : undefined}>
+    <Sheet 
+      open={isControlled ? open : internalOpen} 
+      onOpenChange={isControlled ? openChange : setInternalOpen}
+    >
       {!isControlled && (
         <SheetTrigger asChild>
           <Button>

@@ -121,12 +121,18 @@ export const PurchaseFormSheet = ({
       referenceNo: purchase?.referenceNo || "",
       branchId: purchase?.branchId || "",
       purchaseDate: purchase?.purchaseDate ? (purchase.purchaseDate instanceof Date ? purchase.purchaseDate : new Date(purchase.purchaseDate)) : new Date(),
-      status: purchase?.status ?? purchaseStatusOption[0],
+      status: purchase?.status ?? "Purchase_Order",
       totalAmount: purchase?.totalAmount || 0,
       dueAmount:purchase?.dueAmount || 0,
       paidAmount:purchase?.paidAmount || 0,
       items: purchase?.items || [],
-      payments: purchase?.payments || []
+      payments: purchase?.payments || [{
+        amount: 0,
+        paidOn: new Date(),
+        paymentMethod: "",
+        paymentNote: "",
+        dueDate: null
+      }]
     },
   });
 
@@ -340,13 +346,29 @@ export const PurchaseFormSheet = ({
                         <SelectContent>
                           {purchaseStatusOption.map((s) => (
                             <SelectItem key={s} value={s}>
-                              {s}
+                              {s === "Purchase_Order" ? "Purchase Order" : 
+                               s === "Received" ? "Received" : s}
                             </SelectItem>
                           ))}
                         </SelectContent>
                       </Select>
                     </FormControl>
                     <FormMessage />
+                    {/* {field.value === "Purchase_Order" && (
+                      <p className="text-sm text-muted-foreground">
+                        📋 Purchase Order: Stock and payments will not be updated
+                      </p>
+                    )}
+                    {field.value === "Received_Confirmed" && (
+                      <p className="text-sm text-green-600">
+                        ✅ Received: Stock quantities and supplier balance will be updated
+                      </p>
+                    )}
+                    {field.value === "Cancelled" && (
+                      <p className="text-sm text-red-600">
+                        ❌ Cancelled: No stock or payment updates will occur
+                      </p>
+                    )} */}
                   </FormItem>
                 )}
               />

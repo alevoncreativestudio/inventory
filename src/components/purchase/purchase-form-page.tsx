@@ -62,7 +62,7 @@ export const PurchaseFormPage = () => {
   const [supplierList, setSupplierList] = useState<{ name: string; id: string,openingBalance:number }[]>([]);
   const [showSupplierSuggestions, setShowSupplierSuggestions] = useState(false);
   const [selectedSupplierOpeningBalance, setSelectedSupplierOpeningBalance] = useState<number | null>(null);
-  const [baranchList, setBranchList] = useState<{ name: string; id: string;}[]>([]);
+  const [branchList, setBranchList] = useState<{ name: string; id: string;}[]>([]);
   const [taxRateList, setTaxRateList] = useState<{ name: string; taxRate: string; id: string }[]>([]);
   const [openSupplierForm, setOpenSupplierForm] = useState(false);
   
@@ -104,12 +104,18 @@ export const PurchaseFormPage = () => {
       referenceNo: "",
       branchId: "",
       purchaseDate: new Date(),
-      status: purchaseStatusOption[0],
+      status: "Purchase_Order",
       totalAmount: 0,
       dueAmount: 0,
       paidAmount: 0,
       items: [],
-      payments: []
+      payments: [{
+        amount: 0,
+        paidOn: new Date(),
+        paymentMethod: "",
+        paymentNote: "",
+        dueDate: null
+      }]
     },
   });
 
@@ -134,6 +140,25 @@ export const PurchaseFormPage = () => {
   }, [productSearch]);
 
   const handleSubmit = async (data: z.infer<typeof fullPurchaseSchema>) => {
+    console.log("Form data:", data);
+    
+    // Check required fields
+    if (!data.supplierId) {
+      toast.error("Please select a supplier");
+      return;
+    }
+    
+    if (!data.branchId) {
+      toast.error("Please select a business location");
+      return;
+    }
+    
+    // Check if items array is empty
+    if (!data.items || data.items.length === 0) {
+      toast.error("Please add at least one product to the purchase");
+      return;
+    }
+
     const totalAmount = data.items.reduce((sum, item) => sum + (item.total || 0), 0);
     const paidAmount = data.payments.reduce((sum, payment) => sum + (payment.amount || 0), 0);
     const dueAmount = totalAmount - paidAmount;
@@ -149,11 +174,14 @@ export const PurchaseFormPage = () => {
       dueAmount
     };
 
+    console.log("Payload being sent:", payload);
+
     try {
       await create(payload);
       toast.success("Purchase created successfully");
       router.push("/purchase");
-    } catch {
+    } catch (error) {
+      console.error("Create error:", error);
       toast.error("Failed to create purchase");
     }
   };
@@ -245,7 +273,7 @@ export const PurchaseFormPage = () => {
                           <SelectTrigger className="w-full"><SelectValue placeholder="Select Branch" /></SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          {baranchList.map(branch => (
+                          {branchList.map(branch => (
                             <SelectItem key={branch.id} value={branch.id}>{branch.name}</SelectItem>
                           ))}
                         </SelectContent>
@@ -323,13 +351,34 @@ export const PurchaseFormPage = () => {
                         <SelectContent>
                           {purchaseStatusOption.map((s) => (
                             <SelectItem key={s} value={s}>
-                              {s}
+                              {s === "Purchase_Order" ? "Purchase Order" : 
+                               s === "Received" ? "Received" : s}
                             </SelectItem>
                           ))}
                         </SelectContent>
                       </Select>
                     </FormControl>
                     <FormMessage />
+                    {/*                     {field.value === "Pending" && (
+                      <p className="text-sm text-muted-foreground">
+                        📋 Pending: Stock and payments will not be updated
+                      </p>
+                    )}
+                    {field.value === "Purchase_Order" && (
+                      <p className="text-sm text-muted-foreground">
+                        📋 Purchase Order: Stock and payments will not be updated
+                      </p>
+                    )}
+                    {field.value === "Received_Confirmed" && (
+                      <p className="text-sm text-green-600">
+                        ✅ Received: Stock quantities and supplier balance will be updated
+                      </p>
+                    )}
+                    {field.value === "Cancelled" && (
+                      <p className="text-sm text-red-600">
+                        ❌ Cancelled: No stock or payment updates will occur
+                      </p>
+                    )} */}
                   </FormItem>
                 )}
               />

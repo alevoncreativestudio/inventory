@@ -59,6 +59,14 @@ export const createPurchase = actionClient
       const dueAmount = totalAmount - paidAmount;
 
       const totalPurchaseDue = dueAmount <= 0 ? 0 : dueAmount
+      
+      console.log("Purchase calculation:", {
+        totalAmount,
+        paidAmount,
+        dueAmount,
+        totalPurchaseDue,
+        status: purchaseData.status
+      });
 
       const purchase = await prisma.purchase.create({
         data: {
@@ -78,42 +86,68 @@ export const createPurchase = actionClient
         },
       });
 
-      await Promise.all(
-        rawItems.map(async (item) => {
-          await prisma.product.update({
-            where: { id: item.productId },
+      // Only update stock and supplier balance when status is "Received"
+      if (purchaseData.status === "Received") {
+        await Promise.all(
+          rawItems.map(async (item) => {
+            await prisma.product.update({
+              where: { id: item.productId },
+              data: {
+                excTax: {
+                  set:item.excTax
+                },
+                incTax: {
+                  set:item.incTax
+                },
+                margin: {
+                  set:item.margin
+                },
+                sellingPrice: {
+                  set:item.sellingPrice
+                },
+                tax: {
+                  set:item.tax
+                },
+                stock: {
+                  increment: item.quantity,
+                },
+              },
+            });
+          })
+        );
+
+        console.log("Updating supplier opening balance:", {
+          supplierId: purchase.supplierId,
+          totalPurchaseDue,
+          status: purchaseData.status
+        });
+        
+        // Check if supplier exists
+        const supplier = await prisma.supplier.findUnique({
+          where: { id: purchase.supplierId }
+        });
+        
+        if (!supplier) {
+          console.error("Supplier not found:", purchase.supplierId);
+          throw new Error("Supplier not found");
+        }
+        
+        console.log("Current supplier opening balance:", supplier.openingBalance);
+        
+        await prisma.supplier.update({
+            where: { id: purchase.supplierId },
             data: {
-              excTax: {
-                set:item.excTax
+              purchaseDue:{
+                increment:totalPurchaseDue
               },
-              incTax: {
-                set:item.incTax
-              },
-              margin: {
-                set:item.margin
-              },
-              sellingPrice: {
-                set:item.sellingPrice
-              },
-              tax: {
-                set:item.tax
-              },
-              stock: {
-                increment: item.quantity,
-              },
+              openingBalance: {
+                increment: totalPurchaseDue
+              }
             },
           });
-        })
-      );
-
-      await prisma.supplier.update({
-          where: { id: purchase.supplierId },
-          data: {
-            purchaseDue:{
-              increment:totalPurchaseDue
-            }
-          },
-        });
+          
+        console.log("Supplier opening balance updated successfully");
+      }
 
       revalidatePath("/purchases");
       return { data: purchase };
@@ -197,22 +231,56 @@ export const updatePurchase = actionClient
         0
       );
 
-      const oldItems = await prisma.purchaseItem.findMany({
-        where: { purchaseId: id },
+      // Get the current purchase to check its status
+      const currentPurchase = await prisma.purchase.findUnique({
+        where: { id },
+        include: { items: true }
       });
 
-      await Promise.all(
-        oldItems.map((item) =>
-          prisma.product.update({
-            where: { id: item.productId },
-            data: {
-              stock: {
-                decrement: item.quantity,
+      // Calculate old due amount for opening balance reversal
+      const oldDueAmount = currentPurchase?.dueAmount || 0;
+      
+      // Only reverse stock if the current purchase was "Received"
+      if (currentPurchase?.status === "Received") {
+        const oldItems = await prisma.purchaseItem.findMany({
+          where: { purchaseId: id },
+        });
+
+        await Promise.all(
+          oldItems.map((item) =>
+            prisma.product.update({
+              where: { id: item.productId },
+              data: {
+                stock: {
+                  decrement: item.quantity,
+                },
               },
+            })
+          )
+        );
+        
+        // Reverse opening balance if it was previously "Received"
+        // But only if the new status is NOT "Cancelled" (to avoid double subtraction)
+        if (oldDueAmount > 0 && data.status !== "Cancelled") {
+          console.log("Reversing supplier opening balance:", {
+            supplierId: currentPurchase.supplierId,
+            oldDueAmount,
+            previousStatus: currentPurchase.status,
+            newStatus: data.status
+          });
+          
+          await prisma.supplier.update({
+            where: { id: currentPurchase.supplierId },
+            data: {
+              openingBalance: {
+                decrement: oldDueAmount
+              }
             },
-          })
-        )
-      );
+          });
+          
+          console.log("Supplier opening balance reversed");
+        }
+      }
 
       await prisma.purchaseItem.deleteMany({
         where: { purchaseId: id },
@@ -243,33 +311,110 @@ export const updatePurchase = actionClient
         },
       });
 
-      await Promise.all(
-        rawItems.map((item) =>
-          prisma.product.update({
-            where: { id: item.productId },
+      // Calculate new due amount
+      const paidAmount = rawPayments.reduce((sum, payment) => sum + (payment.amount || 0), 0);
+      const newDueAmount = totalAmount - paidAmount;
+      const finalDueAmount = newDueAmount <= 0 ? 0 : newDueAmount;
+      
+      console.log("Update purchase calculation:", {
+        totalAmount,
+        paidAmount,
+        newDueAmount,
+        finalDueAmount,
+        status: data.status,
+        oldStatus: currentPurchase?.status,
+        oldDueAmount
+      });
+      
+      // Only update stock and product details when status is "Received"
+      if (data.status === "Received") {
+        await Promise.all(
+          rawItems.map((item) =>
+            prisma.product.update({
+              where: { id: item.productId },
+              data: {
+                excTax: {
+                  set:item.excTax
+                },
+                incTax: {
+                  set:item.incTax
+                },
+                margin: {
+                  set:item.margin
+                },
+                sellingPrice: {
+                  set:item.sellingPrice
+                },
+                tax: {
+                  set:item.tax
+                },
+                stock: {
+                  increment: item.quantity,
+                },
+              },
+            })
+          )
+        );
+        
+        // Update supplier opening balance when status is "Received"
+        if (finalDueAmount > 0) {
+          console.log("Updating supplier opening balance (Received):", {
+            supplierId: purchase.supplierId,
+            finalDueAmount,
+            status: data.status
+          });
+          
+          // Check if supplier exists
+          const supplier = await prisma.supplier.findUnique({
+            where: { id: purchase.supplierId }
+          });
+          
+          if (!supplier) {
+            console.error("Supplier not found:", purchase.supplierId);
+            throw new Error("Supplier not found");
+          }
+          
+          console.log("Current supplier opening balance:", supplier.openingBalance);
+          
+          await prisma.supplier.update({
+            where: { id: purchase.supplierId },
             data: {
-              excTax: {
-                set:item.excTax
-              },
-              incTax: {
-                set:item.incTax
-              },
-              margin: {
-                set:item.margin
-              },
-              sellingPrice: {
-                set:item.sellingPrice
-              },
-              tax: {
-                set:item.tax
-              },
-              stock: {
-                increment: item.quantity,
-              },
+              openingBalance: {
+                increment: finalDueAmount
+              }
             },
-          })
-        )
-      );
+          });
+          
+          console.log("Supplier opening balance updated (Received)");
+        }
+      }
+      
+      // Handle cancellation - subtract from opening balance
+      if (data.status === "Cancelled" && finalDueAmount > 0) {
+        console.log("Updating supplier opening balance (Cancelled):", {
+          supplierId: purchase.supplierId,
+          finalDueAmount,
+          status: data.status,
+          previousStatus: currentPurchase?.status
+        });
+        
+        // If the previous status was "Received", we need to subtract the old due amount
+        // If the previous status was not "Received", we subtract the new due amount
+        const amountToSubtract = currentPurchase?.status === "Received" ? oldDueAmount : finalDueAmount;
+        
+        console.log("Amount to subtract from opening balance:", amountToSubtract);
+        
+        await prisma.supplier.update({
+          where: { id: purchase.supplierId },
+          data: {
+            openingBalance: {
+              decrement: amountToSubtract
+            }
+          },
+        });
+        
+        console.log("Supplier opening balance updated (Cancelled)");
+      }
 
       revalidatePath("/purchases");
       return { data: purchase };
