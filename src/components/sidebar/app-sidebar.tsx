@@ -45,7 +45,7 @@ export function AppSidebar({ user, ...props }: AppSidebarProps) {
       <SidebarContent className="bg-primary text-primary-foreground">
         <NavMain items={SIDEBAR_DATA.navMain} />
         {user?.role === "admin" && (
-          <NavGroup label="Admin Area" items={SIDEBAR_DATA.admin} />
+          <NavGroup label="Admin Side" items={SIDEBAR_DATA.admin} />
         )}
         <NavGroup items={SIDEBAR_DATA.navSecondary} className="mt-auto" />
       </SidebarContent>
