@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { betterFetch } from "@better-fetch/fetch";
 import { SessionResponse } from "@/types/auth";
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const { data: session } = await betterFetch<SessionResponse>(
     "/api/auth/get-session",
     {
