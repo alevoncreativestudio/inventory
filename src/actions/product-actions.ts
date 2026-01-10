@@ -12,8 +12,14 @@ export const createProduct = actionClient
   .inputSchema(productSchema)
   .action(async (values) => {
     try {
+      const data = values.parsedInput;
+      // Round off amounts
+      if (data.excTax) data.excTax = Math.round(data.excTax);
+      if (data.incTax) data.incTax = Math.round(data.incTax);
+      if (data.sellingPrice) data.sellingPrice = Math.round(data.sellingPrice);
+
       const product = await prisma.product.create({
-        data: values.parsedInput,
+        data,
       });
       revalidatePath("/products");
       return { data: product };
@@ -52,32 +58,32 @@ export const getProductList = actionClient.action(async () => {
 
 
 export const getProductListForDropdown = actionClient.inputSchema(
-    z.object({ query: z.string().optional() })
-    ).action(async ({ parsedInput }) => {
-    const query = parsedInput.query || "";
-    const products = await prisma.product.findMany({
-        where: {
-        product_name: {
-            contains: query,
-            mode: "insensitive",
-        },
-        },
-        take: 10,
-    });
+  z.object({ query: z.string().optional() })
+).action(async ({ parsedInput }) => {
+  const query = parsedInput.query || "";
+  const products = await prisma.product.findMany({
+    where: {
+      product_name: {
+        contains: query,
+        mode: "insensitive",
+      },
+    },
+    take: 10,
+  });
 
-    return {
-        products: products.map((p) => ({
-        id: p.id,
-        product_name: p.product_name,
-        stock:p.stock,
-        tax:p.tax,
-        sellingPrice:p.sellingPrice,
-        margin:p.margin,
-        quantity:1,
-        excTax:p.excTax,
-        incTax:p.incTax
-        })),
-    };
+  return {
+    products: products.map((p) => ({
+      id: p.id,
+      product_name: p.product_name,
+      stock: p.stock,
+      tax: p.tax,
+      sellingPrice: p.sellingPrice,
+      margin: p.margin,
+      quantity: 1,
+      excTax: p.excTax,
+      incTax: p.incTax
+    })),
+  };
 });
 
 
@@ -102,7 +108,14 @@ export const getProductById = actionClient
 export const updateProduct = actionClient
   .inputSchema(productUpdateSchema)
   .action(async (values) => {
-    const { id, ...data } = values.parsedInput;
+    const { id, ...inputData } = values.parsedInput;
+    const data = { ...inputData };
+
+    // Round off amounts
+    if (data.excTax) data.excTax = Math.round(data.excTax);
+    if (data.incTax) data.incTax = Math.round(data.incTax);
+    if (data.sellingPrice) data.sellingPrice = Math.round(data.sellingPrice);
+
     try {
       const product = await prisma.product.update({
         where: { id },

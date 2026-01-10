@@ -19,15 +19,15 @@ const mapItemsWithRelation = (items: RawPurchaseItem[]) =>
     product_name: item.product_name ?? "Unnamed",
     quantity: item.quantity,
     excTax: item.excTax,
-    incTax:item.incTax,
-    tax:item.tax,
-    margin:item.margin,
-    sellingPrice:item.sellingPrice,
+    incTax: item.incTax,
+    tax: item.tax,
+    margin: item.margin,
+    sellingPrice: item.sellingPrice,
     discount: item.discount,
     subtotal: item.subtotal,
     total: item.total,
     product: {
-    connect: { id: item.productId },
+      connect: { id: item.productId },
     },
   }));
 
@@ -37,7 +37,7 @@ const mapPaymentsWithRelation = (payments: RawPurchasePayment[]) =>
     paidOn: payment.paidOn,
     paymentMethod: payment.paymentMethod,
     paymentNote: payment.paymentNote,
-    dueDate:payment.dueDate
+    dueDate: payment.dueDate
   }));
 
 
@@ -45,11 +45,11 @@ const mapPaymentsWithRelation = (payments: RawPurchasePayment[]) =>
 export const createPurchase = actionClient
   .inputSchema(fullPurchaseSchema)
   .action(async (values) => {
-    try {      
-      const { 
+    try {
+      const {
         items: rawItems,
-        payments:rawPayments,
-         ...purchaseData } = values.parsedInput;
+        payments: rawPayments,
+        ...purchaseData } = values.parsedInput;
 
       const items = mapItemsWithRelation(rawItems);
       const payments = mapPaymentsWithRelation(rawPayments);
@@ -59,7 +59,7 @@ export const createPurchase = actionClient
       const dueAmount = totalAmount - paidAmount;
 
       const totalPurchaseDue = dueAmount <= 0 ? 0 : dueAmount
-      
+
       console.log("Purchase calculation:", {
         totalAmount,
         paidAmount,
@@ -76,13 +76,13 @@ export const createPurchase = actionClient
           items: {
             create: items,
           },
-          payments:{
-            create:payments
+          payments: {
+            create: payments
           }
         },
         include: {
           items: true,
-          payments:true
+          payments: true
         },
       });
 
@@ -94,19 +94,19 @@ export const createPurchase = actionClient
               where: { id: item.productId },
               data: {
                 excTax: {
-                  set:item.excTax
+                  set: Math.round(item.excTax)
                 },
                 incTax: {
-                  set:item.incTax
+                  set: Math.round(item.incTax)
                 },
                 margin: {
-                  set:item.margin
+                  set: item.margin
                 },
                 sellingPrice: {
-                  set:item.sellingPrice
+                  set: Math.round(item.sellingPrice)
                 },
                 tax: {
-                  set:item.tax
+                  set: item.tax
                 },
                 stock: {
                   increment: item.quantity,
@@ -121,31 +121,31 @@ export const createPurchase = actionClient
           totalPurchaseDue,
           status: purchaseData.status
         });
-        
+
         // Check if supplier exists
         const supplier = await prisma.supplier.findUnique({
           where: { id: purchase.supplierId }
         });
-        
+
         if (!supplier) {
           console.error("Supplier not found:", purchase.supplierId);
           throw new Error("Supplier not found");
         }
-        
+
         console.log("Current supplier opening balance:", supplier.openingBalance);
-        
+
         await prisma.supplier.update({
-            where: { id: purchase.supplierId },
-            data: {
-              purchaseDue:{
-                increment:totalPurchaseDue
-              },
-              openingBalance: {
-                increment: totalPurchaseDue
-              }
+          where: { id: purchase.supplierId },
+          data: {
+            purchaseDue: {
+              increment: totalPurchaseDue
             },
-          });
-          
+            openingBalance: {
+              increment: totalPurchaseDue
+            }
+          },
+        });
+
         console.log("Supplier opening balance updated successfully");
       }
 
@@ -163,25 +163,25 @@ export const createPurchase = actionClient
 export const getPurchaseList = actionClient.action(async () => {
   try {
     const session = await auth.api.getSession({
-        headers: await headers()
+      headers: await headers()
     });
 
     const role = session?.user?.role
     const branchId = session?.user?.branch
 
-    const whereClause = role === "admin" ? {} : {branchId}
+    const whereClause = role === "admin" ? {} : { branchId }
 
     const purchases = await prisma.purchase.findMany({
-      where : whereClause,
+      where: whereClause,
       orderBy: { purchaseDate: "desc" },
-      include: { 
-        supplier: true, 
-        items: { 
-          include: { 
-            product: true 
-          } 
-        }, 
-        payments: true, 
+      include: {
+        supplier: true,
+        items: {
+          include: {
+            product: true
+          }
+        },
+        payments: true,
         branch: true
       },
     });
@@ -203,7 +203,7 @@ export const getPurchaseById = actionClient
 
     const purchase = await prisma.purchase.findUnique({
       where: { id },
-      include: { 
+      include: {
         supplier: true,
         branch: true,
         items: { include: { product: true } },
@@ -239,7 +239,7 @@ export const updatePurchase = actionClient
 
       // Calculate old due amount for opening balance reversal
       const oldDueAmount = currentPurchase?.dueAmount || 0;
-      
+
       // Only reverse stock if the current purchase was "Received"
       if (currentPurchase?.status === "Received") {
         const oldItems = await prisma.purchaseItem.findMany({
@@ -258,7 +258,7 @@ export const updatePurchase = actionClient
             })
           )
         );
-        
+
         // Reverse opening balance if it was previously "Received"
         // But only if the new status is NOT "Cancelled" (to avoid double subtraction)
         if (oldDueAmount > 0 && data.status !== "Cancelled") {
@@ -268,7 +268,7 @@ export const updatePurchase = actionClient
             previousStatus: currentPurchase.status,
             newStatus: data.status
           });
-          
+
           await prisma.supplier.update({
             where: { id: currentPurchase.supplierId },
             data: {
@@ -277,7 +277,7 @@ export const updatePurchase = actionClient
               }
             },
           });
-          
+
           console.log("Supplier opening balance reversed");
         }
       }
@@ -315,7 +315,7 @@ export const updatePurchase = actionClient
       const paidAmount = rawPayments.reduce((sum, payment) => sum + (payment.amount || 0), 0);
       const newDueAmount = totalAmount - paidAmount;
       const finalDueAmount = newDueAmount <= 0 ? 0 : newDueAmount;
-      
+
       console.log("Update purchase calculation:", {
         totalAmount,
         paidAmount,
@@ -325,7 +325,7 @@ export const updatePurchase = actionClient
         oldStatus: currentPurchase?.status,
         oldDueAmount
       });
-      
+
       // Only update stock and product details when status is "Received"
       if (data.status === "Received") {
         await Promise.all(
@@ -334,19 +334,19 @@ export const updatePurchase = actionClient
               where: { id: item.productId },
               data: {
                 excTax: {
-                  set:item.excTax
+                  set: Math.round(item.excTax)
                 },
                 incTax: {
-                  set:item.incTax
+                  set: Math.round(item.incTax)
                 },
                 margin: {
-                  set:item.margin
+                  set: item.margin
                 },
                 sellingPrice: {
-                  set:item.sellingPrice
+                  set: Math.round(item.sellingPrice)
                 },
                 tax: {
-                  set:item.tax
+                  set: item.tax
                 },
                 stock: {
                   increment: item.quantity,
@@ -355,7 +355,7 @@ export const updatePurchase = actionClient
             })
           )
         );
-        
+
         // Update supplier opening balance when status is "Received"
         if (finalDueAmount > 0) {
           console.log("Updating supplier opening balance (Received):", {
@@ -363,19 +363,19 @@ export const updatePurchase = actionClient
             finalDueAmount,
             status: data.status
           });
-          
+
           // Check if supplier exists
           const supplier = await prisma.supplier.findUnique({
             where: { id: purchase.supplierId }
           });
-          
+
           if (!supplier) {
             console.error("Supplier not found:", purchase.supplierId);
             throw new Error("Supplier not found");
           }
-          
+
           console.log("Current supplier opening balance:", supplier.openingBalance);
-          
+
           await prisma.supplier.update({
             where: { id: purchase.supplierId },
             data: {
@@ -384,11 +384,11 @@ export const updatePurchase = actionClient
               }
             },
           });
-          
+
           console.log("Supplier opening balance updated (Received)");
         }
       }
-      
+
       // Handle cancellation - subtract from opening balance
       if (data.status === "Cancelled" && finalDueAmount > 0) {
         console.log("Updating supplier opening balance (Cancelled):", {
@@ -397,13 +397,13 @@ export const updatePurchase = actionClient
           status: data.status,
           previousStatus: currentPurchase?.status
         });
-        
+
         // If the previous status was "Received", we need to subtract the old due amount
         // If the previous status was not "Received", we subtract the new due amount
         const amountToSubtract = currentPurchase?.status === "Received" ? oldDueAmount : finalDueAmount;
-        
+
         console.log("Amount to subtract from opening balance:", amountToSubtract);
-        
+
         await prisma.supplier.update({
           where: { id: purchase.supplierId },
           data: {
@@ -412,7 +412,7 @@ export const updatePurchase = actionClient
             }
           },
         });
-        
+
         console.log("Supplier opening balance updated (Cancelled)");
       }
 
@@ -428,24 +428,24 @@ export const updatePurchase = actionClient
 
 // DELETE PURCHASE
 export const deletePurchase = actionClient
-.inputSchema(getPurchaseByIdSchema)
-.action(async (values) => {
-  const { id } = values.parsedInput;
+  .inputSchema(getPurchaseByIdSchema)
+  .action(async (values) => {
+    const { id } = values.parsedInput;
 
-  if (!ObjectId.isValid(id)) {
-    return null;
-  }
+    if (!ObjectId.isValid(id)) {
+      return null;
+    }
 
-  await prisma.purchaseItem.deleteMany({
-    where: { purchaseId: id },
+    await prisma.purchaseItem.deleteMany({
+      where: { purchaseId: id },
+    });
+
+    await prisma.purchasePayment.deleteMany({
+      where: { purchaseId: id },
+    });
+
+    return await prisma.purchase.delete({
+      where: { id },
+    });
   });
-
-  await prisma.purchasePayment.deleteMany({
-    where: { purchaseId: id },
-  });
-
-  return await prisma.purchase.delete({
-    where: { id },
-  });
-});
 
