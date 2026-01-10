@@ -12,6 +12,8 @@ import { RawPurchaseItem, RawPurchasePayment } from "@/types/purchase";
 import { ObjectId } from "mongodb";
 import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
+import { z } from "zod";
+import { purchaseStatusEnum } from "@/schemas/purchase-schema";
 
 
 const mapItemsWithRelation = (items: RawPurchaseItem[]) =>
@@ -449,3 +451,83 @@ export const deletePurchase = actionClient
     });
   });
 
+export const updatePurchaseStatus = actionClient
+  .inputSchema(z.object({ id: z.string(), status: purchaseStatusEnum }))
+  .action(async (values) => {
+    const { id, status } = values.parsedInput;
+
+    try {
+      const currentPurchase = await prisma.purchase.findUnique({
+        where: { id },
+        include: { items: true },
+      });
+
+      if (!currentPurchase) return { error: "Purchase not found" };
+      if (currentPurchase.status === status) return { data: currentPurchase };
+
+      // 1. If transitioning TO Received, add stock and update balance
+      if (status === "Received") {
+        await Promise.all(
+          currentPurchase.items.map((item) =>
+            prisma.product.update({
+              where: { id: item.productId },
+              data: {
+                stock: { increment: item.quantity },
+                // We keep costs as is from the item snapshot
+                excTax: { set: item.excTax },
+                incTax: { set: item.incTax },
+                margin: { set: item.margin },
+                sellingPrice: { set: item.sellingPrice },
+                tax: { set: item.tax },
+              },
+            })
+          )
+        );
+
+        // Update supplier balance
+        if (currentPurchase.dueAmount > 0) {
+          await prisma.supplier.update({
+            where: { id: currentPurchase.supplierId },
+            data: {
+              openingBalance: { increment: currentPurchase.dueAmount },
+              purchaseDue: { increment: currentPurchase.dueAmount },
+            },
+          });
+        }
+      }
+
+      // 2. If transitioning FROM Received (e.g. to Cancelled or pending), reverse stock and balance
+      if (currentPurchase.status === "Received" && status !== "Received") {
+        await Promise.all(
+          currentPurchase.items.map((item) =>
+            prisma.product.update({
+              where: { id: item.productId },
+              data: { stock: { decrement: item.quantity } },
+            })
+          )
+        );
+
+        if (currentPurchase.dueAmount > 0) {
+          await prisma.supplier.update({
+            where: { id: currentPurchase.supplierId },
+            data: {
+              openingBalance: { decrement: currentPurchase.dueAmount },
+              purchaseDue: { decrement: currentPurchase.dueAmount },
+            },
+          });
+        }
+      }
+
+      // Update the status
+      const updatedPurchase = await prisma.purchase.update({
+        where: { id },
+        data: { status },
+      });
+
+      revalidatePath("/purchases");
+      return { data: updatedPurchase };
+    } catch (error) {
+      console.error("Update Purchase Status Error:", error);
+      return { error: "Something went wrong" };
+    }
+  });

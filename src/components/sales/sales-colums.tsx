@@ -16,6 +16,10 @@ import { useState } from "react";
 import { SalesFormSheet } from "./sales-form";
 import { useRouter } from "next/navigation";
 import { formatCurrency, formatDate } from "@/lib/utils";
+import { updateSalesStatus } from "@/actions/sales-action";
+import { useAction } from "next-safe-action/hooks";
+import { toast } from "sonner";
+import { Check } from "lucide-react";
 
 export const salesColumns: ColumnDef<Sale>[] = [
   {
@@ -44,7 +48,7 @@ export const salesColumns: ColumnDef<Sale>[] = [
   {
     accessorKey: "location",
     header: "Location",
-    cell:({row}) =>{
+    cell: ({ row }) => {
       const Location = row.original.branch?.name
 
       return (
@@ -62,7 +66,27 @@ export const salesColumns: ColumnDef<Sale>[] = [
       return <span>{customer}</span>;
     },
   },
-    {
+  {
+    accessorKey: "status",
+    header: "Status",
+    cell: ({ row }) => {
+      const status = (row.original as any).status || "Ordered";
+      const statusColorMap: Record<string, string> = {
+        Dispatched: "bg-green-100 text-green-800",
+        Ordered: "bg-yellow-100 text-yellow-800",
+        Cancelled: "bg-red-100 text-red-800",
+      };
+
+      const color = statusColorMap[status] || "bg-gray-100 text-gray-800";
+
+      return (
+        <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-sm font-medium ${color}`}>
+          {status}
+        </span>
+      );
+    },
+  },
+  {
     id: "paymentStatus",
     header: "Payment Status",
     cell: ({ row }) => {
@@ -149,8 +173,36 @@ const SalesActions = ({ sale }: { sale: Sale }) => {
   const [openDelete, setOpenDelete] = useState(false);
   const router = useRouter();
 
+  const { execute: updateStatus, isExecuting } = useAction(updateSalesStatus, {
+    onSuccess: ({ data }) => {
+      if (data?.error) {
+        toast.error(data.error);
+      } else {
+        toast.success("Sale dispatched");
+      }
+    },
+    onError: () => toast.error("Something went wrong"),
+  });
+
+  const status = (sale as any).status || "Ordered";
+
   return (
     <div className="flex items-center gap-2">
+      {status === "Ordered" ? (
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => updateStatus({ id: sale.id, status: "Dispatched" })}
+          disabled={isExecuting}
+          className="h-8 gap-1 bg-green-50 text-green-700 hover:bg-green-100 border-green-200"
+        >
+          <Check className="h-3.5 w-3.5" />
+          {isExecuting ? "..." : "Approve"}
+        </Button>
+      ) : (
+        <div className="w-[88px]" /> // Approximate width of the Approve button to maintain alignment
+      )}
+
       <Button
         variant="ghost"
         size="sm"

@@ -141,6 +141,7 @@ model Sale {
   branch     Branch?   @relation(fields: [branchId], references: [id])
   
   salesdate  DateTime @default(now())
+  status     SalesStatus @default(Ordered)
   grandTotal Float
   dueAmount  Float
   paidAmount Float
@@ -151,6 +152,12 @@ model Sale {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+enum SalesStatus {
+  Ordered
+  Dispatched
+  Cancelled
 }
 
 

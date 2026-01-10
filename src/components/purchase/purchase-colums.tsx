@@ -11,12 +11,17 @@ import {
   Eye,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
+import { updatePurchaseStatus } from "@/actions/purchase-actions";
+import { useAction } from "next-safe-action/hooks";
+import { toast } from "sonner";
+import { Check } from "lucide-react";
+
 import { PurchaseDeleteDialog } from "./purchase-delete-dailog";
 import { PurchaseFormSheet } from "./purchase-form";
 // Removed sheet import; we'll navigate to a dynamic page for view
 import { formatCurrency, formatDate } from "@/lib/utils";
 import { useRouter } from "next/navigation";
+import { useState } from 'react';
 
 export const purchaseColumns: ColumnDef<Purchase>[] = [
   {
@@ -24,7 +29,7 @@ export const purchaseColumns: ColumnDef<Purchase>[] = [
     header: ({ column }) => {
       const sort = column.getIsSorted();
       return (
-        <Button variant="ghost" onClick={() => column.toggleSorting(sort === "asc")}> 
+        <Button variant="ghost" onClick={() => column.toggleSorting(sort === "asc")}>
           Ref No {sort === "asc" ? <ArrowUp /> : sort === "desc" ? <ArrowDown /> : <ArrowUpDown />}
         </Button>
       );
@@ -34,18 +39,18 @@ export const purchaseColumns: ColumnDef<Purchase>[] = [
     accessorKey: "purchaseDate",
     header: "Date",
     cell: ({ row }) => {
-        const date = row.getValue("purchaseDate") as string | Date;
-        return (
+      const date = row.getValue("purchaseDate") as string | Date;
+      return (
         <div>
-            {date ? formatDate(date) : "-"}
+          {date ? formatDate(date) : "-"}
         </div>
-        );
+      );
     },
-    },
+  },
   {
     accessorKey: "location",
     header: "Location",
-    cell:({row}) =>{
+    cell: ({ row }) => {
       const Location = row.original.branch?.name
 
       return (
@@ -58,7 +63,7 @@ export const purchaseColumns: ColumnDef<Purchase>[] = [
   {
     accessorKey: "supplierId",
     header: "Supplier",
-    cell:({row}) =>{
+    cell: ({ row }) => {
       const Supplier = row.original.supplier.name
 
       return (
@@ -69,28 +74,28 @@ export const purchaseColumns: ColumnDef<Purchase>[] = [
     }
   },
   {
-  accessorKey: "status",
-  header: "Purchase Status",
-  cell: ({ row }) => {
-    const purchaseStatus = row.original.status;
+    accessorKey: "status",
+    header: "Purchase Status",
+    cell: ({ row }) => {
+      const purchaseStatus = row.original.status;
 
-    const statusColorMap: Record<string, string> = {
-      Received: "bg-green-100 text-green-800",
-      Pending: "bg-yellow-100 text-yellow-800",
-      Cancelled: "bg-red-100 text-red-800",
-    };
+      const statusColorMap: Record<string, string> = {
+        Received: "bg-green-100 text-green-800",
+        Pending: "bg-yellow-100 text-yellow-800",
+        Cancelled: "bg-red-100 text-red-800",
+      };
 
-        const colorClasses = statusColorMap[purchaseStatus] || "bg-gray-100 text-gray-800";
+      const colorClasses = statusColorMap[purchaseStatus] || "bg-gray-100 text-gray-800";
 
-        return (
+      return (
         <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-sm font-medium ${colorClasses}`}>
-            {purchaseStatus}
+          {purchaseStatus}
         </span>
-        );
+      );
     },
-    enableColumnFilter:true,
-    },
-    {
+    enableColumnFilter: true,
+  },
+  {
     id: "paymentStatus",
     header: "Payment Status",
     cell: ({ row }) => {
@@ -134,20 +139,20 @@ export const purchaseColumns: ColumnDef<Purchase>[] = [
     },
   },
   {
-      accessorKey: "dueAmount",
-      header: "Payment Due",
-      cell: ({ row }) => {
-          const amount = row.getValue("dueAmount") as number;
-          return <div className="font-medium">{formatCurrency(amount)}</div>;
-          }  
-    },
+    accessorKey: "dueAmount",
+    header: "Payment Due",
+    cell: ({ row }) => {
+      const amount = row.getValue("dueAmount") as number;
+      return <div className="font-medium">{formatCurrency(amount)}</div>;
+    }
+  },
   {
-      accessorKey: "totalAmount",
-      header: "Grand Total",
-      cell: ({ row }) => {
-        const amount = row.getValue("totalAmount") as number;
-        return <div className="font-medium">{formatCurrency(amount)}</div>;
-      },
+    accessorKey: "totalAmount",
+    header: "Grand Total",
+    cell: ({ row }) => {
+      const amount = row.getValue("totalAmount") as number;
+      return <div className="font-medium">{formatCurrency(amount)}</div>;
+    },
   },
 
   {
@@ -162,8 +167,34 @@ const PurchaseActions = ({ purchase }: { purchase: Purchase }) => {
   const [openDelete, setOpenDelete] = useState(false);
   const router = useRouter();
 
+  const { execute: updateStatus, isExecuting } = useAction(updatePurchaseStatus, {
+    onSuccess: ({ data }) => {
+      if (data?.error) {
+        toast.error(data.error);
+      } else {
+        toast.success("Purchase approved (Received)");
+      }
+    },
+    onError: () => toast.error("Something went wrong"),
+  });
+
   return (
     <div className="flex items-center gap-2">
+      {purchase.status === "Purchase_Order" ? (
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => updateStatus({ id: purchase.id, status: "Received" })}
+          disabled={isExecuting}
+          className="h-8 gap-1 bg-green-50 text-green-700 hover:bg-green-100 border-green-200"
+        >
+          <Check className="h-3.5 w-3.5" />
+          {isExecuting ? "..." : "Approve"}
+        </Button>
+      ) : (
+        <div className="w-[88px]" /> // Approximate width of the Approve button to maintain alignment
+      )}
+
       <Button
         variant="ghost"
         size="sm"
@@ -188,7 +219,7 @@ const PurchaseActions = ({ purchase }: { purchase: Purchase }) => {
       >
         <Trash2 className="h-4 w-4" />
       </Button>
-      
+
       <PurchaseFormSheet open={openEdit} openChange={setOpenEdit} purchase={purchase} />
       <PurchaseDeleteDialog purchase={purchase} open={openDelete} setOpen={setOpenDelete} />
     </div>
