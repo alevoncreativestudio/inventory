@@ -20,9 +20,27 @@ export const createCustomer = actionClient.inputSchema(customerSchema).action(
       });
       revalidatePath("/customers");
       return { data: customer };
-    } catch (error) {
+    } catch (error: any) {
       console.log("Create Customer Error:", error);
-      return { error: "Something went wrong" };
+      
+      // Handle unique constraint violations
+      if (error?.code === 'P2002') {
+        const target = error?.meta?.target;
+        if (Array.isArray(target)) {
+          if (target.includes('name')) {
+            return { error: "A customer with this name already exists" };
+          }
+          if (target.includes('email') && values.parsedInput.email) {
+            return { error: "A customer with this email already exists" };
+          }
+          if (target.includes('phone') && values.parsedInput.phone) {
+            return { error: "A customer with this phone number already exists" };
+          }
+        }
+        return { error: "A customer with this information already exists" };
+      }
+      
+      return { error: error?.message || "Failed to create customer. Please try again." };
     }
   }
 );
@@ -67,9 +85,27 @@ export const updateCustomer = actionClient.inputSchema(updateCustomerSchema).act
       });
       revalidatePath("/customers");
       return { data: updated };
-    } catch (error) {
+    } catch (error: any) {
       console.log("Update Customer Error:", error);
-      return { error: "Something went wrong" };
+      
+      // Handle unique constraint violations
+      if (error?.code === 'P2002') {
+        const target = error?.meta?.target;
+        if (Array.isArray(target)) {
+          if (target.includes('name')) {
+            return { error: "A customer with this name already exists" };
+          }
+          if (target.includes('email') && data.email) {
+            return { error: "A customer with this email already exists" };
+          }
+          if (target.includes('phone') && data.phone) {
+            return { error: "A customer with this phone number already exists" };
+          }
+        }
+        return { error: "A customer with this information already exists" };
+      }
+      
+      return { error: error?.message || "Failed to update customer. Please try again." };
     }
   }
 );

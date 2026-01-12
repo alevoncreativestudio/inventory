@@ -40,8 +40,35 @@ import { getAllBranches } from "@/actions/auth";
 
 export const CustomerFormDialog = ({ customer, open, openChange }: CustomerFormProps) => {
   const [baranchList, setBranchList] = useState<{ name: string; id: string;}[]>([]);
-  const { execute: createCustomerAction, isExecuting: isCreating } = useAction(createCustomer);
-  const { execute: updateCustomerAction, isExecuting: isUpdating } = useAction(updateCustomer);
+  const { execute: createCustomerAction, isExecuting: isCreating } = useAction(createCustomer, {
+    onSuccess: ({ data }) => {
+      if (data?.data) {
+        toast.success("Customer created successfully");
+        if (openChange) openChange(false);
+      } else if (data?.error) {
+        toast.error(data.error || "Failed to create customer");
+      }
+    },
+    onError: ({ error }) => {
+      console.error("Create customer error:", error);
+      toast.error(error.serverError || "Failed to create customer");
+    },
+  });
+  
+  const { execute: updateCustomerAction, isExecuting: isUpdating } = useAction(updateCustomer, {
+    onSuccess: ({ data }) => {
+      if (data?.data) {
+        toast.success("Customer updated successfully");
+        if (openChange) openChange(false);
+      } else if (data?.error) {
+        toast.error(data.error || "Failed to update customer");
+      }
+    },
+    onError: ({ error }) => {
+      console.error("Update customer error:", error);
+      toast.error(error.serverError || "Failed to update customer");
+    },
+  });
 
   const form = useForm<z.infer<typeof customerSchema>>({
     resolver: zodResolver(customerSchema),
@@ -56,18 +83,15 @@ export const CustomerFormDialog = ({ customer, open, openChange }: CustomerFormP
     },
   });
 
-  const handleSubmit = async (
+  const handleSubmit = (
     data: z.infer<typeof customerSchema>,
     close: () => void
   ) => {
     if (customer) {
-      await updateCustomerAction({ id: customer.id, ...data });
-      toast.success("Customer updated successfully");
+      updateCustomerAction({ id: customer.id, ...data });
     } else {
-      await createCustomerAction(data);
-      toast.success("Customer created successfully");
+      createCustomerAction(data);
     }
-    close();
   };
 
   useEffect(() => {

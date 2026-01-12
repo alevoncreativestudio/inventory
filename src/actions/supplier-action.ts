@@ -20,9 +20,27 @@ export const createSupplier = actionClient.inputSchema(supplierSchema).action(
       });
       revalidatePath("/suppliers");
       return { data: supplier };
-    } catch (error) {
+    } catch (error: any) {
       console.log("Create Supplier Error:", error);
-      return { error: "Something went wrong" };
+      
+      // Handle unique constraint violations
+      if (error?.code === 'P2002') {
+        const target = error?.meta?.target;
+        if (Array.isArray(target)) {
+          if (target.includes('name')) {
+            return { error: "A supplier with this name already exists" };
+          }
+          if (target.includes('email') && values.parsedInput.email) {
+            return { error: "A supplier with this email already exists" };
+          }
+          if (target.includes('phone') && values.parsedInput.phone) {
+            return { error: "A supplier with this phone number already exists" };
+          }
+        }
+        return { error: "A supplier with this information already exists" };
+      }
+      
+      return { error: error?.message || "Failed to create supplier. Please try again." };
     }
   }
 );
@@ -66,9 +84,27 @@ export const updateSupplier = actionClient.inputSchema(updateSupplierSchema).act
       });
       revalidatePath("/suppliers");
       return { data: updated };
-    } catch (error) {
+    } catch (error: any) {
       console.log("Update Supplier Error:", error);
-      return { error: "Something went wrong" };
+      
+      // Handle unique constraint violations
+      if (error?.code === 'P2002') {
+        const target = error?.meta?.target;
+        if (Array.isArray(target)) {
+          if (target.includes('name')) {
+            return { error: "A supplier with this name already exists" };
+          }
+          if (target.includes('email') && data.email) {
+            return { error: "A supplier with this email already exists" };
+          }
+          if (target.includes('phone') && data.phone) {
+            return { error: "A supplier with this phone number already exists" };
+          }
+        }
+        return { error: "A supplier with this information already exists" };
+      }
+      
+      return { error: error?.message || "Failed to update supplier. Please try again." };
     }
   }
 );

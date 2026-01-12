@@ -40,8 +40,35 @@ import { useEffect, useState } from "react";
 import { getAllBranches } from "@/actions/auth";
 
 export const SupplierFormDialog = ({ supplier, open, openChange }: SupplierFormProps) => {
-  const { execute: createSupplierAction, isExecuting: isCreating } = useAction(createSupplier);
-  const { execute: updateSupplierAction, isExecuting: isUpdating } = useAction(updateSupplier);
+  const { execute: createSupplierAction, isExecuting: isCreating } = useAction(createSupplier, {
+    onSuccess: ({ data }) => {
+      if (data?.data) {
+        toast.success("Supplier created successfully");
+        if (openChange) openChange(false);
+      } else if (data?.error) {
+        toast.error(data.error || "Failed to create supplier");
+      }
+    },
+    onError: ({ error }) => {
+      console.error("Create supplier error:", error);
+      toast.error(error.serverError || "Failed to create supplier");
+    },
+  });
+  
+  const { execute: updateSupplierAction, isExecuting: isUpdating } = useAction(updateSupplier, {
+    onSuccess: ({ data }) => {
+      if (data?.data) {
+        toast.success("Supplier updated successfully");
+        if (openChange) openChange(false);
+      } else if (data?.error) {
+        toast.error(data.error || "Failed to update supplier");
+      }
+    },
+    onError: ({ error }) => {
+      console.error("Update supplier error:", error);
+      toast.error(error.serverError || "Failed to update supplier");
+    },
+  });
   const [baranchList, setBranchList] = useState<{ name: string; id: string;}[]>([]);
 
   const form = useForm<z.infer<typeof supplierSchema>>({
@@ -57,18 +84,15 @@ export const SupplierFormDialog = ({ supplier, open, openChange }: SupplierFormP
     },
   });
 
-  const handleSubmit = async (
+  const handleSubmit = (
     data: z.infer<typeof supplierSchema>,
     close: () => void
   ) => {
     if (supplier) {
-      await updateSupplierAction({ id: supplier.id, ...data });
-      toast.success("Supplier updated successfully");
+      updateSupplierAction({ id: supplier.id, ...data });
     } else {
-      await createSupplierAction(data);
-      toast.success("Supplier created successfully");
+      createSupplierAction(data);
     }
-    close();
   };
 
   useEffect(() => {
