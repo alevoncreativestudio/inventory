@@ -21,4 +21,5 @@ export interface ProductOption {
   incTax:number;
   margin:number;
   quantity:number;
+  sellingPriceTaxType?: string;
 }

@@ -319,16 +319,33 @@ export const SalesFormPage = () => {
                             key={p.id}
                             value={p.product_name}
                             onSelect={() => {
+                              const sellingPrice = p.sellingPrice;
+                              const taxRate = Number(p.tax) || 0;
+                              const taxType = p.sellingPriceTaxType || "exclusive";
+                              
+                              let excTax: number;
+                              let incTax: number;
+                              
+                              if (taxType === "inclusive") {
+                                // Selling price already includes tax
+                                incTax = sellingPrice;
+                                excTax = sellingPrice / (1 + taxRate);
+                              } else {
+                                // Selling price is exclusive of tax
+                                excTax = sellingPrice;
+                                incTax = sellingPrice + (sellingPrice * taxRate);
+                              }
+                              
                               append({
                                 productId: p.id,
                                 quantity: 1,
                                 product_name: p.product_name,
                                 stock: p.stock,
                                 discount: 0,
-                                excTax: p.excTax,
-                                incTax: p.incTax,
-                                subtotal: p.excTax,
-                                total: p.incTax,
+                                excTax: excTax,
+                                incTax: incTax,
+                                subtotal: excTax,
+                                total: incTax,
                               });
                               setProductSearch("");
                               setProductOptions([]);

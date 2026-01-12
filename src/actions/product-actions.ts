@@ -81,7 +81,8 @@ export const getProductListForDropdown = actionClient.inputSchema(
       margin: p.margin,
       quantity: 1,
       excTax: p.excTax,
-      incTax: p.incTax
+      incTax: p.incTax,
+      sellingPriceTaxType: p.sellingPriceTaxType
     })),
   };
 });
