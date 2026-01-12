@@ -15,31 +15,46 @@ import { headers } from "next/headers";
 export const createSupplier = actionClient.inputSchema(supplierSchema).action(
   async (values) => {
     try {
+      const { name, email, phone, ...otherData } = values.parsedInput;
+
+      // Manual uniqueness checks
+      const existingName = await prisma.supplier.findFirst({
+        where: { name },
+      });
+      if (existingName) {
+        return { error: "A supplier with this name already exists" };
+      }
+
+      if (email) {
+        const existingEmail = await prisma.supplier.findFirst({
+          where: { email },
+        });
+        if (existingEmail) {
+          return { error: "A supplier with this email already exists" };
+        }
+      }
+
+      if (phone) {
+        const existingPhone = await prisma.supplier.findFirst({
+          where: { phone },
+        });
+        if (existingPhone) {
+          return { error: "A supplier with this phone number already exists" };
+        }
+      }
+
       const supplier = await prisma.supplier.create({
-        data: values.parsedInput,
+        data: {
+          name,
+          email: email || undefined,
+          phone: phone || undefined,
+          ...otherData,
+        },
       });
       revalidatePath("/suppliers");
       return { data: supplier };
     } catch (error: any) {
       console.log("Create Supplier Error:", error);
-      
-      // Handle unique constraint violations
-      if (error?.code === 'P2002') {
-        const target = error?.meta?.target;
-        if (Array.isArray(target)) {
-          if (target.includes('name')) {
-            return { error: "A supplier with this name already exists" };
-          }
-          if (target.includes('email') && values.parsedInput.email) {
-            return { error: "A supplier with this email already exists" };
-          }
-          if (target.includes('phone') && values.parsedInput.phone) {
-            return { error: "A supplier with this phone number already exists" };
-          }
-        }
-        return { error: "A supplier with this information already exists" };
-      }
-      
       return { error: error?.message || "Failed to create supplier. Please try again." };
     }
   }
@@ -70,40 +85,53 @@ export const getSupplierList = actionClient.action(async () => {
 
 export const getSupplierListForDropdown = async () => {
   return await prisma.supplier.findMany({
-    select: { id: true, name: true,openingBalance:true },
+    select: { id: true, name: true, openingBalance: true },
   });
 };
 
 export const updateSupplier = actionClient.inputSchema(updateSupplierSchema).action(
   async (values) => {
-    const { id, ...data } = values.parsedInput;
+    const { id, name, email, phone, ...otherData } = values.parsedInput;
     try {
+      // Manual uniqueness checks for update
+      const existingName = await prisma.supplier.findFirst({
+        where: { name, id: { not: id } },
+      });
+      if (existingName) {
+        return { error: "A supplier with this name already exists" };
+      }
+
+      if (email) {
+        const existingEmail = await prisma.supplier.findFirst({
+          where: { email, id: { not: id } },
+        });
+        if (existingEmail) {
+          return { error: "A supplier with this email already exists" };
+        }
+      }
+
+      if (phone) {
+        const existingPhone = await prisma.supplier.findFirst({
+          where: { phone, id: { not: id } },
+        });
+        if (existingPhone) {
+          return { error: "A supplier with this phone number already exists" };
+        }
+      }
+
       const updated = await prisma.supplier.update({
         where: { id },
-        data,
+        data: {
+          name,
+          email: email || undefined,
+          phone: phone || undefined,
+          ...otherData,
+        },
       });
       revalidatePath("/suppliers");
       return { data: updated };
     } catch (error: any) {
       console.log("Update Supplier Error:", error);
-      
-      // Handle unique constraint violations
-      if (error?.code === 'P2002') {
-        const target = error?.meta?.target;
-        if (Array.isArray(target)) {
-          if (target.includes('name')) {
-            return { error: "A supplier with this name already exists" };
-          }
-          if (target.includes('email') && data.email) {
-            return { error: "A supplier with this email already exists" };
-          }
-          if (target.includes('phone') && data.phone) {
-            return { error: "A supplier with this phone number already exists" };
-          }
-        }
-        return { error: "A supplier with this information already exists" };
-      }
-      
       return { error: error?.message || "Failed to update supplier. Please try again." };
     }
   }
