@@ -4,14 +4,17 @@ import { ColumnDef } from "@tanstack/react-table";
 export interface SaleItem extends PrismaSaleItem {
   product?: {
     product_name: string;
+    stock: number;
+    sellingPrice?: number;
+    tax?: number;
   };
 }
 
 export interface Sale extends PrismaSale {
   customer: { name: string, openingBalance: number };
   items: SaleItem[];
-  payments:SalesPayment[];
-  branch?:Branch | null;
+  payments: SalesPayment[];
+  branch?: Branch | null;
 }
 
 export interface SaleFormProps {

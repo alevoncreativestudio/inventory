@@ -2,7 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
 import { formatCurrency, formatDate } from '@/lib/utils'
-import { 
+import {
   Building2,
   Calendar,
   FileText,
@@ -29,12 +29,12 @@ export default async function Page({ params }: PageParamsProps) {
     notFound()
   }
 
-  const { data } = await getSaleById({ id: saleid })
-  if (!data) {
+  const { data: resultData } = await getSaleById({ id: saleid })
+  if (!resultData || !resultData.data) {
     notFound()
   }
 
-  const { data: sale } = data as { data: SaleType }
+  const sale = resultData.data as unknown as SaleType
 
   const getStatusColor = (status: string) => {
     switch (status.toLowerCase()) {
@@ -57,7 +57,7 @@ export default async function Page({ params }: PageParamsProps) {
     }
   };
 
-  
+
 
   return (
     <div className="max-h-screen overflow-y-auto p-6">
@@ -96,13 +96,13 @@ export default async function Page({ params }: PageParamsProps) {
               </div>
             </div>
             <div className="flex gap-2">
-                <Badge className={getStatusColor('completed')}>
-                  Completed
-                </Badge>
-                <Badge className={getPaymentStatusColor(sale.dueAmount || 0)}>
-                  {sale.dueAmount === 0 ? 'Paid' : 'Due'}
-                </Badge>
-              </div>
+              <Badge className={getStatusColor('completed')}>
+                Completed
+              </Badge>
+              <Badge className={getPaymentStatusColor(sale.dueAmount || 0)}>
+                {sale.dueAmount === 0 ? 'Paid' : 'Due'}
+              </Badge>
+            </div>
           </CardContent>
         </Card>
 
@@ -211,36 +211,36 @@ export default async function Page({ params }: PageParamsProps) {
           </CardContent>
         </Card>
 
-          {/* Payment Information */}
-          {sale.payments && sale.payments.length > 0 && (
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg flex items-center gap-2">
-                  <CreditCard className="h-5 w-5" />
-                  Payment Information
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  {sale.payments.map((payment, index) => (
-                    <div key={index} className="flex justify-between items-center p-3 border rounded-lg">
-                      <div>
-                        <div className="font-medium">{formatCurrency(payment.amount)}</div>
-                        <div className="text-sm text-muted-foreground">
-                          {payment.paymentMethod} • {formatDate(payment.paidOn)}
-                        </div>
-                        {payment.paymentNote && (
-                          <div className="text-sm text-muted-foreground">
-                            Note: {payment.paymentNote}
-                          </div>
-                        )}
+        {/* Payment Information */}
+        {sale.payments && sale.payments.length > 0 && (
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg flex items-center gap-2">
+                <CreditCard className="h-5 w-5" />
+                Payment Information
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                {sale.payments.map((payment, index) => (
+                  <div key={index} className="flex justify-between items-center p-3 border rounded-lg">
+                    <div>
+                      <div className="font-medium">{formatCurrency(payment.amount)}</div>
+                      <div className="text-sm text-muted-foreground">
+                        {payment.paymentMethod} • {formatDate(payment.paidOn)}
                       </div>
+                      {payment.paymentNote && (
+                        <div className="text-sm text-muted-foreground">
+                          Note: {payment.paymentNote}
+                        </div>
+                      )}
                     </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          )}
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
       </div>
     </div>
   )

@@ -222,6 +222,7 @@ export const updateSale = actionClient
         where: { id },
         data: {
           ...data,
+          status,
           grandTotal,
           dueAmount,
           items: { create: items },
@@ -234,7 +235,7 @@ export const updateSale = actionClient
       });
 
       // 2. Decrement stock if currently Dispatched
-      if (data.status === "Dispatched") {
+      if (status === "Dispatched") {
         await Promise.all(
           rawItems.map((item) =>
             prisma.product.update({

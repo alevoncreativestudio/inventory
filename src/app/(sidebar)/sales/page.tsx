@@ -27,7 +27,7 @@ export default async function SalesPage() {
             </Link>
           </div>
 
-          <SalesTable columns={salesColumns} data={data?.sales ?? []} />
+          <SalesTable columns={salesColumns} data={(data?.sales ?? []) as any} />
         </div>
       </div>
     </div>

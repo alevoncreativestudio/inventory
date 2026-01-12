@@ -29,7 +29,7 @@ import { ProductOption } from "@/types/product";
 import { SaleItemField } from "@/types/sales";
 import { fullSalesSchema } from "@/schemas/sales-item-schema";
 import { getProductListForDropdown } from "@/actions/product-actions";
-import { Command,CommandGroup, CommandItem,CommandInput,CommandEmpty,CommandList } from "../ui/command";
+import { Command, CommandGroup, CommandItem, CommandInput, CommandEmpty, CommandList } from "../ui/command";
 import { nanoid } from "nanoid";
 import { getAllBranches } from "@/actions/auth";
 import { useRouter } from "next/navigation";
@@ -38,20 +38,21 @@ import { CustomerFormDialog } from "@/components/customers/customer-form";
 export const SalesFormPage = () => {
   const router = useRouter();
   const { execute: create, isExecuting: isCreating } = useAction(createSale);
-  const [customerList, setCustomerList] = useState<{ id: string; name: string,openingBalance:number }[]>([]);
+  const [customerList, setCustomerList] = useState<{ id: string; name: string, openingBalance: number }[]>([]);
   const [showCustomerSuggestions, setShowCustomerSuggestions] = useState(false);
   const [productSearch, setProductSearch] = useState("");
   const [productOptions, setProductOptions] = useState<ProductOption[]>([]);
   const [selectedCustomerOpeningBalance, setSelectedCustomerOpeningBalance] = useState<number | null>(null);
-  const [baranchList, setBranchList] = useState<{ name: string; id: string;}[]>([]);
+  const [baranchList, setBranchList] = useState<{ name: string; id: string; }[]>([]);
   const [openCustomerForm, setOpenCustomerForm] = useState(false);
 
   const form = useForm<z.infer<typeof fullSalesSchema>>({
-    resolver: zodResolver(fullSalesSchema),
+    resolver: zodResolver(fullSalesSchema) as any,
     defaultValues: {
       invoiceNo: "",
       branchId: "",
       customerId: "",
+      status: "Ordered",
       grandTotal: 0,
       dueAmount: 0,
       paidAmount: 0,
@@ -71,10 +72,10 @@ export const SalesFormPage = () => {
   ];
 
   const year = new Date().getFullYear();
-  
+
   const { fields, append, remove } = useFieldArray({
-      control: form.control,
-      name: "items",
+    control: form.control,
+    name: "items",
   });
 
   const fetchCustomerList = async () => {
@@ -254,17 +255,17 @@ export const SalesFormPage = () => {
                         <FormControl>
                           <Button variant="outline" className="w-full text-left">
                             {field.value
-                              ? (field.value instanceof Date 
-                                  ? field.value.toLocaleDateString('en-US', { 
-                                      year: 'numeric', 
-                                      month: '2-digit', 
-                                      day: '2-digit' 
-                                    })
-                                  : new Date(field.value).toLocaleDateString('en-US', { 
-                                      year: 'numeric', 
-                                      month: '2-digit', 
-                                      day: '2-digit' 
-                                    }))
+                              ? (field.value instanceof Date
+                                ? field.value.toLocaleDateString('en-US', {
+                                  year: 'numeric',
+                                  month: '2-digit',
+                                  day: '2-digit'
+                                })
+                                : new Date(field.value).toLocaleDateString('en-US', {
+                                  year: 'numeric',
+                                  month: '2-digit',
+                                  day: '2-digit'
+                                }))
                               : "Pick date"}
                           </Button>
                         </FormControl>
@@ -304,10 +305,10 @@ export const SalesFormPage = () => {
                 </PopoverTrigger>
                 <PopoverContent className="w-full p-0">
                   <Command shouldFilter={false}>
-                    <CommandInput 
-                    placeholder="Search product..." 
-                    value={productSearch} 
-                    onValueChange={setProductSearch} 
+                    <CommandInput
+                      placeholder="Search product..."
+                      value={productSearch}
+                      onValueChange={setProductSearch}
                     />
 
                     <CommandList>
@@ -388,11 +389,11 @@ export const SalesFormPage = () => {
                                     const excTax = Number(form.getValues(`items.${idx}.excTax`));
                                     const discount = Number(form.getValues(`items.${idx}.discount`));
                                     const incTax = Number(form.getValues(`items.${idx}.incTax`));
-                                  
+
                                     const subtotal = quantity * excTax;
                                     const totalBeforeDiscount = quantity * incTax;
                                     const total = totalBeforeDiscount - discount;
-                                  
+
                                     form.setValue(`items.${idx}.subtotal`, subtotal, { shouldDirty: true });
                                     form.setValue(`items.${idx}.total`, total, { shouldDirty: true });
                                   }}
@@ -467,16 +468,16 @@ export const SalesFormPage = () => {
                         <FormControl>
                           <Button variant="outline" className="w-full text-left">
                             {field.value
-                              ? new Date(field.value).toLocaleDateString('en-US', { 
-                                  year: 'numeric', 
-                                  month: '2-digit', 
-                                  day: '2-digit' 
-                                })
-                              : new Date().toLocaleDateString('en-US', { 
-                                  year: 'numeric', 
-                                  month: '2-digit', 
-                                  day: '2-digit' 
-                                })}
+                              ? new Date(field.value).toLocaleDateString('en-US', {
+                                year: 'numeric',
+                                month: '2-digit',
+                                day: '2-digit'
+                              })
+                              : new Date().toLocaleDateString('en-US', {
+                                year: 'numeric',
+                                month: '2-digit',
+                                day: '2-digit'
+                              })}
                           </Button>
                         </FormControl>
                       </PopoverTrigger>
@@ -564,41 +565,41 @@ export const SalesFormPage = () => {
 
               if (due > 0) {
                 return (
-                <div className="grid md:grid-cols-2 gap-4 mt-4">
-                  <FormField
-                    control={form.control}
-                    name="salesPayment.0.dueDate"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Due Date</FormLabel>
-                        <Popover>
-                          <PopoverTrigger asChild>
-                            <FormControl>
-                              <Button variant="outline" className="w-full text-left">
-                                {field.value
-                                  ? new Date(field.value).toLocaleDateString('en-US', { 
-                                      year: 'numeric', 
-                                      month: '2-digit', 
-                                      day: '2-digit' 
+                  <div className="grid md:grid-cols-2 gap-4 mt-4">
+                    <FormField
+                      control={form.control}
+                      name="salesPayment.0.dueDate"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Due Date</FormLabel>
+                          <Popover>
+                            <PopoverTrigger asChild>
+                              <FormControl>
+                                <Button variant="outline" className="w-full text-left">
+                                  {field.value
+                                    ? new Date(field.value).toLocaleDateString('en-US', {
+                                      year: 'numeric',
+                                      month: '2-digit',
+                                      day: '2-digit'
                                     })
-                                  : "Select date"}
-                              </Button>
-                            </FormControl>
-                          </PopoverTrigger>
-                          <PopoverContent>
-                            <Calendar
-                              mode="single"
-                              selected={field.value ? new Date(field.value) : undefined}
-                              onSelect={field.onChange}
-                              captionLayout="dropdown"
-                            />
-                          </PopoverContent>
-                        </Popover>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
+                                    : "Select date"}
+                                </Button>
+                              </FormControl>
+                            </PopoverTrigger>
+                            <PopoverContent>
+                              <Calendar
+                                mode="single"
+                                selected={field.value ? new Date(field.value) : undefined}
+                                onSelect={field.onChange}
+                                captionLayout="dropdown"
+                              />
+                            </PopoverContent>
+                          </Popover>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
                 );
               }
               return null;
