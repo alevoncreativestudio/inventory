@@ -47,7 +47,7 @@ export default async function Dashboard() {
   const isAdmin = (session?.user?.role ?? '').toLowerCase() === 'admin';
   const branchFilter = isAdmin ? undefined : (session?.user?.branch || undefined);
   const dashboardData = await getOptimizedDashboardData(branchFilter);
-  
+
   // Fetch chart data on server side
   const chartData = await getMonthlyData();
 
@@ -105,7 +105,7 @@ export default async function Dashboard() {
     }));
   }
 
-  const salesData = groupSalesByMonth(monthlySales);        
+  const salesData = groupSalesByMonth(monthlySales);
   const purchaseData = groupPurchasesByMonth(monthlyPurchases);
 
   return (
@@ -147,28 +147,16 @@ export default async function Dashboard() {
             {/* Inventory Balance Card - Prominent Display */}
             <div className="bg-gradient-to-r from-purple-900 to-purple-800 rounded-2xl p-8 text-white">
               <div className="flex items-center justify-between mb-6">
-                <h2 className="text-xl font-semibold">Inventory Balance</h2>
-                <div className="flex items-center gap-2 text-green-400">
-                  <IconArrowUp className="h-4 w-4" />
-                  <span className="text-sm">↑{Math.round(((todaysSales - todaysPurchases) / Math.max(todaysPurchases, 1)) * 100)}%</span>
-                </div>
+                <h2 className="text-xl font-semibold">Today&apos;s Sales</h2>
               </div>
-              <div className="text-4xl font-bold mb-6">
-                {formatCurrency(todaysSales - todaysPurchases)}
-              </div>
-              <div className="flex gap-4">
-                <button className="bg-white/20 backdrop-blur-sm rounded-lg px-6 py-3 text-white font-medium hover:bg-white/30 transition-colors">
-                  New Sale
-                </button>
-                <button className="bg-white/20 backdrop-blur-sm rounded-lg px-6 py-3 text-white font-medium hover:bg-white/30 transition-colors">
-                  New Purchase
-                </button>
+              <div className="text-4xl font-bold">
+                {formatCurrency(todaysSales)}
               </div>
             </div>
 
             {/* Profile Card */}
-          <Card className="shadow-md border border-border/50 bg-gradient-to-br from-indigo-50 via-white to-emerald-50">
-            <CardContent className="p-6">
+            <Card className="shadow-md border border-border/50 bg-gradient-to-br from-indigo-50 via-white to-emerald-50">
+              <CardContent className="p-6">
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="text-lg font-semibold text-gray-900">Profile</h3>
                   <IconRefresh className="h-5 w-5 text-gray-400 cursor-pointer hover:text-gray-600" />
@@ -206,7 +194,7 @@ export default async function Dashboard() {
             <div className="grid grid-cols-1 gap-6 lg:grid-cols-1">
               {/* Interactive Area Chart */}
               <ChartAreaInteractive data={chartData} />
-              
+
               {/* Monthly Sales & Purchases Bar Chart */}
               <DashboardCharts salesData={salesData} purchaseData={purchaseData} />
             </div>
@@ -360,10 +348,9 @@ export default async function Dashboard() {
                       </p>
                     </div>
                   </div>
-                  <div className={`text-sm font-bold ${
-                    product.stock < 10 ? 'text-red-600' : 
-                    product.stock < 50 ? 'text-orange-600' : 'text-green-600'
-                  }`}>
+                  <div className={`text-sm font-bold ${product.stock < 10 ? 'text-red-600' :
+                      product.stock < 50 ? 'text-orange-600' : 'text-green-600'
+                    }`}>
                     {product.stock}
                   </div>
                 </div>
