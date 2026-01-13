@@ -27,8 +27,18 @@ export const salesColumns: ColumnDef<Sale>[] = [
     header: ({ column }) => {
       const sort = column.getIsSorted();
       return (
-        <Button variant="ghost" onClick={() => column.toggleSorting(sort === "asc")}>
-          Ref No {sort === "asc" ? <ArrowUp /> : sort === "desc" ? <ArrowDown /> : <ArrowUpDown />}
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(sort === "asc")}
+        >
+          Ref No{" "}
+          {sort === "asc" ? (
+            <ArrowUp />
+          ) : sort === "desc" ? (
+            <ArrowDown />
+          ) : (
+            <ArrowUpDown />
+          )}
         </Button>
       );
     },
@@ -38,25 +48,17 @@ export const salesColumns: ColumnDef<Sale>[] = [
     header: "Date",
     cell: ({ row }) => {
       const date = row.getValue("salesdate") as string | Date;
-      return (
-        <div>
-          {date ? formatDate(date) : "-"}
-        </div>
-      );
+      return <div>{date ? formatDate(date) : "-"}</div>;
     },
   },
   {
     accessorKey: "location",
     header: "Location",
     cell: ({ row }) => {
-      const Location = row.original.branch?.name
+      const Location = row.original.branch?.name;
 
-      return (
-        <span>
-          {Location}
-        </span>
-      )
-    }
+      return <span>{Location}</span>;
+    },
   },
   {
     accessorKey: "customerId",
@@ -68,7 +70,7 @@ export const salesColumns: ColumnDef<Sale>[] = [
   },
   {
     accessorKey: "status",
-    header: "Status",
+    header: () => <div className="px-3 text-center">Status</div>,
     cell: ({ row }) => {
       const status = (row.original as any).status || "Ordered";
       const statusColorMap: Record<string, string> = {
@@ -80,7 +82,9 @@ export const salesColumns: ColumnDef<Sale>[] = [
       const color = statusColorMap[status] || "bg-gray-100 text-gray-800";
 
       return (
-        <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-sm font-medium ${color}`}>
+        <span
+          className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-sm font-medium ${color}`}
+        >
           {status}
         </span>
       );
@@ -97,7 +101,7 @@ export const salesColumns: ColumnDef<Sale>[] = [
       // fully paid
       if (dueAmount === 0) {
         return (
-          <span className="inline-flex items-center rounded-full px-2.5 py-0.5 text-sm font-medium bg-green-100 text-green-800">
+          <span className="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-sm font-medium text-green-800">
             Paid
           </span>
         );
@@ -105,7 +109,7 @@ export const salesColumns: ColumnDef<Sale>[] = [
 
       if (!dueDate) {
         return (
-          <span className="inline-flex items-center rounded-full px-2.5 py-0.5 text-sm font-medium bg-gray-100 text-gray-800">
+          <span className="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-0.5 text-sm font-medium text-gray-800">
             No Due Date
           </span>
         );
@@ -116,14 +120,14 @@ export const salesColumns: ColumnDef<Sale>[] = [
 
       if (due < today) {
         return (
-          <span className="inline-flex items-center rounded-full px-2.5 py-0.5 text-sm font-medium bg-red-100 text-red-800">
+          <span className="inline-flex items-center rounded-full bg-red-100 px-2.5 py-0.5 text-sm font-medium text-red-800">
             Overdue
           </span>
         );
       }
 
       return (
-        <span className="inline-flex items-center rounded-full px-2.5 py-0.5 text-sm font-medium bg-blue-100 text-blue-800">
+        <span className="inline-flex items-center rounded-full bg-blue-100 px-2.5 py-0.5 text-sm font-medium text-blue-800">
           Upcoming Payment
         </span>
       );
@@ -131,26 +135,34 @@ export const salesColumns: ColumnDef<Sale>[] = [
   },
   {
     accessorKey: "openingBalance",
-    header: "Opening Balance",
+    header: () => <div className="px-3 text-center">Opening Balance</div>,
     cell: ({ row }) => {
       const customer = row.original.customer.openingBalance;
-      return <span>{formatCurrency(customer)}</span>;
+      return (
+        <div className="text-center font-medium">
+          {formatCurrency(customer)}
+        </div>
+      );
     },
   },
   {
     accessorKey: "paidAmount",
-    header: "Paid Amount",
+    header: () => <div className="px-3 text-center">Paid Amount</div>,
     cell: ({ row }) => {
       const amount = row.getValue("paidAmount") as number;
-      return <div className="font-medium">{formatCurrency(amount)}</div>;
+      return (
+        <div className="text-center font-medium">{formatCurrency(amount)}</div>
+      );
     },
   },
   {
     accessorKey: "dueAmount",
-    header: "Due (Old Balance)",
+    header: () => <div className="px-3 text-center">Due (Old Balance)</div>,
     cell: ({ row }) => {
       const amount = row.getValue("dueAmount") as number;
-      return <div className="font-medium">{formatCurrency(amount)}</div>;
+      return (
+        <div className="text-center font-medium">{formatCurrency(amount)}</div>
+      );
     },
   },
   {
@@ -163,8 +175,12 @@ export const salesColumns: ColumnDef<Sale>[] = [
   },
   {
     id: "actions",
-    header: "Actions",
-    cell: ({ row }) => <SalesActions sale={row.original} />,
+    header: () => <div className="px-3 text-center">Actions</div>,
+    cell: ({ row }) => (
+      <div className="flex justify-center px-3">
+        <SalesActions sale={row.original} />
+      </div>
+    ),
   },
 ];
 
@@ -194,7 +210,7 @@ const SalesActions = ({ sale }: { sale: Sale }) => {
           size="sm"
           onClick={() => updateStatus({ id: sale.id, status: "Dispatched" })}
           disabled={isExecuting}
-          className="h-8 gap-1 bg-green-50 text-green-700 hover:bg-green-100 border-green-200"
+          className="h-8 gap-1 border-green-200 bg-green-50 text-green-700 hover:bg-green-100"
         >
           <Check className="h-3.5 w-3.5" />
           {isExecuting ? "..." : "Approve"}
@@ -223,13 +239,17 @@ const SalesActions = ({ sale }: { sale: Sale }) => {
         variant="ghost"
         size="sm"
         onClick={() => setOpenDelete(true)}
-        className="h-8 w-8 p-0 text-destructive hover:text-destructive"
+        className="text-destructive hover:text-destructive h-8 w-8 p-0"
       >
         <Trash2 className="h-4 w-4" />
       </Button>
 
       <SalesFormSheet open={openEdit} openChange={setOpenEdit} sales={sale} />
-      <SalesDeleteDialog sale={sale} open={openDelete} setOpen={setOpenDelete} />
+      <SalesDeleteDialog
+        sale={sale}
+        open={openDelete}
+        setOpen={setOpenDelete}
+      />
     </div>
   );
 };

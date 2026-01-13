@@ -21,7 +21,6 @@ import { CustomerPaymentHistoryModal } from "./customer-payment-history-modal";
 import { formatCurrency } from "@/lib/utils";
 
 export const customersColumns: ColumnDef<Customer>[] = [
-  
   {
     accessorKey: "CustomerID",
     header: ({ column }) => {
@@ -43,7 +42,9 @@ export const customersColumns: ColumnDef<Customer>[] = [
         </Button>
       );
     },
-    cell: ({ row }) => <div className="px-3">{row.getValue("CustomerID") as string}</div>,
+    cell: ({ row }) => (
+      <div className="px-3">{row.getValue("CustomerID") as string}</div>
+    ),
   },
   {
     accessorKey: "name",
@@ -66,16 +67,18 @@ export const customersColumns: ColumnDef<Customer>[] = [
         </Button>
       );
     },
-    cell: ({ row }) => <div className="px-3">{row.getValue("name") as string}</div>,
+    cell: ({ row }) => (
+      <div className="px-3">{row.getValue("name") as string}</div>
+    ),
   },
   {
     accessorKey: "email",
-    header: "Email",
+    header: () => <div className="px-3 text-left">Email</div>,
     cell: ({ row }) => <div>{row.getValue("email")}</div>,
   },
   {
     accessorKey: "phone",
-    header: "Phone",
+    header: () => <div className="px-3 text-center">Phone</div>,
     cell: ({ row }) => <div>{row.getValue("phone")}</div>,
   },
   {
@@ -87,29 +90,33 @@ export const customersColumns: ColumnDef<Customer>[] = [
     accessorKey: "openingBalance",
     header: "Opening Bal",
     cell: ({ row }) => {
-        const amount = row.getValue("openingBalance") as number;
-        return <div className="font-medium">{formatCurrency(amount)}</div>;
-      },
+      const amount = row.getValue("openingBalance") as number;
+      return <div className="font-medium">{formatCurrency(amount)}</div>;
+    },
   },
   {
     accessorKey: "salesDue",
     header: "Sales Due",
-    cell: ({ row }) =>  {
-        const amount = row.getValue("salesDue") as number;
-        return <div className="font-medium">{formatCurrency(amount)}</div>;
-      },
+    cell: ({ row }) => {
+      const amount = row.getValue("salesDue") as number;
+      return (
+        <div className="text-center font-medium">{formatCurrency(amount)}</div>
+      );
+    },
   },
   {
     accessorKey: "salesReturnDue",
     header: "Sales Return Due",
     cell: ({ row }) => {
-        const amount = row.getValue("salesReturnDue") as number;
-        return <div className="font-medium">{formatCurrency(amount)}</div>;
-      },
+      const amount = row.getValue("salesReturnDue") as number;
+      return (
+        <div className="text-center font-medium">{formatCurrency(amount)}</div>
+      );
+    },
   },
   {
     id: "actions",
-    header: "Actions",
+    header: () => <div className="text-center">Actions</div>,
     cell: ({ row }) =>
       row.original && <CustomerActions customer={row.original} />,
   },
@@ -118,8 +125,8 @@ export const customersColumns: ColumnDef<Customer>[] = [
 export const CustomerActions = ({ customer }: { customer: Customer }) => {
   const [openDelete, setOpenDelete] = useState(false);
   const [openEdit, setOpenEdit] = useState(false);
-  const [openPay,setOpenPay] = useState(false);
-  const [openPayment,setOpenPayment] = useState(false);
+  const [openPay, setOpenPay] = useState(false);
+  const [openPayment, setOpenPayment] = useState(false);
 
   return (
     <div className="flex items-center gap-2">
@@ -151,7 +158,7 @@ export const CustomerActions = ({ customer }: { customer: Customer }) => {
         variant="ghost"
         size="sm"
         onClick={() => setOpenDelete(true)}
-        className="h-8 w-8 p-0 text-destructive hover:text-destructive"
+        className="text-destructive hover:text-destructive h-8 w-8 p-0"
       >
         <Trash2 className="h-4 w-4" />
       </Button>
@@ -169,7 +176,7 @@ export const CustomerActions = ({ customer }: { customer: Customer }) => {
         customerName={customer?.name}
       />
 
-      <CustomerPayDialog 
+      <CustomerPayDialog
         customer={customer}
         open={openPay}
         setOpen={setOpenPay}

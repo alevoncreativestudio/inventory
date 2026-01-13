@@ -2,13 +2,7 @@
 
 import { SalesReturn } from "@/types/sales-return"; // adjust if needed
 import { ColumnDef } from "@tanstack/react-table";
-import {
-  ArrowDown,
-  ArrowUp,
-  ArrowUpDown,
-  Edit2,
-  Trash2,
-} from "lucide-react";
+import { ArrowDown, ArrowUp, ArrowUpDown, Edit2, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { SalesReturnFormSheet } from "./sales-return-form";
@@ -21,8 +15,18 @@ export const salesReturnColumns: ColumnDef<SalesReturn>[] = [
     header: ({ column }) => {
       const sort = column.getIsSorted();
       return (
-        <Button variant="ghost" onClick={() => column.toggleSorting(sort === "asc")}>
-          Invoice No {sort === "asc" ? <ArrowUp /> : sort === "desc" ? <ArrowDown /> : <ArrowUpDown />}
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(sort === "asc")}
+        >
+          Invoice No{" "}
+          {sort === "asc" ? (
+            <ArrowUp />
+          ) : sort === "desc" ? (
+            <ArrowDown />
+          ) : (
+            <ArrowUpDown />
+          )}
         </Button>
       );
     },
@@ -32,11 +36,7 @@ export const salesReturnColumns: ColumnDef<SalesReturn>[] = [
     header: "Return Date",
     cell: ({ row }) => {
       const date = row.getValue("salesReturnDate") as string | Date;
-      return (
-        <div>
-          {date ? formatDate(date) : "-"}
-        </div>
-      );
+      return <div>{date ? formatDate(date) : "-"}</div>;
     },
   },
   {
@@ -49,16 +49,22 @@ export const salesReturnColumns: ColumnDef<SalesReturn>[] = [
   },
   {
     accessorKey: "grandTotal",
-    header: "Total Amount",
+    header: () => <div className="px-3 text-center">Total Amount</div>,
     cell: ({ row }) => {
       const amount = row.getValue("grandTotal") as number;
-      return <div className="font-medium">{formatCurrency(amount)}</div>;
+      return (
+        <div className="text-center font-medium">{formatCurrency(amount)}</div>
+      );
     },
   },
   {
     id: "actions",
-    header: "Actions",
-    cell: ({ row }) => <SalesReturnActions returnData={row.original} />,
+    header: () => <div className="px-3 text-center">Actions</div>,
+    cell: ({ row }) => (
+      <div className="flex justify-center px-3">
+        <SalesReturnActions returnData={row.original} />
+      </div>
+    ),
   },
 ];
 
@@ -80,13 +86,21 @@ const SalesReturnActions = ({ returnData }: { returnData: SalesReturn }) => {
         variant="ghost"
         size="sm"
         onClick={() => setOpenDelete(true)}
-        className="h-8 w-8 p-0 text-destructive hover:text-destructive"
+        className="text-destructive hover:text-destructive h-8 w-8 p-0"
       >
         <Trash2 className="h-4 w-4" />
       </Button>
 
-      <SalesReturnFormSheet open={openEdit} openChange={setOpenEdit} salesReturn={returnData} />
-      <SalesReturnDeleteDialog open={openDelete} setOpen={setOpenDelete} salesReturn={returnData} />
+      <SalesReturnFormSheet
+        open={openEdit}
+        openChange={setOpenEdit}
+        salesReturn={returnData}
+      />
+      <SalesReturnDeleteDialog
+        open={openDelete}
+        setOpen={setOpenDelete}
+        salesReturn={returnData}
+      />
     </div>
   );
 };

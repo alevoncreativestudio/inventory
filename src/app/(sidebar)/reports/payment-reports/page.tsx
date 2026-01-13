@@ -82,11 +82,11 @@ export default async function PaymentReportPage() {
       </div>
 
       <Tabs defaultValue="sales" className="w-full">
-        <TabsList className="inline-flex h-10 items-center justify-center rounded-md bg-muted p-1 text-muted-foreground">
+        <TabsList className="bg-muted text-muted-foreground inline-flex h-10 items-center justify-center rounded-md p-1">
           <TabsTrigger value="sales">Sales Payments</TabsTrigger>
           <TabsTrigger value="purchases">Purchase Payments</TabsTrigger>
         </TabsList>
-        
+
         <TabsContent value="sales" className="mt-6">
           <Card>
             <CardHeader>
@@ -94,22 +94,36 @@ export default async function PaymentReportPage() {
             </CardHeader>
             <CardContent>
               <Table>
-                <TableCaption>All incoming payments from customers</TableCaption>
+                <TableCaption>
+                  All incoming payments from customers
+                </TableCaption>
                 <TableHeader className="bg-primary">
                   <TableRow>
-                    <TableHead className="text-primary-foreground">Customer</TableHead>
-                    <TableHead className="text-primary-foreground">Method</TableHead>
-                    <TableHead className="text-primary-foreground">Date</TableHead>
-                    <TableHead className="text-right text-primary-foreground">Amount</TableHead>
+                    <TableHead className="text-primary-foreground">
+                      Customer
+                    </TableHead>
+                    <TableHead className="text-primary-foreground text-center">
+                      Method
+                    </TableHead>
+                    <TableHead className="text-primary-foreground text-center">
+                      Date
+                    </TableHead>
+                    <TableHead className="text-primary-foreground text-center">
+                      Amount
+                    </TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {combinedSalesPayments.map((payment) => (
                     <TableRow key={payment.id}>
                       <TableCell>{payment.name}</TableCell>
-                      <TableCell>{payment.method}</TableCell>
-                      <TableCell>{format(new Date(payment.date), "dd MMM yyyy")}</TableCell>
-                      <TableCell className="text-right text-green-600 font-medium">
+                      <TableCell className="text-center">
+                        {payment.method}
+                      </TableCell>
+                      <TableCell className="text-center">
+                        {format(new Date(payment.date), "dd MMM yyyy")}
+                      </TableCell>
+                      <TableCell className="text-center font-medium text-green-600">
                         {formatCurrency(payment.amount)}
                       </TableCell>
                     </TableRow>
@@ -119,7 +133,7 @@ export default async function PaymentReportPage() {
             </CardContent>
           </Card>
         </TabsContent>
-        
+
         <TabsContent value="purchases" className="mt-6">
           <Card>
             <CardHeader>
@@ -130,19 +144,31 @@ export default async function PaymentReportPage() {
                 <TableCaption>All outgoing payments to suppliers</TableCaption>
                 <TableHeader className="bg-primary">
                   <TableRow>
-                    <TableHead className="text-primary-foreground">Supplier</TableHead>
-                    <TableHead className="text-primary-foreground">Method</TableHead>
-                    <TableHead className="text-primary-foreground">Date</TableHead>
-                    <TableHead className="text-right text-primary-foreground">Amount</TableHead>
+                    <TableHead className="text-primary-foreground">
+                      Supplier
+                    </TableHead>
+                    <TableHead className="text-primary-foreground text-center">
+                      Method
+                    </TableHead>
+                    <TableHead className="text-primary-foreground text-center">
+                      Date
+                    </TableHead>
+                    <TableHead className="text-primary-foreground text-center">
+                      Amount
+                    </TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {combinedPurchasePayments.map((payment) => (
                     <TableRow key={payment.id}>
                       <TableCell>{payment.name}</TableCell>
-                      <TableCell>{payment.method}</TableCell>
-                      <TableCell>{format(new Date(payment.date), "dd MMM yyyy")}</TableCell>
-                      <TableCell className="text-right text-red-600 font-medium">
+                      <TableCell className="text-center">
+                        {payment.method}
+                      </TableCell>
+                      <TableCell className="text-center">
+                        {format(new Date(payment.date), "dd MMM yyyy")}
+                      </TableCell>
+                      <TableCell className="text-center font-medium text-red-600">
                         {formatCurrency(payment.amount)}
                       </TableCell>
                     </TableRow>

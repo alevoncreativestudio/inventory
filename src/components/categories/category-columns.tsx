@@ -1,15 +1,9 @@
 "use client";
 
 import { Category } from "@prisma/client";
-import { CategoryFormDialog } from "./category-form"
+import { CategoryFormDialog } from "./category-form";
 import { ColumnDef } from "@tanstack/react-table";
-import {
-  ArrowDown,
-  ArrowUp,
-  ArrowUpDown,
-  Edit2,
-  Trash2,
-} from "lucide-react";
+import { ArrowDown, ArrowUp, ArrowUpDown, Edit2, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { CategoryDeleteDialog } from "./category-delete-dailog";
 import { useState } from "react";
@@ -36,11 +30,13 @@ export const categoryColumns: ColumnDef<Category>[] = [
         </Button>
       );
     },
-    cell: ({ row }) =>  <div className="px-3">{row.getValue('name') as string}</div>,
+    cell: ({ row }) => (
+      <div className="px-3">{row.getValue("name") as string}</div>
+    ),
   },
   {
     id: "actions",
-    header: "Actions",
+    header: () => <div className="text-center">Actions</div>,
     cell: ({ row }) =>
       row.original && <CategoryActions category={row.original} />,
   },
@@ -51,7 +47,7 @@ export const CategoryActions = ({ category }: { category: Category }) => {
   const [openEdit, setOpenEdit] = useState(false);
 
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex items-center justify-center gap-2">
       <Button
         variant="ghost"
         size="sm"
@@ -64,13 +60,17 @@ export const CategoryActions = ({ category }: { category: Category }) => {
         variant="ghost"
         size="sm"
         onClick={() => setOpenDelete(true)}
-        className="h-8 w-8 p-0 text-destructive hover:text-destructive"
+        className="text-destructive hover:text-destructive h-8 w-8 p-0"
       >
         <Trash2 className="h-4 w-4" />
       </Button>
 
       {/* Edit Dialog */}
-      <CategoryFormDialog open={openEdit} openChange={setOpenEdit} category={category} />
+      <CategoryFormDialog
+        open={openEdit}
+        openChange={setOpenEdit}
+        category={category}
+      />
 
       {/* Delete Dialog */}
       <CategoryDeleteDialog

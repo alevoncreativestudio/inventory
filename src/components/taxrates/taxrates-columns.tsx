@@ -4,15 +4,9 @@ import { TaxRates } from "@prisma/client";
 import { TaxRateFormDialog } from "./taxrates-form";
 
 import { ColumnDef } from "@tanstack/react-table";
-import {
-  ArrowDown,
-  ArrowUp,
-  ArrowUpDown,
-  Edit2,
-  Trash2,
-} from "lucide-react";
+import { ArrowDown, ArrowUp, ArrowUpDown, Edit2, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { TaxRateDeleteDialog } from "./taxrates-delete-dailog"
+import { TaxRateDeleteDialog } from "./taxrates-delete-dailog";
 import { useState } from "react";
 
 export const taxRatesColumns: ColumnDef<TaxRates>[] = [
@@ -37,18 +31,25 @@ export const taxRatesColumns: ColumnDef<TaxRates>[] = [
         </Button>
       );
     },
-    cell: ({ row }) =>  <div className="px-3">{row.getValue('name') as string}</div>,
+    cell: ({ row }) => (
+      <div className="px-3">{row.getValue("name") as string}</div>
+    ),
   },
   {
-    accessorKey:'taxRate',
-    header:"Tax Rate",
-    cell: ({ row }) => <div>{row.getValue("taxRate")}%</div>
+    accessorKey: "taxRate",
+    header: () => <div className="px-3 text-center">Tax rate</div>,
+    cell: ({ row }) => (
+      <div className="flex justify-center px-3">{row.getValue("taxRate")}%</div>
+    ),
   },
   {
     id: "actions",
-    header: "Actions",
-    cell: ({ row }) =>
-      row.original && <TaxrateActions taxRate={row.original} />,
+    header: () => <div className="px-3 text-center">Actions</div>,
+    cell: ({ row }) => (
+      <div className="flex justify-center px-3">
+        <TaxrateActions taxRate={row.original} />
+      </div>
+    ),
   },
 ];
 
@@ -70,13 +71,17 @@ export const TaxrateActions = ({ taxRate }: { taxRate: TaxRates }) => {
         variant="ghost"
         size="sm"
         onClick={() => setOpenDelete(true)}
-        className="h-8 w-8 p-0 text-destructive hover:text-destructive"
+        className="text-destructive hover:text-destructive h-8 w-8 p-0"
       >
         <Trash2 className="h-4 w-4" />
       </Button>
 
       {/* Edit Dialog */}
-      <TaxRateFormDialog open={openEdit} openChange={setOpenEdit} tax={taxRate} />
+      <TaxRateFormDialog
+        open={openEdit}
+        openChange={setOpenEdit}
+        tax={taxRate}
+      />
 
       {/* Delete Dialog */}
       <TaxRateDeleteDialog
