@@ -21,7 +21,7 @@ import { PurchaseFormSheet } from "./purchase-form";
 // Removed sheet import; we'll navigate to a dynamic page for view
 import { formatCurrency, formatDate } from "@/lib/utils";
 import { useRouter } from "next/navigation";
-import { useState } from 'react';
+import { useState } from "react";
 
 export const purchaseColumns: ColumnDef<Purchase>[] = [
   {
@@ -29,19 +29,29 @@ export const purchaseColumns: ColumnDef<Purchase>[] = [
     header: ({ column }) => {
       const sort = column.getIsSorted();
       return (
-        <Button variant="ghost" onClick={() => column.toggleSorting(sort === "asc")}>
-          Ref No {sort === "asc" ? <ArrowUp /> : sort === "desc" ? <ArrowDown /> : <ArrowUpDown />}
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(sort === "asc")}
+        >
+          Ref No{" "}
+          {sort === "asc" ? (
+            <ArrowUp />
+          ) : sort === "desc" ? (
+            <ArrowDown />
+          ) : (
+            <ArrowUpDown />
+          )}
         </Button>
       );
     },
   },
   {
     accessorKey: "purchaseDate",
-    header: "Date",
+    header: () => <div className="px-3 text-center">Date</div>,
     cell: ({ row }) => {
       const date = row.getValue("purchaseDate") as string | Date;
       return (
-        <div>
+        <div className="flex justify-center px-3">
           {date ? formatDate(date) : "-"}
         </div>
       );
@@ -51,27 +61,19 @@ export const purchaseColumns: ColumnDef<Purchase>[] = [
     accessorKey: "location",
     header: "Location",
     cell: ({ row }) => {
-      const Location = row.original.branch?.name
+      const Location = row.original.branch?.name;
 
-      return (
-        <span>
-          {Location}
-        </span>
-      )
-    }
+      return <span>{Location}</span>;
+    },
   },
   {
     accessorKey: "supplierId",
     header: "Supplier",
     cell: ({ row }) => {
-      const Supplier = row.original.supplier.name
+      const Supplier = row.original.supplier.name;
 
-      return (
-        <span>
-          {Supplier}
-        </span>
-      )
-    }
+      return <span>{Supplier}</span>;
+    },
   },
   {
     accessorKey: "status",
@@ -85,10 +87,13 @@ export const purchaseColumns: ColumnDef<Purchase>[] = [
         Cancelled: "bg-red-100 text-red-800",
       };
 
-      const colorClasses = statusColorMap[purchaseStatus] || "bg-gray-100 text-gray-800";
+      const colorClasses =
+        statusColorMap[purchaseStatus] || "bg-gray-100 text-gray-800";
 
       return (
-        <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-sm font-medium ${colorClasses}`}>
+        <span
+          className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-sm font-medium ${colorClasses}`}
+        >
           {purchaseStatus}
         </span>
       );
@@ -106,7 +111,7 @@ export const purchaseColumns: ColumnDef<Purchase>[] = [
       // fully paid
       if (dueAmount === 0) {
         return (
-          <span className="inline-flex items-center rounded-full px-2.5 py-0.5 text-sm font-medium bg-green-100 text-green-800">
+          <span className="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-sm font-medium text-green-800">
             Paid
           </span>
         );
@@ -114,7 +119,7 @@ export const purchaseColumns: ColumnDef<Purchase>[] = [
 
       if (!dueDate) {
         return (
-          <span className="inline-flex items-center rounded-full px-2.5 py-0.5 text-sm font-medium bg-gray-100 text-gray-800">
+          <span className="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-0.5 text-sm font-medium text-gray-800">
             No Due Date
           </span>
         );
@@ -125,14 +130,14 @@ export const purchaseColumns: ColumnDef<Purchase>[] = [
 
       if (due < today) {
         return (
-          <span className="inline-flex items-center rounded-full px-2.5 py-0.5 text-sm font-medium bg-red-100 text-red-800">
+          <span className="inline-flex items-center rounded-full bg-red-100 px-2.5 py-0.5 text-sm font-medium text-red-800">
             Overdue
           </span>
         );
       }
 
       return (
-        <span className="inline-flex items-center rounded-full px-2.5 py-0.5 text-sm font-medium bg-blue-100 text-blue-800">
+        <span className="inline-flex items-center rounded-full bg-blue-100 px-2.5 py-0.5 text-sm font-medium text-blue-800">
           Upcoming Payment
         </span>
       );
@@ -143,22 +148,30 @@ export const purchaseColumns: ColumnDef<Purchase>[] = [
     header: "Payment Due",
     cell: ({ row }) => {
       const amount = row.getValue("dueAmount") as number;
-      return <div className="font-medium">{formatCurrency(amount)}</div>;
-    }
+      return (
+        <div className="text-center font-medium">{formatCurrency(amount)}</div>
+      );
+    },
   },
   {
     accessorKey: "totalAmount",
     header: "Grand Total",
     cell: ({ row }) => {
       const amount = row.getValue("totalAmount") as number;
-      return <div className="font-medium">{formatCurrency(amount)}</div>;
+      return (
+        <div className="text-center font-medium">{formatCurrency(amount)}</div>
+      );
     },
   },
 
   {
     id: "actions",
-    header: "Actions",
-    cell: ({ row }) => <PurchaseActions purchase={row.original} />,
+    header: () => <div className="px-3 text-center">Actions</div>,
+    cell: ({ row }) => (
+      <div className="flex justify-center px-3">
+        <PurchaseActions purchase={row.original} />
+      </div>
+    ),
   },
 ];
 
@@ -167,16 +180,19 @@ const PurchaseActions = ({ purchase }: { purchase: Purchase }) => {
   const [openDelete, setOpenDelete] = useState(false);
   const router = useRouter();
 
-  const { execute: updateStatus, isExecuting } = useAction(updatePurchaseStatus, {
-    onSuccess: ({ data }) => {
-      if (data?.error) {
-        toast.error(data.error);
-      } else {
-        toast.success("Purchase approved (Received)");
-      }
+  const { execute: updateStatus, isExecuting } = useAction(
+    updatePurchaseStatus,
+    {
+      onSuccess: ({ data }) => {
+        if (data?.error) {
+          toast.error(data.error);
+        } else {
+          toast.success("Purchase approved (Received)");
+        }
+      },
+      onError: () => toast.error("Something went wrong"),
     },
-    onError: () => toast.error("Something went wrong"),
-  });
+  );
 
   return (
     <div className="flex items-center gap-2">
@@ -186,7 +202,7 @@ const PurchaseActions = ({ purchase }: { purchase: Purchase }) => {
           size="sm"
           onClick={() => updateStatus({ id: purchase.id, status: "Received" })}
           disabled={isExecuting}
-          className="h-8 gap-1 bg-green-50 text-green-700 hover:bg-green-100 border-green-200"
+          className="h-8 gap-1 border-green-200 bg-green-50 text-green-700 hover:bg-green-100"
         >
           <Check className="h-3.5 w-3.5" />
           {isExecuting ? "..." : "Approve"}
@@ -215,13 +231,21 @@ const PurchaseActions = ({ purchase }: { purchase: Purchase }) => {
         variant="ghost"
         size="sm"
         onClick={() => setOpenDelete(true)}
-        className="h-8 w-8 p-0 text-destructive hover:text-destructive"
+        className="text-destructive hover:text-destructive h-8 w-8 p-0"
       >
         <Trash2 className="h-4 w-4" />
       </Button>
 
-      <PurchaseFormSheet open={openEdit} openChange={setOpenEdit} purchase={purchase} />
-      <PurchaseDeleteDialog purchase={purchase} open={openDelete} setOpen={setOpenDelete} />
+      <PurchaseFormSheet
+        open={openEdit}
+        openChange={setOpenEdit}
+        purchase={purchase}
+      />
+      <PurchaseDeleteDialog
+        purchase={purchase}
+        open={openDelete}
+        setOpen={setOpenDelete}
+      />
     </div>
   );
 };

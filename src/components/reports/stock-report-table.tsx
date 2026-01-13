@@ -31,37 +31,45 @@ export function StockReportTable({ data }: StockReportTableProps) {
   const [searchTerm, setSearchTerm] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [locationFilter, setLocationFilter] = useState("all");
-  const [sortField, setSortField] = useState<keyof StockReportItem>("product_name");
+  const [sortField, setSortField] =
+    useState<keyof StockReportItem>("product_name");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
 
   // Get unique categories and locations for filters
-  const categories = [...new Set(data.map(item => item.category))];
-  const locations = [...new Set(data.map(item => item.location))];
+  const categories = [...new Set(data.map((item) => item.category))];
+  const locations = [...new Set(data.map((item) => item.location))];
 
   // Filter and sort data
   const filteredData = data
-    .filter(item => {
-      const matchesSearch = item.product_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                          item.sku.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesCategory = !categoryFilter || categoryFilter === "all" || item.category === categoryFilter;
-      const matchesLocation = !locationFilter || locationFilter === "all" || item.location === locationFilter;
-      
+    .filter((item) => {
+      const matchesSearch =
+        item.product_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item.sku.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesCategory =
+        !categoryFilter ||
+        categoryFilter === "all" ||
+        item.category === categoryFilter;
+      const matchesLocation =
+        !locationFilter ||
+        locationFilter === "all" ||
+        item.location === locationFilter;
+
       return matchesSearch && matchesCategory && matchesLocation;
     })
     .sort((a, b) => {
       const aValue = a[sortField];
       const bValue = b[sortField];
-      
+
       if (typeof aValue === "string" && typeof bValue === "string") {
-        return sortDirection === "asc" 
+        return sortDirection === "asc"
           ? aValue.localeCompare(bValue)
           : bValue.localeCompare(aValue);
       }
-      
+
       if (typeof aValue === "number" && typeof bValue === "number") {
         return sortDirection === "asc" ? aValue - bValue : bValue - aValue;
       }
-      
+
       return 0;
     });
 
@@ -86,10 +94,10 @@ export function StockReportTable({ data }: StockReportTableProps) {
       "Current Stock Value (Purchase)",
       "Current Stock Value (Sale)",
       "Potential Profit",
-      "Total Unit Sold"
+      "Total Unit Sold",
     ];
 
-    const csvData = filteredData.map(item => [
+    const csvData = filteredData.map((item) => [
       item.sku,
       item.product_name,
       item.variation || "",
@@ -100,24 +108,30 @@ export function StockReportTable({ data }: StockReportTableProps) {
       item.current_stock_value_purchase,
       item.current_stock_value_sale,
       item.potential_profit,
-      item.total_unit_sold
+      item.total_unit_sold,
     ]);
 
     const csvContent = [headers, ...csvData]
-      .map(row => row.map(cell => `"${cell}"`).join(","))
+      .map((row) => row.map((cell) => `"${cell}"`).join(","))
       .join("\n");
 
     const blob = new Blob([csvContent], { type: "text/csv" });
     const url = window.URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
-    link.download = `stock-report-${new Date().toISOString().split('T')[0]}.csv`;
+    link.download = `stock-report-${new Date().toISOString().split("T")[0]}.csv`;
     link.click();
     window.URL.revokeObjectURL(url);
   };
 
-  const totalStockValue = filteredData.reduce((sum, item) => sum + item.current_stock_value_purchase, 0);
-  const totalPotentialProfit = filteredData.reduce((sum, item) => sum + item.potential_profit, 0);
+  const totalStockValue = filteredData.reduce(
+    (sum, item) => sum + item.current_stock_value_purchase,
+    0,
+  );
+  const totalPotentialProfit = filteredData.reduce(
+    (sum, item) => sum + item.potential_profit,
+    0,
+  );
 
   return (
     <div className="space-y-4">
@@ -128,16 +142,16 @@ export function StockReportTable({ data }: StockReportTableProps) {
             <span>Stock Report Filters</span>
             <div className="flex gap-2">
               <Button onClick={exportToCSV} variant="outline" size="sm">
-                <Download className="h-4 w-4 mr-2" />
+                <Download className="mr-2 h-4 w-4" />
                 Export CSV
               </Button>
             </div>
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
             <div className="relative">
-              <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+              <Search className="text-muted-foreground absolute top-3 left-3 h-4 w-4" />
               <Input
                 placeholder="Search products..."
                 value={searchTerm}
@@ -151,7 +165,7 @@ export function StockReportTable({ data }: StockReportTableProps) {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Categories</SelectItem>
-                {categories.map(category => (
+                {categories.map((category) => (
                   <SelectItem key={category} value={category}>
                     {category}
                   </SelectItem>
@@ -164,7 +178,7 @@ export function StockReportTable({ data }: StockReportTableProps) {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Locations</SelectItem>
-                {locations.map(location => (
+                {locations.map((location) => (
                   <SelectItem key={location} value={location}>
                     {location}
                   </SelectItem>
@@ -179,7 +193,7 @@ export function StockReportTable({ data }: StockReportTableProps) {
                 setLocationFilter("all");
               }}
             >
-              <Filter className="h-4 w-4 mr-2" />
+              <Filter className="mr-2 h-4 w-4" />
               Clear Filters
             </Button>
           </div>
@@ -187,23 +201,33 @@ export function StockReportTable({ data }: StockReportTableProps) {
       </Card>
 
       {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
         <Card>
-          <CardContent className="p-4">
-            <div className="text-sm font-medium text-muted-foreground">Total Products</div>
+          <CardContent className="p-4 text-center">
+            <div className="text-muted-foreground text-sm font-medium">
+              Total Products
+            </div>
             <div className="text-2xl font-bold">{filteredData.length}</div>
           </CardContent>
         </Card>
         <Card>
-          <CardContent className="p-4">
-            <div className="text-sm font-medium text-muted-foreground">Total Stock Value</div>
-            <div className="text-2xl font-bold">{formatCurrency(totalStockValue)}</div>
+          <CardContent className="p-4 text-center">
+            <div className="text-muted-foreground text-sm font-medium">
+              Total Stock Value
+            </div>
+            <div className="text-2xl font-bold">
+              {formatCurrency(totalStockValue)}
+            </div>
           </CardContent>
         </Card>
         <Card>
-          <CardContent className="p-4">
-            <div className="text-sm font-medium text-muted-foreground">Potential Profit</div>
-            <div className="text-2xl font-bold">{formatCurrency(totalPotentialProfit)}</div>
+          <CardContent className="p-4 text-center">
+            <div className="text-muted-foreground text-sm font-medium">
+              Potential Profit
+            </div>
+            <div className="text-2xl font-bold">
+              {formatCurrency(totalPotentialProfit)}
+            </div>
           </CardContent>
         </Card>
       </div>
@@ -215,71 +239,93 @@ export function StockReportTable({ data }: StockReportTableProps) {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead 
-                    className="cursor-pointer hover:bg-muted/50"
+                  <TableHead
+                    className="hover:bg-muted/50 cursor-pointer"
                     onClick={() => handleSort("sku")}
                   >
-                    SKU {sortField === "sku" && (sortDirection === "asc" ? "↑" : "↓")}
+                    SKU{" "}
+                    {sortField === "sku" &&
+                      (sortDirection === "asc" ? "↑" : "↓")}
                   </TableHead>
-                  <TableHead 
-                    className="cursor-pointer hover:bg-muted/50"
+                  <TableHead
+                    className="hover:bg-muted/50 cursor-pointer"
                     onClick={() => handleSort("product_name")}
                   >
-                    Product {sortField === "product_name" && (sortDirection === "asc" ? "↑" : "↓")}
+                    Product{" "}
+                    {sortField === "product_name" &&
+                      (sortDirection === "asc" ? "↑" : "↓")}
                   </TableHead>
-                  <TableHead 
-                    className="cursor-pointer hover:bg-muted/50"
+                  <TableHead
+                    className="hover:bg-muted/50 cursor-pointer"
                     onClick={() => handleSort("variation")}
                   >
-                    Variation {sortField === "variation" && (sortDirection === "asc" ? "↑" : "↓")}
+                    Variation{" "}
+                    {sortField === "variation" &&
+                      (sortDirection === "asc" ? "↑" : "↓")}
                   </TableHead>
-                  <TableHead 
-                    className="cursor-pointer hover:bg-muted/50"
+                  <TableHead
+                    className="hover:bg-muted/50 cursor-pointer"
                     onClick={() => handleSort("category")}
                   >
-                    Category {sortField === "category" && (sortDirection === "asc" ? "↑" : "↓")}
+                    Category{" "}
+                    {sortField === "category" &&
+                      (sortDirection === "asc" ? "↑" : "↓")}
                   </TableHead>
-                  <TableHead 
-                    className="cursor-pointer hover:bg-muted/50"
+                  <TableHead
+                    className="hover:bg-muted/50 cursor-pointer"
                     onClick={() => handleSort("location")}
                   >
-                    Location {sortField === "location" && (sortDirection === "asc" ? "↑" : "↓")}
+                    Location{" "}
+                    {sortField === "location" &&
+                      (sortDirection === "asc" ? "↑" : "↓")}
                   </TableHead>
-                  <TableHead 
-                    className="cursor-pointer hover:bg-muted/50"
+                  <TableHead
+                    className="hover:bg-muted/50 cursor-pointer"
                     onClick={() => handleSort("unit_selling_price")}
                   >
-                    Unit Selling Price {sortField === "unit_selling_price" && (sortDirection === "asc" ? "↑" : "↓")}
+                    Unit Selling Price{" "}
+                    {sortField === "unit_selling_price" &&
+                      (sortDirection === "asc" ? "↑" : "↓")}
                   </TableHead>
-                  <TableHead 
-                    className="cursor-pointer hover:bg-muted/50"
+                  <TableHead
+                    className="hover:bg-muted/50 cursor-pointer"
                     onClick={() => handleSort("current_stock")}
                   >
-                    Current Stock {sortField === "current_stock" && (sortDirection === "asc" ? "↑" : "↓")}
+                    Current Stock{" "}
+                    {sortField === "current_stock" &&
+                      (sortDirection === "asc" ? "↑" : "↓")}
                   </TableHead>
-                  <TableHead 
-                    className="cursor-pointer hover:bg-muted/50"
+                  <TableHead
+                    className="hover:bg-muted/50 cursor-pointer"
                     onClick={() => handleSort("current_stock_value_purchase")}
                   >
-                    Stock Value (Purchase) {sortField === "current_stock_value_purchase" && (sortDirection === "asc" ? "↑" : "↓")}
+                    Stock Value (Purchase){" "}
+                    {sortField === "current_stock_value_purchase" &&
+                      (sortDirection === "asc" ? "↑" : "↓")}
                   </TableHead>
-                  <TableHead 
-                    className="cursor-pointer hover:bg-muted/50"
+                  <TableHead
+                    className="hover:bg-muted/50 cursor-pointer"
                     onClick={() => handleSort("current_stock_value_sale")}
                   >
-                    Stock Value (Sale) {sortField === "current_stock_value_sale" && (sortDirection === "asc" ? "↑" : "↓")}
+                    Stock Value (Sale){" "}
+                    {sortField === "current_stock_value_sale" &&
+                      (sortDirection === "asc" ? "↑" : "↓")}
                   </TableHead>
-                  <TableHead 
-                    className="cursor-pointer hover:bg-muted/50"
+                  <TableHead
+                    className="hover:bg-muted/50 cursor-pointer"
                     onClick={() => handleSort("potential_profit")}
                   >
-                    Potential Profit {sortField === "potential_profit" && (sortDirection === "asc" ? "↑" : "↓")}
+                    Potential Profit{" "}
+                    {sortField === "potential_profit" &&
+                      (sortDirection === "asc" ? "↑" : "↓")}
                   </TableHead>
-                  <TableHead 
-                    className="cursor-pointer hover:bg-muted/50"
+                  <TableHead
+                    className="hover:bg-muted/50 cursor-pointer"
                     onClick={() => handleSort("total_unit_sold")}
                   >
-                    Total Unit Sold {sortField === "total_unit_sold" && (sortDirection === "asc" ? "↑" : "↓")}
+                    Total Unit Sold{" "}
+                    {sortField === "total_unit_sold" &&
+                      (sortDirection === "asc" ? "↑" : "↓")}
                   </TableHead>
                 </TableRow>
               </TableHeader>
@@ -288,17 +334,39 @@ export function StockReportTable({ data }: StockReportTableProps) {
                   <TableRow key={item.id}>
                     <TableCell className="font-medium">{item.sku}</TableCell>
                     <TableCell>{item.product_name}</TableCell>
-                    <TableCell>{item.variation || "-"}</TableCell>
-                    <TableCell>{item.category}</TableCell>
-                    <TableCell>{item.location}</TableCell>
-                    <TableCell>{formatCurrency(item.unit_selling_price)}</TableCell>
-                    <TableCell>{item.current_stock} {item.unit}</TableCell>
-                    <TableCell>{formatCurrency(item.current_stock_value_purchase)}</TableCell>
-                    <TableCell>{formatCurrency(item.current_stock_value_sale)}</TableCell>
-                    <TableCell className={item.potential_profit >= 0 ? "text-green-600" : "text-red-600"}>
+                    <TableCell className="text-center">
+                      {item.variation || "-"}
+                    </TableCell>
+                    <TableCell className="text-center">
+                      {item.category}
+                    </TableCell>
+                    <TableCell className="text-center">
+                      {item.location}
+                    </TableCell>
+                    <TableCell className="text-center">
+                      {formatCurrency(item.unit_selling_price)}
+                    </TableCell>
+                    <TableCell className="text-center">
+                      {item.current_stock} {item.unit}
+                    </TableCell>
+                    <TableCell className="text-center">
+                      {formatCurrency(item.current_stock_value_purchase)}
+                    </TableCell>
+                    <TableCell className="text-center">
+                      {formatCurrency(item.current_stock_value_sale)}
+                    </TableCell>
+                    <TableCell
+                      className={`text-center ${
+                        item.potential_profit >= 0
+                          ? "text-green-600"
+                          : "text-red-600"
+                      }`}
+                    >
                       {formatCurrency(item.potential_profit)}
                     </TableCell>
-                    <TableCell>{item.total_unit_sold} {item.unit}</TableCell>
+                    <TableCell className="text-center">
+                      {item.total_unit_sold} {item.unit}
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>

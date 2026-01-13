@@ -20,8 +20,11 @@ import { formatCurrency } from "@/lib/utils";
 
 export const productColumns: ColumnDef<Product>[] = [
   {
-    accessorKey:"sku",
-    header:"SKU"
+    accessorKey: "sku",
+    header: () => <div className="px-3 text-left">SKU</div>,
+    cell: ({ row }) => (
+      <div className="px-3 text-left">{row.getValue("sku")}</div>
+    ),
   },
   {
     accessorKey: "product_name",
@@ -44,14 +47,20 @@ export const productColumns: ColumnDef<Product>[] = [
         </Button>
       );
     },
-    cell: ({ row }) =>  <div className="px-3">{row.getValue('product_name') as string}</div>,
+    cell: ({ row }) => (
+      <div className="px-3">{row.getValue("product_name") as string}</div>
+    ),
   },
   {
     accessorKey: "excTax",
-    header: "Purchase Price",
+    header: () => <div className="px-3 text-center">Purchase Price</div>,
     cell: ({ row }) => {
       const amount = row.getValue("excTax") as number;
-      return <div className="font-medium">{formatCurrency(amount)}</div>;
+      return (
+        <div className="px-3 text-center font-medium">
+          {formatCurrency(amount)}
+        </div>
+      );
     },
   },
   {
@@ -64,44 +73,54 @@ export const productColumns: ColumnDef<Product>[] = [
   },
   {
     accessorKey: "stock",
-    header: "Current Stock",
+    header: () => <div className="px-3 text-center">Current Stock</div>,
+    cell: ({ row }) => (
+      <div className="px-3 text-center">{row.getValue("stock")}</div>
+    ),
   },
   {
-    accessorKey:"tax",
-    header:"Tax",
-    cell: ({ row }) => <div>{row.getValue("tax")}%</div>
+    accessorKey: "tax",
+    header: "Tax",
+    cell: ({ row }) => <div>{row.getValue("tax")}%</div>,
   },
   {
     accessorKey: "brand",
     header: "Brand",
-    cell: ({row}) => {
-      const Brand = row.original.brand.name
+    cell: ({ row }) => {
+      const Brand = row.original.brand.name;
 
-       return (
-        <span className={`inline-flex items-center py-0.5 text-sm font-medium text-blue-500`}>
-            {Brand}
+      return (
+        <span
+          className={`items-left inline-flex py-0.5 text-sm font-medium text-blue-500`}
+        >
+          {Brand}
         </span>
-        );
-    }
+      );
+    },
   },
   {
     accessorKey: "category",
     header: "Category",
-    cell: ({row}) => {
-      const Category =  row.original.category.name
+    cell: ({ row }) => {
+      const Category = row.original.category.name;
 
       return (
-        <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-sm font-medium text-orange-500`}>
-            {Category}
+        <span
+          className={`items-left inline-flex rounded-full px-2.5 py-0.5 text-sm font-medium text-orange-500`}
+        >
+          {Category}
         </span>
-        );
-    }
+      );
+    },
   },
   {
     id: "actions",
-    header: "Actions",
-    cell: ({ row }) =>
-      row.original && <ProductActions product={row.original} />,
+    header: () => <div className="px-3 text-center">Actions</div>,
+    cell: ({ row }) => (
+      <div className="flex justify-center px-3">
+        <ProductActions product={row.original} />
+      </div>
+    ),
   },
 ];
 
@@ -132,7 +151,7 @@ export const ProductActions = ({ product }: { product: Product }) => {
         variant="ghost"
         size="sm"
         onClick={() => setOpenDelete(true)}
-        className="h-8 w-8 p-0 text-destructive hover:text-destructive"
+        className="text-destructive hover:text-destructive h-8 w-8 p-0"
       >
         <Trash2 className="h-4 w-4" />
       </Button>
@@ -153,4 +172,3 @@ export const ProductActions = ({ product }: { product: Product }) => {
     </div>
   );
 };
-

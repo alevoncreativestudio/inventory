@@ -41,7 +41,9 @@ export const supplierColumns: ColumnDef<Supplier>[] = [
         </Button>
       );
     },
-    cell: ({ row }) => <div className="px-3">{row.getValue("SupplierId") as string}</div>,
+    cell: ({ row }) => (
+      <div className="px-3">{row.getValue("SupplierId") as string}</div>
+    ),
   },
   {
     accessorKey: "name",
@@ -64,7 +66,9 @@ export const supplierColumns: ColumnDef<Supplier>[] = [
         </Button>
       );
     },
-    cell: ({ row }) => <div className="px-3">{row.getValue("name") as string}</div>,
+    cell: ({ row }) => (
+      <div className="px-3">{row.getValue("name") as string}</div>
+    ),
   },
   {
     accessorKey: "email",
@@ -73,7 +77,7 @@ export const supplierColumns: ColumnDef<Supplier>[] = [
   },
   {
     accessorKey: "phone",
-    header: "Phone",
+    header: () => <div className="px-3 text-center">Phone</div>,
     cell: ({ row }) => <div>{row.getValue("phone")}</div>,
   },
   {
@@ -85,29 +89,35 @@ export const supplierColumns: ColumnDef<Supplier>[] = [
     accessorKey: "openingBalance",
     header: "Opening Bal",
     cell: ({ row }) => {
-          const amount = row.getValue("openingBalance") as number;
-          return <div className="font-medium">{formatCurrency(amount)}</div>;
-        },
+      const amount = row.getValue("openingBalance") as number;
+      return (
+        <div className="text-center font-medium">{formatCurrency(amount)}</div>
+      );
+    },
   },
   {
     accessorKey: "purchaseDue",
     header: "Purchase Due",
     cell: ({ row }) => {
-          const amount = row.getValue("purchaseDue") as number;
-          return <div className="font-medium">{formatCurrency(amount)}</div>;
-        }
+      const amount = row.getValue("purchaseDue") as number;
+      return (
+        <div className="text-center font-medium">{formatCurrency(amount)}</div>
+      );
+    },
   },
   {
     accessorKey: "purchaseReturnDue",
     header: "Purchase Return Due",
     cell: ({ row }) => {
-          const amount = row.getValue("purchaseReturnDue") as number;
-          return <div className="font-medium">{formatCurrency(amount)}</div>;
-        },
+      const amount = row.getValue("purchaseReturnDue") as number;
+      return (
+        <div className="text-center font-medium">{formatCurrency(amount)}</div>
+      );
+    },
   },
   {
     id: "actions",
-    header: "Actions",
+    header: () => <div className="text-center">Actions</div>,
     cell: ({ row }) =>
       row.original && <SupplierActions supplier={row.original} />,
   },
@@ -116,8 +126,8 @@ export const supplierColumns: ColumnDef<Supplier>[] = [
 export const SupplierActions = ({ supplier }: { supplier: Supplier }) => {
   const [openDelete, setOpenDelete] = useState(false);
   const [openEdit, setOpenEdit] = useState(false);
-  const [openPay,setOpenPay] = useState(false);
-  const [openPayment,setOpenPayment] = useState(false);
+  const [openPay, setOpenPay] = useState(false);
+  const [openPayment, setOpenPayment] = useState(false);
 
   return (
     <div className="flex items-center gap-2">
@@ -149,7 +159,7 @@ export const SupplierActions = ({ supplier }: { supplier: Supplier }) => {
         variant="ghost"
         size="sm"
         onClick={() => setOpenDelete(true)}
-        className="h-8 w-8 p-0 text-destructive hover:text-destructive"
+        className="text-destructive hover:text-destructive h-8 w-8 p-0"
       >
         <Trash2 className="h-4 w-4" />
       </Button>
@@ -160,7 +170,7 @@ export const SupplierActions = ({ supplier }: { supplier: Supplier }) => {
         supplier={supplier}
       />
 
-      <SupplierPayDialog 
+      <SupplierPayDialog
         supplier={supplier}
         open={openPay}
         setOpen={setOpenPay}
