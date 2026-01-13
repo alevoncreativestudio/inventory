@@ -337,20 +337,14 @@ export const SalesFormSheet = ({ sales, open, openChange }: SaleFormProps) => {
                                 const sellingPrice = p.sellingPrice;
                                 const taxRate = Number(p.tax) || 0;
                                 const taxType = p.sellingPriceTaxType || "exclusive";
-                                
+
                                 let excTax: number;
                                 let incTax: number;
-                                
-                                if (taxType === "inclusive") {
-                                  // Selling price already includes tax
-                                  incTax = sellingPrice;
-                                  excTax = sellingPrice / (1 + taxRate);
-                                } else {
-                                  // Selling price is exclusive of tax
-                                  excTax = sellingPrice;
-                                  incTax = sellingPrice + (sellingPrice * taxRate);
-                                }
-                                
+
+                                // Always treat selling price as inclusive of tax for the final calculation
+                                incTax = sellingPrice;
+                                excTax = sellingPrice / (1 + taxRate);
+
                                 append({
                                   productId: p.id,
                                   quantity: 1,
