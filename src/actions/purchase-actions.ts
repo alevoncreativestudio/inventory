@@ -162,37 +162,65 @@ export const createPurchase = actionClient
 
 
 // ✅ GET ALL PURCHASES
-export const getPurchaseList = actionClient.action(async () => {
-  try {
-    const session = await auth.api.getSession({
-      headers: await headers()
-    });
+export const getPurchaseList = actionClient
+  .inputSchema(
+    z.object({
+      page: z.number().default(1),
+      limit: z.number().default(10),
+    })
+  )
+  .action(async (values) => {
+    try {
+      const { page, limit } = values.parsedInput;
+      const skip = (page - 1) * limit;
 
-    const role = session?.user?.role
-    const branchId = session?.user?.branch
+      const session = await auth.api.getSession({
+        headers: await headers()
+      });
 
-    const whereClause = role === "admin" ? {} : { branchId }
+      const role = session?.user?.role
+      const branchId = session?.user?.branch
 
-    const purchases = await prisma.purchase.findMany({
-      where: whereClause,
-      orderBy: { purchaseDate: "desc" },
-      include: {
-        supplier: true,
-        items: {
+      const whereClause = role === "admin" ? {} : { branchId }
+
+      const [purchases, totalCount] = await Promise.all([
+        prisma.purchase.findMany({
+          where: whereClause,
+          orderBy: { purchaseDate: "desc" },
+          take: limit,
+          skip: skip,
           include: {
-            product: true
-          }
+            supplier: true,
+            items: {
+              include: {
+                product: true
+              }
+            },
+            payments: true,
+            branch: true
+          },
+        }),
+        prisma.purchase.count({ where: whereClause }),
+      ]);
+
+      const totalPages = Math.ceil(totalCount / limit);
+
+      return {
+        purchases,
+        metadata: {
+          totalPages,
+          totalCount,
+          currentPage: page,
+          hasNextPage: page < totalPages,
+          hasPrevPage: page > 1,
         },
-        payments: true,
-        branch: true
-      },
-    });
-    return { purchases };
-  } catch (error) {
-    console.error("Get Purchase List Error:", error);
-    return { error: "Something went wrong" };
-  }
-});
+      };
+
+    } catch (error) {
+      console.error("Get Purchase List Error:", error);
+      return { error: "Something went wrong" };
+    }
+  });
 
 // ✅ GET PURCHASE BY ID
 export const getPurchaseById = actionClient

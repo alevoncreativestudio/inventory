@@ -39,10 +39,21 @@ import {
 
 import { Search } from "lucide-react";
 import { useState } from "react";
-import { PurchaseTableProps } from "@/types/purchase";
+import { PurchaseTableProps as PurchaseTablePropsType } from "@/types/purchase";
+import { PaginationControls } from "../ui/pagination-controls";
 import { formatCurrency } from "@/lib/utils";
 
-export function PurchaseTable<TValue>({ columns, data }: PurchaseTableProps<TValue>) {
+interface PurchaseTableProps<TData> extends PurchaseTablePropsType<TData> {
+  metadata: {
+    totalPages: number;
+    totalCount: number;
+    currentPage: number;
+    hasNextPage: boolean;
+    hasPrevPage: boolean;
+  };
+}
+
+export function PurchaseTable<TValue>({ columns, data, metadata }: PurchaseTableProps<TValue>) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [globalFilter, setGlobalFilter] = useState("");
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
@@ -62,20 +73,22 @@ export function PurchaseTable<TValue>({ columns, data }: PurchaseTableProps<TVal
       columnFilters,
     },
     globalFilterFn: (row, _columnId, filterValue) => {
-      const refNo = row.getValue("referenceNo") as string;
+      const invoiceNo = row.getValue("invoiceNo") as string;
       const supplier = row.original?.supplier?.name || "";
       const filter = String(filterValue || "").toLowerCase();
       return (
-        refNo?.toLowerCase().includes(filter) ||
+        invoiceNo?.toLowerCase().includes(filter) ||
         supplier?.toLowerCase().includes(filter)
       );
     },
+    manualPagination: true,
+    pageCount: metadata.totalPages,
   });
 
 
   const totalPurchaseAmount = data.reduce((acc, row) => acc + (row?.totalAmount ?? 0), 0);
 
-  const totalDueAmount = data.reduce((acc,row) => acc+ (row?.dueAmount ?? 0),0)
+  const totalDueAmount = data.reduce((acc, row) => acc + (row?.dueAmount ?? 0), 0)
 
   return (
     <div className="flex flex-col gap-5">
@@ -115,24 +128,24 @@ export function PurchaseTable<TValue>({ columns, data }: PurchaseTableProps<TVal
             />
           </div>
           <Select
-                onValueChange={(value) =>
-                  table.setColumnFilters((prev) => [
-                    ...prev.filter((f) => f.id !== "status"),
-                    { id: "status", value: value === "all" ? undefined : value },
-                  ])
-                }
-                defaultValue="all"
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select Purchase Status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All</SelectItem>
-                  <SelectItem value="Received">Received</SelectItem>
-                  <SelectItem value="Pending">Pending</SelectItem>
-                  <SelectItem value="Cancelled">Cancelled</SelectItem>
-                </SelectContent>
-              </Select>
+            onValueChange={(value) =>
+              table.setColumnFilters((prev) => [
+                ...prev.filter((f) => f.id !== "status"),
+                { id: "status", value: value === "all" ? undefined : value },
+              ])
+            }
+            defaultValue="all"
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Select Purchase Status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All</SelectItem>
+              <SelectItem value="Received">Received</SelectItem>
+              <SelectItem value="Pending">Pending</SelectItem>
+              <SelectItem value="Cancelled">Cancelled</SelectItem>
+            </SelectContent>
+          </Select>
         </CardHeader>
 
         <CardContent>
@@ -142,7 +155,7 @@ export function PurchaseTable<TValue>({ columns, data }: PurchaseTableProps<TVal
                 <TableRow key={headerGroup.id}>
                   {headerGroup.headers.map((header) => (
                     <TableHead key={header.id}
-                    className="bg-primary text-primary-foreground">
+                      className="bg-primary text-primary-foreground">
                       {header.isPlaceholder
                         ? null
                         : flexRender(header.column.columnDef.header, header.getContext())}
@@ -176,12 +189,18 @@ export function PurchaseTable<TValue>({ columns, data }: PurchaseTableProps<TVal
               <TableRow>
                 <TableCell colSpan={5} />
                 <TableCell className="text-center border-r-2">Total:</TableCell>
-                <TableCell  className="border-r-2">{formatCurrency(totalDueAmount)}</TableCell>
+                <TableCell className="border-r-2">{formatCurrency(totalDueAmount)}</TableCell>
                 <TableCell colSpan={2} className="border-r-2">{formatCurrency(totalPurchaseAmount)}</TableCell>
               </TableRow>
             </TableFooter>
           </Table>
         </CardContent>
+        <PaginationControls
+          totalPages={metadata.totalPages}
+          hasNextPage={metadata.hasNextPage}
+          hasPrevPage={metadata.hasPrevPage}
+          totalCount={metadata.totalCount}
+        />
       </Card>
     </div>
   );

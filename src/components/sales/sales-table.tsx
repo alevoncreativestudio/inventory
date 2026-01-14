@@ -42,7 +42,19 @@ import { Search } from "lucide-react";
 import { useState } from "react";
 import { formatCurrency } from "@/lib/utils";
 
-export function SalesTable<TValue>({ columns, data }: SaleTableProps<TValue>) {
+import { PaginationControls } from "../ui/pagination-controls";
+
+interface SalesTableProps<TData> extends SaleTableProps<TData> {
+  metadata: {
+    totalPages: number;
+    totalCount: number;
+    currentPage: number;
+    hasNextPage: boolean;
+    hasPrevPage: boolean;
+  };
+}
+
+export function SalesTable<TValue>({ columns, data, metadata }: SalesTableProps<TValue>) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [globalFilter, setGlobalFilter] = useState("");
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
@@ -70,12 +82,14 @@ export function SalesTable<TValue>({ columns, data }: SaleTableProps<TValue>) {
         customer?.toLowerCase().includes(filter)
       );
     },
+    manualPagination: true,
+    pageCount: metadata.totalPages,
   });
 
 
   const totalPurchaseAmount = data.reduce((acc, row) => acc + (row?.grandTotal ?? 0), 0);
-  const totalDueAmount = data.reduce((acc,row) => acc+ (row?.dueAmount ?? 0),0)
-  const totalPaidAmount = data.reduce((acc,row) => acc+ (row?.paidAmount ?? 0),0)
+  const totalDueAmount = data.reduce((acc, row) => acc + (row?.dueAmount ?? 0), 0)
+  const totalPaidAmount = data.reduce((acc, row) => acc + (row?.paidAmount ?? 0), 0)
 
   return (
     <div className="flex flex-col gap-5">
@@ -146,13 +160,13 @@ export function SalesTable<TValue>({ columns, data }: SaleTableProps<TValue>) {
                 <TableRow key={headerGroup.id}>
                   {headerGroup.headers.map((header) => (
                     <TableHead key={header.id}
-                    className="bg-primary text-primary-foreground">
+                      className="bg-primary text-primary-foreground">
                       {header.isPlaceholder
                         ? null
                         : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
+                          header.column.columnDef.header,
+                          header.getContext()
+                        )}
                     </TableHead>
                   ))}
                 </TableRow>
@@ -187,8 +201,8 @@ export function SalesTable<TValue>({ columns, data }: SaleTableProps<TValue>) {
 
             <TableFooter className="bg-muted/50 text-sm font-medium border-t">
               <TableRow>
-                <TableCell colSpan={6}/>
-                <TableCell  className="text-center border-r-2">Total:</TableCell>
+                <TableCell colSpan={6} />
+                <TableCell className="text-center border-r-2">Total:</TableCell>
                 <TableCell className="border-r-2">{formatCurrency(totalPaidAmount)}</TableCell>
                 <TableCell className="border-r-2">{formatCurrency(totalDueAmount)}</TableCell>
                 <TableCell colSpan={2} className="border-r-2">{formatCurrency(totalPurchaseAmount)}</TableCell>
@@ -196,6 +210,12 @@ export function SalesTable<TValue>({ columns, data }: SaleTableProps<TValue>) {
             </TableFooter>
           </Table>
         </CardContent>
+        <PaginationControls
+          totalPages={metadata.totalPages}
+          hasNextPage={metadata.hasNextPage}
+          hasPrevPage={metadata.hasPrevPage}
+          totalCount={metadata.totalCount}
+        />
       </Card>
     </div>
   );

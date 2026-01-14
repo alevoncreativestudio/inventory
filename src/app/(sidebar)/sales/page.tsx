@@ -7,8 +7,16 @@ import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import Link from "next/link";
 
-export default async function SalesPage() {
-  const { data } = await getSalesList();
+interface SalesPageProps {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}
+
+export default async function SalesPage({ searchParams }: SalesPageProps) {
+  const params = await searchParams;
+  const page = typeof params.page === "string" ? Number(params.page) : 1;
+  const limit = typeof params.limit === "string" ? Number(params.limit) : 10;
+
+  const { data } = await getSalesList({ page, limit });
 
   return (
     <div className="flex flex-1 flex-col">
@@ -27,7 +35,19 @@ export default async function SalesPage() {
             </Link>
           </div>
 
-          <SalesTable columns={salesColumns} data={(data?.sales ?? []) as any} />
+          <SalesTable
+            columns={salesColumns}
+            data={(data?.sales ?? []) as any}
+            metadata={
+              data?.metadata ?? {
+                totalPages: 0,
+                totalCount: 0,
+                currentPage: 1,
+                hasNextPage: false,
+                hasPrevPage: false,
+              }
+            }
+          />
         </div>
       </div>
     </div>
