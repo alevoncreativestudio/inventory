@@ -51,9 +51,14 @@ interface PurchaseTableProps<TData> extends PurchaseTablePropsType<TData> {
     hasNextPage: boolean;
     hasPrevPage: boolean;
   };
+  totals: {
+    totalAmount: number;
+    dueAmount: number;
+    paidAmount: number;
+  };
 }
 
-export function PurchaseTable<TValue>({ columns, data, metadata }: PurchaseTableProps<TValue>) {
+export function PurchaseTable<TValue>({ columns, data, metadata, totals }: PurchaseTableProps<TValue>) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [globalFilter, setGlobalFilter] = useState("");
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
@@ -188,9 +193,15 @@ export function PurchaseTable<TValue>({ columns, data, metadata }: PurchaseTable
             <TableFooter className="bg-muted/50 text-sm font-medium border-t">
               <TableRow>
                 <TableCell colSpan={5} />
-                <TableCell className="text-center border-r-2">Total:</TableCell>
+                <TableCell className="text-center border-r-2">Page Total:</TableCell>
                 <TableCell className="border-r-2">{formatCurrency(totalDueAmount)}</TableCell>
                 <TableCell colSpan={2} className="border-r-2">{formatCurrency(totalPurchaseAmount)}</TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell colSpan={5} />
+                <TableCell className="text-center border-r-2">Grand Total:</TableCell>
+                <TableCell className="border-r-2">{formatCurrency(totals?.dueAmount ?? 0)}</TableCell>
+                <TableCell colSpan={2} className="border-r-2">{formatCurrency(totals?.totalAmount ?? 0)}</TableCell>
               </TableRow>
             </TableFooter>
           </Table>

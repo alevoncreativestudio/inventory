@@ -183,7 +183,7 @@ export const getPurchaseList = actionClient
 
       const whereClause = role === "admin" ? {} : { branchId }
 
-      const [purchases, totalCount] = await Promise.all([
+      const [purchases, totalCount, totals] = await Promise.all([
         prisma.purchase.findMany({
           where: whereClause,
           orderBy: { purchaseDate: "desc" },
@@ -201,6 +201,14 @@ export const getPurchaseList = actionClient
           },
         }),
         prisma.purchase.count({ where: whereClause }),
+        prisma.purchase.aggregate({
+          where: whereClause,
+          _sum: {
+            totalAmount: true,
+            dueAmount: true,
+            paidAmount: true,
+          },
+        }),
       ]);
 
       const totalPages = Math.ceil(totalCount / limit);
@@ -214,6 +222,11 @@ export const getPurchaseList = actionClient
           hasNextPage: page < totalPages,
           hasPrevPage: page > 1,
         },
+        totals: {
+          totalAmount: totals._sum.totalAmount || 0,
+          dueAmount: totals._sum.dueAmount || 0,
+          paidAmount: totals._sum.paidAmount || 0,
+        }
       };
 
     } catch (error) {

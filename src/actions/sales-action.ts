@@ -130,7 +130,7 @@ export const getSalesList = actionClient
 
       const whereClause = role === "admin" ? {} : { branchId };
 
-      const [sales, totalCount] = await Promise.all([
+      const [sales, totalCount, totals] = await Promise.all([
         prisma.sale.findMany({
           where: whereClause,
           orderBy: { salesdate: "desc" },
@@ -148,6 +148,14 @@ export const getSalesList = actionClient
           },
         }),
         prisma.sale.count({ where: whereClause }),
+        prisma.sale.aggregate({
+          where: whereClause,
+          _sum: {
+            grandTotal: true,
+            dueAmount: true,
+            paidAmount: true,
+          },
+        }),
       ]);
 
       const totalPages = Math.ceil(totalCount / limit);
@@ -161,6 +169,11 @@ export const getSalesList = actionClient
           hasNextPage: page < totalPages,
           hasPrevPage: page > 1,
         },
+        totals: {
+          grandTotal: totals._sum.grandTotal || 0,
+          dueAmount: totals._sum.dueAmount || 0,
+          paidAmount: totals._sum.paidAmount || 0,
+        }
       };
     } catch (error) {
       console.error("Get Sales List Error:", error);

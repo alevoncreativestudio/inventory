@@ -47,6 +47,7 @@ export default async function SalesPage({ searchParams }: SalesPageProps) {
                 hasPrevPage: false,
               }
             }
+            totals={data?.totals ?? { grandTotal: 0, dueAmount: 0, paidAmount: 0 }}
           />
         </div>
       </div>

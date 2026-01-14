@@ -46,6 +46,7 @@ export default async function ProductPage({ searchParams }: ProductPageProps) {
                 hasPrevPage: false,
               }
             }
+            totals={data?.totals ?? { totalAmount: 0, dueAmount: 0, paidAmount: 0 }}
           />
 
         </div>
