@@ -58,7 +58,12 @@ export const SalesFormPage = () => {
       paidAmount: 0,
       salesdate: new Date(),
       items: [],
-      salesPayment: [],
+      salesPayment: [{
+        amount: 0,
+        paidOn: new Date(),
+        paymentMethod: "cash",
+        paymentNote: "",
+      }],
     }
   });
 
@@ -322,10 +327,10 @@ export const SalesFormPage = () => {
                               const sellingPrice = p.sellingPrice;
                               const taxRate = Number(p.tax) || 0;
                               const taxType = p.sellingPriceTaxType || "exclusive";
-                              
+
                               let excTax: number;
                               let incTax: number;
-                              
+
                               if (taxType === "inclusive") {
                                 // Selling price already includes tax
                                 incTax = sellingPrice;
@@ -335,7 +340,7 @@ export const SalesFormPage = () => {
                                 excTax = sellingPrice;
                                 incTax = sellingPrice + (sellingPrice * taxRate);
                               }
-                              
+
                               append({
                                 productId: p.id,
                                 quantity: 1,

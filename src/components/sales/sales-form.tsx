@@ -513,7 +513,7 @@ export const SalesFormSheet = ({ sales, open, openChange }: SaleFormProps) => {
                   name="salesPayment.0.paidOn"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Paid On</FormLabel>
+                      <FormLabel>Payment Date</FormLabel>
                       <Popover>
                         <PopoverTrigger asChild>
                           <FormControl>
