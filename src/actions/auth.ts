@@ -4,7 +4,7 @@
 import { actionClient } from '@/lib/safeAction';
 import { auth } from '@/lib/auth';
 import { returnValidationErrors } from 'next-safe-action';
-import {prisma} from '@/lib/prisma';
+import { prisma } from '@/lib/prisma';
 // import { redirect } from 'next/navigation';
 import { cookies } from 'next/headers';
 import { loginSchema, userFormSchema } from '@/schemas/user-schema';
@@ -14,8 +14,8 @@ import { z } from 'zod';
 export const createUserAction = actionClient
   .inputSchema(userFormSchema)
   .action(async ({ parsedInput: { name, email, password, role, branch } }) => {
-    console.log(name,email,branch,password,role);
-    
+    console.log(name, email, branch, password, role);
+
     const { user } = await auth.api.createUser({
       body: {
         name,
@@ -42,35 +42,35 @@ export const createUserAction = actionClient
   });
 
 //UPDATE USER
-  // export const updateUserAction = actionClient
-  // .inputSchema(userFormSchema)
-  // .action(async ({ parsedInput: { name, email, password, role, branch } }) => {
-  //   console.log(name,email,branch,password,role);
-    
-  //   const { user } = await auth.api.createUser({
-  //     body: {
-  //       name,
-  //       email,
-  //       password,
-  //       role: role as 'admin' | 'user',
-  //       data: {
-  //         branch,
-  //       },
-  //     },
-  //   });
+// export const updateUserAction = actionClient
+// .inputSchema(userFormSchema)
+// .action(async ({ parsedInput: { name, email, password, role, branch } }) => {
+//   console.log(name,email,branch,password,role);
 
-  //   if (!user) {
-  //     return returnValidationErrors(userFormSchema, {
-  //       _errors: ['Failed to create user'],
-  //     });
-  //   }
+//   const { user } = await auth.api.createUser({
+//     body: {
+//       name,
+//       email,
+//       password,
+//       role: role as 'admin' | 'user',
+//       data: {
+//         branch,
+//       },
+//     },
+//   });
 
-  //   return {
-  //     success: true,
-  //     message: 'User created successfully',
-  //     user,
-  //   };
-  // });
+//   if (!user) {
+//     return returnValidationErrors(userFormSchema, {
+//       _errors: ['Failed to create user'],
+//     });
+//   }
+
+//   return {
+//     success: true,
+//     message: 'User created successfully',
+//     user,
+//   };
+// });
 
 // Update user branch action
 export const updateUserBranchAction = actionClient
@@ -111,7 +111,7 @@ export const loginAction = actionClient
           email,
           password,
         },
-      });      
+      });
 
       if (!signInResult.user) {
         return returnValidationErrors(loginSchema, {
@@ -147,10 +147,18 @@ export const logoutAction = actionClient.action(async () => {
   // redirect('/login');
 });
 
-export const getAllUsers = async () =>
-  await prisma.user.findMany({
-    orderBy: { createdAt: 'desc' },
-  });
+export const getAllUsers = async (skip?: number, take?: number) => {
+  const [users, totalCount] = await Promise.all([
+    prisma.user.findMany({
+      skip,
+      take,
+      orderBy: { createdAt: "desc" },
+    }),
+    prisma.user.count(),
+  ]);
+
+  return { users, totalCount };
+};
 
 export const getAllRoles = async () =>
   await prisma.role.findMany({
@@ -159,6 +167,6 @@ export const getAllRoles = async () =>
 
 export const getAllBranches = async () =>
   await prisma.branch.findMany({
-    select:{id:true,name:true,phone:true,email:true,createdAt:true,updatedAt:true},
+    select: { id: true, name: true, phone: true, email: true, createdAt: true, updatedAt: true },
     orderBy: { createdAt: 'desc' },
   });

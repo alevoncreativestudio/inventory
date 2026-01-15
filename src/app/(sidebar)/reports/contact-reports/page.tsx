@@ -12,43 +12,72 @@ import { prisma } from "@/lib/prisma";
 import { formatCurrency } from "@/lib/utils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { PaginationControls } from "@/components/ui/pagination-controls";
 
-export default async function ContactReportPage() {
-  const supplierReports = await prisma.supplier.findMany({
-    include: {
-      purchase: {
-        select: { totalAmount: true, dueAmount: true, paidAmount: true },
+interface ContactReportPageProps {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}
+
+export default async function ContactReportPage({
+  searchParams,
+}: ContactReportPageProps) {
+  const resolvedSearchParams = await searchParams;
+  const page = Number(resolvedSearchParams?.page) || 1;
+  const limit = Number(resolvedSearchParams?.limit) || 10;
+  const skip = (page - 1) * limit;
+
+  // Suppliers Data
+  const [supplierReports, totalSuppliers] = await Promise.all([
+    prisma.supplier.findMany({
+      skip,
+      take: limit,
+      include: {
+        purchase: {
+          select: { totalAmount: true, dueAmount: true, paidAmount: true },
+        },
+        purchaseReturn: { select: { totalAmount: true } },
+        BalancePayment: { select: { amount: true } },
       },
-      purchaseReturn: { select: { totalAmount: true } },
-      BalancePayment: { select: { amount: true } },
-    },
-  });
+      orderBy: { id: "asc" },
+    }),
+    prisma.supplier.count(),
+  ]);
 
-  const customerReports = await prisma.customer.findMany({
-    include: {
-      sale: { select: { grandTotal: true, dueAmount: true, paidAmount: true } },
-      salesReturn: { select: { grandTotal: true } },
-      BalancePayment: { select: { amount: true } },
-    },
-  });
+  // Customers Data
+  const [customerReports, totalCustomers] = await Promise.all([
+    prisma.customer.findMany({
+      skip,
+      take: limit,
+      include: {
+        sale: {
+          select: { grandTotal: true, dueAmount: true, paidAmount: true },
+        },
+        salesReturn: { select: { grandTotal: true } },
+        BalancePayment: { select: { amount: true } },
+      },
+      orderBy: { id: "asc" },
+    }),
+    prisma.customer.count(),
+  ]);
 
+  // Process Suppliers
   const suppliers = supplierReports.map((supplier) => {
     const totalPurchases = supplier.purchase.reduce(
       (acc, p) => acc + p.totalAmount,
-      0,
+      0
     );
     const totalPurchaseReturns = supplier.purchaseReturn.reduce(
       (acc, r) => acc + r.totalAmount,
-      0,
+      0
     );
     const openingBalance = supplier.openingBalance;
     const totalPaidAmount = supplier.purchase.reduce(
       (acc, p) => acc + p.paidAmount,
-      0,
+      0
     );
     const dueAmount = supplier.purchase.reduce(
       (acc, d) => acc + d.dueAmount,
-      0,
+      0
     );
     return {
       id: supplier.id,
@@ -62,16 +91,17 @@ export default async function ContactReportPage() {
     };
   });
 
+  // Process Customers
   const customers = customerReports.map((customer) => {
     const totalSales = customer.sale.reduce((acc, s) => acc + s.grandTotal, 0);
     const totalSalesReturns = customer.salesReturn.reduce(
       (acc, r) => acc + r.grandTotal,
-      0,
+      0
     );
     const openingBalance = customer.openingBalance;
     const totalPaidAmount = customer.sale.reduce(
       (acc, p) => acc + p.paidAmount,
-      0,
+      0
     );
     const dueAmount = customer.sale.reduce((acc, d) => acc + d.dueAmount, 0);
 
@@ -86,6 +116,86 @@ export default async function ContactReportPage() {
       balance: dueAmount,
     };
   });
+
+  // Calculate Grand Totals (Aggregates for ALL pages)
+  const [
+    customerTotals,
+    customerReturnTotal,
+    customerOpeningTotal,
+    supplierTotals,
+    supplierReturnTotal,
+    supplierOpeningTotal,
+  ] = await Promise.all([
+    prisma.sale.aggregate({
+      _sum: {
+        grandTotal: true,
+        paidAmount: true,
+        dueAmount: true,
+      },
+    }),
+    prisma.salesReturn.aggregate({
+      _sum: {
+        grandTotal: true,
+      },
+    }),
+    prisma.customer.aggregate({
+      _sum: {
+        openingBalance: true,
+      },
+    }),
+    prisma.purchase.aggregate({
+      _sum: {
+        totalAmount: true, // totalPurchases
+        paidAmount: true,
+        dueAmount: true,
+      },
+    }),
+    prisma.purchaseReturn.aggregate({
+      _sum: {
+        totalAmount: true,
+      },
+    }),
+    prisma.supplier.aggregate({
+      _sum: {
+        openingBalance: true,
+      },
+    }),
+  ]);
+
+  const customerGrandTotals = {
+    sales: customerTotals._sum.grandTotal || 0,
+    paid: customerTotals._sum.paidAmount || 0,
+    returns: customerReturnTotal._sum.grandTotal || 0,
+    opening: customerOpeningTotal._sum.openingBalance || 0,
+    balance: customerTotals._sum.dueAmount || 0, // Assuming balance logic matches
+  };
+
+  const supplierGrandTotals = {
+    purchases: supplierTotals._sum.totalAmount || 0,
+    paid: supplierTotals._sum.paidAmount || 0,
+    returns: supplierReturnTotal._sum.totalAmount || 0,
+    opening: supplierOpeningTotal._sum.openingBalance || 0,
+    balance: supplierTotals._sum.dueAmount || 0,
+  };
+
+  // Pagination Controls logic (using the larger of the two counts or specific checks? 
+  // Users sees two tabs. Pagination controls usually apply to the view.
+  // But here we share the URL param.
+  // We'll pass independent props but we only have one set of query params.
+  // So we show controls.
+
+  // It's cleaner to show controls inside each tab content or below tabs?
+  // If we show below tabs, it refers to both? using max pages?
+  // Let's allow Next/Prev to work for both.
+
+  const maxTotalCount = Math.max(totalCustomers, totalSuppliers);
+  const totalPages = Math.ceil(maxTotalCount / limit);
+  // This is a bit ambiguous if one has 100 pages and other has 2.
+  // But common simple implementation.
+  // Better: separate controls in each tab.
+
+  const customerTotalPages = Math.ceil(totalCustomers / limit);
+  const supplierTotalPages = Math.ceil(totalSuppliers / limit);
 
   return (
     <div>
@@ -162,39 +272,29 @@ export default async function ContactReportPage() {
                       Grand Total
                     </TableCell>
                     <TableCell className="text-center font-bold">
-                      {formatCurrency(
-                        customers.reduce((sum, r) => sum + r.totalSales, 0),
-                      )}
+                      {formatCurrency(customerGrandTotals.sales)}
                     </TableCell>
                     <TableCell className="text-center font-bold">
-                      {formatCurrency(
-                        customers.reduce(
-                          (sum, r) => sum + r.totalPaidAmount,
-                          0,
-                        ),
-                      )}
+                      {formatCurrency(customerGrandTotals.paid)}
                     </TableCell>
                     <TableCell className="text-center font-bold">
-                      {formatCurrency(
-                        customers.reduce(
-                          (sum, r) => sum + r.totalSalesReturns,
-                          0,
-                        ),
-                      )}
+                      {formatCurrency(customerGrandTotals.returns)}
                     </TableCell>
                     <TableCell className="text-center font-bold">
-                      {formatCurrency(
-                        customers.reduce((sum, r) => sum + r.openingBalance, 0),
-                      )}
+                      {formatCurrency(customerGrandTotals.opening)}
                     </TableCell>
                     <TableCell className="text-center font-bold">
-                      {formatCurrency(
-                        customers.reduce((sum, r) => sum + r.balance, 0),
-                      )}
+                      {formatCurrency(customerGrandTotals.balance)}
                     </TableCell>
                   </TableRow>
                 </TableFooter>
               </Table>
+              <PaginationControls
+                totalPages={customerTotalPages}
+                hasNextPage={page < customerTotalPages}
+                hasPrevPage={page > 1}
+                totalCount={totalCustomers}
+              />
             </CardContent>
           </Card>
         </TabsContent>
@@ -262,39 +362,29 @@ export default async function ContactReportPage() {
                       Grand Total
                     </TableCell>
                     <TableCell className="text-center font-bold">
-                      {formatCurrency(
-                        suppliers.reduce((sum, r) => sum + r.totalPurchases, 0),
-                      )}
+                      {formatCurrency(supplierGrandTotals.purchases)}
                     </TableCell>
                     <TableCell className="text-center font-bold">
-                      {formatCurrency(
-                        suppliers.reduce(
-                          (sum, r) => sum + r.totalPaidAmount,
-                          0,
-                        ),
-                      )}
+                      {formatCurrency(supplierGrandTotals.paid)}
                     </TableCell>
                     <TableCell className="text-center font-bold">
-                      {formatCurrency(
-                        suppliers.reduce(
-                          (sum, r) => sum + r.totalPurchaseReturns,
-                          0,
-                        ),
-                      )}
+                      {formatCurrency(supplierGrandTotals.returns)}
                     </TableCell>
                     <TableCell className="text-center font-bold">
-                      {formatCurrency(
-                        suppliers.reduce((sum, r) => sum + r.openingBalance, 0),
-                      )}
+                      {formatCurrency(supplierGrandTotals.opening)}
                     </TableCell>
                     <TableCell className="text-center font-bold">
-                      {formatCurrency(
-                        suppliers.reduce((sum, r) => sum + r.balance, 0),
-                      )}
+                      {formatCurrency(supplierGrandTotals.balance)}
                     </TableCell>
                   </TableRow>
                 </TableFooter>
               </Table>
+              <PaginationControls
+                totalPages={supplierTotalPages}
+                hasNextPage={page < supplierTotalPages}
+                hasPrevPage={page > 1}
+                totalCount={totalSuppliers}
+              />
             </CardContent>
           </Card>
         </TabsContent>

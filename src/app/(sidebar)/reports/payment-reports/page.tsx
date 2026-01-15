@@ -12,8 +12,21 @@ import { formatCurrency } from "@/lib/utils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { format } from "date-fns";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { PaginationControls } from "@/components/ui/pagination-controls";
 
-export default async function PaymentReportPage() {
+interface PaymentReportPageProps {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}
+
+export default async function PaymentReportPage({
+  searchParams,
+}: PaymentReportPageProps) {
+  const resolvedSearchParams = await searchParams;
+  const page = Number(resolvedSearchParams?.page) || 1;
+  const limit = Number(resolvedSearchParams?.limit) || 10;
+  const startIndex = (page - 1) * limit;
+  const endIndex = startIndex + limit;
+
   const [salesPayments, purchasePayments, balancePayments] = await Promise.all([
     prisma.salesPayment.findMany({
       include: {
@@ -33,7 +46,7 @@ export default async function PaymentReportPage() {
     }),
   ]);
 
-  const combinedSalesPayments = [
+  const allSalesPayments = [
     ...salesPayments.map((p) => ({
       id: p.id,
       name: p.sale.customer?.name ?? "—",
@@ -54,7 +67,7 @@ export default async function PaymentReportPage() {
       })),
   ].sort((a, b) => b.date.getTime() - a.date.getTime());
 
-  const combinedPurchasePayments = [
+  const allPurchasePayments = [
     ...purchasePayments.map((p) => ({
       id: p.id,
       name: p.purchase.supplier?.name ?? "—",
@@ -75,6 +88,19 @@ export default async function PaymentReportPage() {
       })),
   ].sort((a, b) => b.date.getTime() - a.date.getTime());
 
+  // Paginate
+  const combinedSalesPayments = allSalesPayments.slice(startIndex, endIndex);
+  const combinedPurchasePayments = allPurchasePayments.slice(
+    startIndex,
+    endIndex,
+  );
+
+  const totalSalesCount = allSalesPayments.length;
+  const totalPurchaseCount = allPurchasePayments.length;
+
+  const salesTotalPages = Math.ceil(totalSalesCount / limit);
+  const purchaseTotalPages = Math.ceil(totalPurchaseCount / limit);
+
   return (
     <div>
       <div className="my-4">
@@ -94,9 +120,7 @@ export default async function PaymentReportPage() {
             </CardHeader>
             <CardContent>
               <Table>
-                <TableCaption>
-                  All incoming payments from customers
-                </TableCaption>
+                <TableCaption>All incoming payments from customers</TableCaption>
                 <TableHeader className="bg-primary">
                   <TableRow>
                     <TableHead className="text-primary-foreground">
@@ -130,6 +154,12 @@ export default async function PaymentReportPage() {
                   ))}
                 </TableBody>
               </Table>
+              <PaginationControls
+                totalPages={salesTotalPages}
+                hasNextPage={page < salesTotalPages}
+                hasPrevPage={page > 1}
+                totalCount={totalSalesCount}
+              />
             </CardContent>
           </Card>
         </TabsContent>
@@ -175,6 +205,12 @@ export default async function PaymentReportPage() {
                   ))}
                 </TableBody>
               </Table>
+              <PaginationControls
+                totalPages={purchaseTotalPages}
+                hasNextPage={page < purchaseTotalPages}
+                hasPrevPage={page > 1}
+                totalCount={totalPurchaseCount}
+              />
             </CardContent>
           </Card>
         </TabsContent>
