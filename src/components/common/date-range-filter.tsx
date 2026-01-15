@@ -24,7 +24,8 @@ import {
 
 export function DateRangeFilter({
     className,
-}: React.HTMLAttributes<HTMLDivElement>) {
+    defaultDate
+}: React.HTMLAttributes<HTMLDivElement> & { defaultDate?: DateRange }) {
     const router = useRouter()
     const pathname = usePathname()
     const searchParams = useSearchParams()
@@ -38,7 +39,7 @@ export function DateRangeFilter({
                 from: new Date(from),
                 to: new Date(to),
             }
-            : undefined
+            : defaultDate
     )
 
     React.useEffect(() => {

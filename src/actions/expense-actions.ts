@@ -32,11 +32,13 @@ export const getExpenseList = actionClient
     z.object({
       page: z.number().default(1),
       limit: z.number().default(10),
+      from: z.string().optional(),
+      to: z.string().optional(),
     })
   )
   .action(async (values) => {
     try {
-      const { page, limit } = values.parsedInput;
+      const { page, limit, from, to } = values.parsedInput;
       const skip = (page - 1) * limit;
 
       const session = await auth.api.getSession({
@@ -46,7 +48,22 @@ export const getExpenseList = actionClient
       const role = session?.user?.role;
       const branchId = session?.user?.branch;
 
-      const whereClause = role === "admin" ? {} : { branchId };
+      let whereClause: any = role === "admin" ? {} : { branchId };
+
+      if (from && to) {
+        const fromDate = new Date(from);
+        fromDate.setHours(0, 0, 0, 0);
+        const toDate = new Date(to);
+        toDate.setHours(23, 59, 59, 999);
+
+        whereClause = {
+          ...whereClause,
+          createdAt: {
+            gte: fromDate,
+            lte: toDate,
+          },
+        };
+      }
 
       const [expense, totalCount, totals] = await Promise.all([
         prisma.expense.findMany({

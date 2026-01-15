@@ -3,6 +3,8 @@ import { expenseColumns } from "@/components/expenses/expense-colums";
 import { ExpenseTable } from "@/components/expenses/expense-table";
 import { ExpenseFormDialog } from "@/components/expenses/expense-form";
 import { getExpenseList } from "@/actions/expense-actions";
+import { DateRangeFilter } from "@/components/common/date-range-filter";
+import { format, startOfToday } from "date-fns";
 
 interface ExpensePageProps {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
@@ -13,7 +15,10 @@ export default async function ExpensePage({ searchParams }: ExpensePageProps) {
   const page = typeof params.page === "string" ? Number(params.page) : 1;
   const limit = typeof params.limit === "string" ? Number(params.limit) : 10;
 
-  const { data } = await getExpenseList({ page, limit });
+  const from = typeof params.from === "string" ? params.from : format(startOfToday(), "yyyy-MM-dd");
+  const to = typeof params.to === "string" ? params.to : format(startOfToday(), "yyyy-MM-dd");
+
+  const { data } = await getExpenseList({ page, limit, from, to });
 
   return (
     <div className="flex flex-1 flex-col">
@@ -24,7 +29,10 @@ export default async function ExpensePage({ searchParams }: ExpensePageProps) {
               <h1 className="text-2xl font-bold tracking-tight">Expenses</h1>
               <p className="text-muted-foreground">Manage your Expenses</p>
             </div>
-            <ExpenseFormDialog />
+            <div className="flex items-center gap-2">
+              <DateRangeFilter defaultDate={{ from: startOfToday(), to: startOfToday() }} />
+              <ExpenseFormDialog />
+            </div>
           </div>
 
           <ExpenseTable
