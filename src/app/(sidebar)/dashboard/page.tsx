@@ -140,16 +140,16 @@ export default async function Dashboard() {
         </div>
       </div>
 
-      <div className="flex">
+      <div className="flex flex-col lg:flex-row">
         {/* Main Content */}
-        <div className="flex-1 p-6">
-          <div className="max-w-6xl mx-auto space-y-8">
+        <div className="flex-1 p-4 md:p-6">
+          <div className="max-w-6xl mx-auto space-y-6 md:space-y-8">
             {/* Inventory Balance Card - Prominent Display */}
-            <div className="bg-gradient-to-r from-purple-900 to-purple-800 rounded-2xl p-8 text-white">
+            <div className="bg-gradient-to-r from-purple-900 to-purple-800 rounded-2xl p-6 md:p-8 text-white">
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-xl font-semibold">Today&apos;s Sales</h2>
               </div>
-              <div className="text-4xl font-bold">
+              <div className="text-3xl md:text-4xl font-bold">
                 {formatCurrency(todaysSales)}
               </div>
             </div>
@@ -172,7 +172,7 @@ export default async function Dashboard() {
                   </div>
                   <h4 className="text-lg font-semibold text-gray-900">{session.user.name || 'User'}</h4>
                   <p className="text-sm text-gray-600">{session.user.role?.toUpperCase() || 'USER'}</p>
-                  <div className="flex gap-4 mt-4">
+                  <div className="flex flex-wrap justify-center gap-4 mt-4">
                     <div className="flex items-center gap-1 text-gray-600">
                       <IconUsers className="h-4 w-4" />
                       <span className="text-sm">{totalCustomers}</span>
@@ -191,12 +191,16 @@ export default async function Dashboard() {
             </Card>
 
             {/* Charts Section */}
-            <div className="grid grid-cols-1 gap-6 lg:grid-cols-1">
+            <div className="grid grid-cols-1 gap-6">
               {/* Interactive Area Chart */}
-              <ChartAreaInteractive data={chartData} />
+              <div className="w-full overflow-hidden">
+                <ChartAreaInteractive data={chartData} />
+              </div>
 
               {/* Monthly Sales & Purchases Bar Chart */}
-              <DashboardCharts salesData={salesData} purchaseData={purchaseData} />
+              <div className="w-full overflow-hidden">
+                <DashboardCharts salesData={salesData} purchaseData={purchaseData} />
+              </div>
             </div>
 
 
@@ -275,7 +279,7 @@ export default async function Dashboard() {
                         <div className="text-sm font-medium">#{index + 1} Product</div>
                         <IconPackage className="h-5 w-5" />
                       </div>
-                      <div className="text-2xl font-bold mb-2">{product.product?.product_name || 'Unknown'}</div>
+                      <div className="text-xl md:text-2xl font-bold mb-2 break-words">{product.product?.product_name || 'Unknown'}</div>
                       <div className="flex items-center justify-between">
                         <div>
                           <div className="text-sm opacity-80">Stock: {product.product?.stock || 0}</div>
@@ -297,7 +301,7 @@ export default async function Dashboard() {
         </div>
 
         {/* Right Sidebar - Transactions */}
-        <div className="w-80 bg-white border-l border-gray-200 p-6">
+        <div className="w-full lg:w-80 bg-white border-t lg:border-t-0 lg:border-l border-gray-200 p-6">
           {/* Transactions */}
           <div className="mb-8">
             <div className="flex items-center justify-between mb-6">
@@ -315,13 +319,13 @@ export default async function Dashboard() {
                       <IconCurrencyDollar className="h-4 w-4 text-green-600" />
                     </div>
                     <div>
-                      <p className="font-medium text-sm">{sale.customer.name}</p>
+                      <p className="font-medium text-sm line-clamp-1">{sale.customer.name}</p>
                       <p className="text-xs text-gray-500">{formatDate(sale.salesdate)}</p>
                     </div>
                   </div>
                   <div className="text-right">
                     <p className="font-semibold text-sm">{formatCurrency(sale.grandTotal)}</p>
-                    <div className="w-4 h-4 bg-gray-200 rounded-full flex items-center justify-center">
+                    <div className="w-4 h-4 bg-gray-200 rounded-full flex items-center justify-center ml-auto">
                       <span className="text-xs text-gray-500">0</span>
                     </div>
                   </div>
@@ -340,16 +344,16 @@ export default async function Dashboard() {
               {stockLevels.slice(0, 5).map((product) => (
                 <div key={product.product_name} className="flex items-center justify-between p-3 border rounded-lg">
                   <div className="flex items-center gap-3">
-                    <IconPackage className="h-5 w-5 text-muted-foreground" />
+                    <IconPackage className="h-5 w-5 text-muted-foreground shrink-0" />
                     <div>
-                      <p className="font-medium text-sm">{product.product_name}</p>
+                      <p className="font-medium text-sm line-clamp-1">{product.product_name}</p>
                       <p className="text-xs text-gray-500">
                         {product.category?.name || 'No category'}
                       </p>
                     </div>
                   </div>
                   <div className={`text-sm font-bold ${product.stock < 10 ? 'text-red-600' :
-                      product.stock < 50 ? 'text-orange-600' : 'text-green-600'
+                    product.stock < 50 ? 'text-orange-600' : 'text-green-600'
                     }`}>
                     {product.stock}
                   </div>
