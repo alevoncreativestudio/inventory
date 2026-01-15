@@ -49,6 +49,8 @@ interface ProductFormProps {
   openChange?: (open: boolean) => void;
 }
 
+// ... imports
+
 export const ProductFormSheet = ({ product, open, openChange }: ProductFormProps) => {
   const isControlled = typeof open !== "undefined" && typeof openChange === "function";
   const [internalOpen, setInternalOpen] = useState(false);
@@ -75,9 +77,6 @@ export const ProductFormSheet = ({ product, open, openChange }: ProductFormProps
     fetchOptions();
   }, []);
 
-  console.log(baranchList);
-
-
   const form = useForm<z.infer<typeof productSchema>>({
     resolver: zodResolver(productSchema),
     defaultValues: {
@@ -89,7 +88,7 @@ export const ProductFormSheet = ({ product, open, openChange }: ProductFormProps
       brandId: product?.brandId || "",
       categoryId: product?.categoryId || "",
       tax: product?.tax ?? "0",
-      sellingPriceTaxType: product?.sellingPriceTaxType || "",
+      sellingPriceTaxType: product?.sellingPriceTaxType || "exclusive",
       excTax: product?.excTax ?? undefined,
       incTax: product?.incTax ?? undefined,
       margin: product?.margin ?? 25,
@@ -103,28 +102,101 @@ export const ProductFormSheet = ({ product, open, openChange }: ProductFormProps
     }
   }, [form, product]);
 
+  // Handler functions for calculations
+  const handleExcTaxChange = (value: string) => {
+    const exc = parseFloat(value) || 0;
+    form.setValue("excTax", exc); // Ensure internal number
 
-  const excTax = useWatch({ control: form.control, name: "excTax" });
-  const incTax = useWatch({ control: form.control, name: "incTax" });
-  const taxRate = useWatch({ control: form.control, name: "tax" });
-  const margin = useWatch({ control: form.control, name: "margin" });
-  const sellingPriceTaxType = useWatch({ control: form.control, name: "sellingPriceTaxType" });
+    const taxRate = parseFloat(form.getValues("tax")) || 0;
+    const margin = parseFloat(String(form.getValues("margin"))) || 0;
+    const taxType = form.getValues("sellingPriceTaxType");
 
-  useEffect(() => {
-    const exc = Number(excTax) || 0;
-    const inc = Number(incTax) || 0;
-    const tax = Number(taxRate) || 0;
-    const mgn = Number(margin) || 0;
-    const type = sellingPriceTaxType;
+    // Calculate Inc Tax
+    const inc = exc * (1 + taxRate / 100);
+    form.setValue("incTax", parseFloat(inc.toFixed(2)));
 
-    const newInc = exc + (exc * (tax * 100)) / 100;
-    if (!isNaN(newInc)) form.setValue("incTax", parseFloat(newInc.toFixed(2)));
+    // Calculate Selling Price
+    const base = taxType === "inclusive" ? inc : exc;
+    const selling = base * (1 + margin / 100);
+    form.setValue("sellingPrice", parseFloat(selling.toFixed(2)));
+  };
 
-    const base = type === "inclusive" ? inc : exc;
-    const selling = base + (base * mgn) / 100;
+  const handleIncTaxChange = (value: string) => {
+    const inc = parseFloat(value) || 0;
+    form.setValue("incTax", inc);
 
-    if (!isNaN(selling)) form.setValue("sellingPrice", parseFloat(selling.toFixed(2)));
-  }, [excTax, incTax, taxRate, margin, sellingPriceTaxType, form]);
+    const taxRate = parseFloat(form.getValues("tax")) || 0;
+    const margin = parseFloat(String(form.getValues("margin"))) || 0;
+    const taxType = form.getValues("sellingPriceTaxType");
+
+    // Calculate Exc Tax
+    const exc = inc / (1 + taxRate / 100);
+    form.setValue("excTax", parseFloat(exc.toFixed(2)));
+
+    // Calculate Selling Price
+    const base = taxType === "inclusive" ? inc : exc;
+    const selling = base * (1 + margin / 100);
+    form.setValue("sellingPrice", parseFloat(selling.toFixed(2)));
+  };
+
+  const handleTaxRateChange = (value: string) => {
+    form.setValue("tax", value);
+    const taxRate = parseFloat(value) || 0;
+    const exc = parseFloat(String(form.getValues("excTax"))) || 0;
+    const margin = parseFloat(String(form.getValues("margin"))) || 0;
+    const taxType = form.getValues("sellingPriceTaxType");
+
+    // Recalculate Inc Tax based on Exc Tax
+    const inc = exc * (1 + taxRate / 100);
+    form.setValue("incTax", parseFloat(inc.toFixed(2)));
+
+    // Recalculate Selling Price
+    const base = taxType === "inclusive" ? inc : exc;
+    const selling = base * (1 + margin / 100);
+    form.setValue("sellingPrice", parseFloat(selling.toFixed(2)));
+  };
+
+  const handleMarginChange = (value: string) => {
+    const margin = parseFloat(value) || 0;
+    form.setValue("margin", margin);
+
+    const exc = parseFloat(String(form.getValues("excTax"))) || 0;
+    const inc = parseFloat(String(form.getValues("incTax"))) || 0;
+    const taxType = form.getValues("sellingPriceTaxType");
+
+    const base = taxType === "inclusive" ? inc : exc;
+    const selling = base * (1 + margin / 100);
+    form.setValue("sellingPrice", parseFloat(selling.toFixed(2)));
+  };
+
+  const handleSellingPriceChange = (value: string) => {
+    const selling = parseFloat(value) || 0;
+    form.setValue("sellingPrice", selling);
+
+    const exc = parseFloat(String(form.getValues("excTax"))) || 0;
+    const inc = parseFloat(String(form.getValues("incTax"))) || 0;
+    const taxType = form.getValues("sellingPriceTaxType");
+
+    const base = taxType === "inclusive" ? inc : exc;
+
+    if (base > 0) {
+      const margin = ((selling - base) / base) * 100;
+      form.setValue("margin", parseFloat(margin.toFixed(2)));
+    }
+  };
+
+  const handleTaxTypeChange = (value: "exclusive" | "inclusive") => {
+    form.setValue("sellingPriceTaxType", value);
+
+    // Convert undefined/null to 0, ensure we work with numbers
+    const exc = parseFloat(String(form.getValues("excTax"))) || 0;
+    const inc = parseFloat(String(form.getValues("incTax"))) || 0;
+    const margin = parseFloat(String(form.getValues("margin"))) || 0;
+
+    const base = value === "inclusive" ? inc : exc;
+    const selling = base * (1 + margin / 100);
+    form.setValue("sellingPrice", parseFloat(selling.toFixed(2)));
+  };
 
 
   const handleSubmit = async (data: z.infer<typeof productSchema>) => {
@@ -138,11 +210,9 @@ export const ProductFormSheet = ({ product, open, openChange }: ProductFormProps
       toast.success("Product created successfully");
     }
 
-    // Auto-close the sheet after successful submission
     if (isControlled && openChange) {
       openChange(false);
     } else {
-      // For uncontrolled sheets, close the internal state
       setInternalOpen(false);
       form.reset();
     }
@@ -253,7 +323,7 @@ export const ProductFormSheet = ({ product, open, openChange }: ProductFormProps
                 <FormField control={form.control} name="tax" render={({ field }) => (
                   <FormItem>
                     <FormLabel>Applicable Tax</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value}>
+                    <Select onValueChange={handleTaxRateChange} value={field.value}>
                       <FormControl>
                         <SelectTrigger className="w-full"><SelectValue placeholder="Select Tax Rate" /></SelectTrigger>
                       </FormControl>
@@ -271,7 +341,7 @@ export const ProductFormSheet = ({ product, open, openChange }: ProductFormProps
                 <FormField control={form.control} name="sellingPriceTaxType" render={({ field }) => (
                   <FormItem>
                     <FormLabel>Selling Price Tax Type</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value}>
+                    <Select onValueChange={(val: "exclusive" | "inclusive") => handleTaxTypeChange(val)} value={field.value}>
                       <FormControl>
                         <SelectTrigger className="w-full"><SelectValue placeholder="Select Type" /></SelectTrigger>
                       </FormControl>
@@ -301,9 +371,13 @@ export const ProductFormSheet = ({ product, open, openChange }: ProductFormProps
                       <FormField control={form.control} name="excTax" render={({ field }) => (
                         <FormItem className="mb-0">
                           <FormControl>
-                            <Input type="number" placeholder="Exc. tax"
+                            <Input
+                              type="number"
+                              placeholder="Exc. tax"
                               {...field}
-                              value={field.value ?? ""} />
+                              onChange={(e) => handleExcTaxChange(e.target.value)}
+                              value={field.value ?? ""}
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -315,9 +389,13 @@ export const ProductFormSheet = ({ product, open, openChange }: ProductFormProps
                       <FormField control={form.control} name="incTax" render={({ field }) => (
                         <FormItem className="mb-0">
                           <FormControl>
-                            <Input type="number" placeholder="Inc. tax"
+                            <Input
+                              type="number"
+                              placeholder="Inc. tax"
                               {...field}
-                              value={field.value ?? ""} />
+                              onChange={(e) => handleIncTaxChange(e.target.value)}
+                              value={field.value ?? ""}
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -329,9 +407,13 @@ export const ProductFormSheet = ({ product, open, openChange }: ProductFormProps
                       <FormField control={form.control} name="margin" render={({ field }) => (
                         <FormItem className="mb-0">
                           <FormControl>
-                            <Input type="number" placeholder="Margin (%)"
+                            <Input
+                              type="number"
+                              placeholder="Margin (%)"
                               {...field}
-                              value={field.value ?? ""} />
+                              onChange={(e) => handleMarginChange(e.target.value)}
+                              value={field.value ?? ""}
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -343,9 +425,13 @@ export const ProductFormSheet = ({ product, open, openChange }: ProductFormProps
                       <FormField control={form.control} name="sellingPrice" render={({ field }) => (
                         <FormItem className="mb-0">
                           <FormControl>
-                            <Input type="number" placeholder="Selling Price"
+                            <Input
+                              type="number"
+                              placeholder="Selling Price"
                               {...field}
-                              value={field.value ?? ""} />
+                              onChange={(e) => handleSellingPriceChange(e.target.value)}
+                              value={field.value ?? ""}
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>

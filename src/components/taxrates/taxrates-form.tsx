@@ -17,14 +17,14 @@ import { TaxRateFormProps } from "@/types/taxrates";
 
 export const TaxRateFormDialog = ({ tax, open, openChange }: TaxRateFormProps) => {
 
-    const { execute: createProject, isExecuting: isCreating } = useAction(createTaxRate);
-    const { execute: updateProject, isExecuting: isUpdating } = useAction(updateTaxRate);
+  const { execute: createProject, isExecuting: isCreating } = useAction(createTaxRate);
+  const { execute: updateProject, isExecuting: isUpdating } = useAction(updateTaxRate);
 
   const form = useForm<z.infer<typeof taxrateSchema>>({
     resolver: zodResolver(taxrateSchema),
     defaultValues: {
       name: tax?.name || "",
-      taxRate:tax?.taxRate || undefined,
+      taxRate: tax?.taxRate || undefined,
     },
   });
 
@@ -90,7 +90,7 @@ export const TaxRateFormDialog = ({ tax, open, openChange }: TaxRateFormProps) =
                 <Input placeholder="Tax Rate" {...field} value={field.value ?? ""} />
               </FormControl>
               <FormMessage />
-              <FormDescription>Enter as decimal (e.g., 0.18 for 18% GST)</FormDescription>
+              <FormDescription>Enter as percentage (e.g., 18 for 18% GST)</FormDescription>
             </FormItem>
           )}
         />
