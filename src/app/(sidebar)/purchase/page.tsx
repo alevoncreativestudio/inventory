@@ -11,12 +11,16 @@ interface ProductPageProps {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }
 
+import { DateRangeFilter } from "@/components/common/date-range-filter";
+
 export default async function ProductPage({ searchParams }: ProductPageProps) {
   const params = await searchParams;
   const page = typeof params.page === "string" ? Number(params.page) : 1;
   const limit = typeof params.limit === "string" ? Number(params.limit) : 10;
+  const from = typeof params.from === "string" ? params.from : undefined;
+  const to = typeof params.to === "string" ? params.to : undefined;
 
-  const { data } = await getPurchaseList({ page, limit });
+  const { data } = await getPurchaseList({ page, limit, from, to });
 
   return (
     <div className="flex flex-1 flex-col">
@@ -27,12 +31,15 @@ export default async function ProductPage({ searchParams }: ProductPageProps) {
               <h1 className="text-2xl font-bold tracking-tight">Purchases</h1>
               <p className="text-muted-foreground">Manage your Purchases</p>
             </div>
-            <Link href="/purchase/new">
-              <Button>
-                <Plus className="mr-2 h-4 w-4" />
-                Add Purchase
-              </Button>
-            </Link>
+            <div className="flex items-center gap-2">
+              <DateRangeFilter />
+              <Link href="/purchase/new">
+                <Button>
+                  <Plus className="mr-2 h-4 w-4" />
+                  Add Purchase
+                </Button>
+              </Link>
+            </div>
           </div>
           <PurchaseTable
             columns={purchaseColumns}

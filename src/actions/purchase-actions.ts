@@ -167,11 +167,13 @@ export const getPurchaseList = actionClient
     z.object({
       page: z.number().default(1),
       limit: z.number().default(10),
+      from: z.string().optional(),
+      to: z.string().optional(),
     })
   )
   .action(async (values) => {
     try {
-      const { page, limit } = values.parsedInput;
+      const { page, limit, from, to } = values.parsedInput;
       const skip = (page - 1) * limit;
 
       const session = await auth.api.getSession({
@@ -181,7 +183,19 @@ export const getPurchaseList = actionClient
       const role = session?.user?.role
       const branchId = session?.user?.branch
 
-      const whereClause = role === "admin" ? {} : { branchId }
+      const whereClause: any = role === "admin" ? {} : { branchId }
+
+      if (from || to) {
+        whereClause.purchaseDate = {};
+        if (from) {
+          whereClause.purchaseDate.gte = new Date(from);
+        }
+        if (to) {
+          const toDate = new Date(to);
+          toDate.setHours(23, 59, 59, 999);
+          whereClause.purchaseDate.lte = toDate;
+        }
+      }
 
       const [purchases, totalCount, totals] = await Promise.all([
         prisma.purchase.findMany({

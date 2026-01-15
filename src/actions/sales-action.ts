@@ -114,11 +114,13 @@ export const getSalesList = actionClient
     z.object({
       page: z.number().default(1),
       limit: z.number().default(10),
+      from: z.string().optional(),
+      to: z.string().optional(),
     })
   )
   .action(async (values) => {
     try {
-      const { page, limit } = values.parsedInput;
+      const { page, limit, from, to } = values.parsedInput;
       const skip = (page - 1) * limit;
 
       const session = await auth.api.getSession({
@@ -128,7 +130,20 @@ export const getSalesList = actionClient
       const role = session?.user?.role;
       const branchId = session?.user?.branch;
 
-      const whereClause = role === "admin" ? {} : { branchId };
+      const whereClause: any = role === "admin" ? {} : { branchId };
+
+      if (from || to) {
+        whereClause.salesdate = {};
+        if (from) {
+          whereClause.salesdate.gte = new Date(from);
+        }
+        if (to) {
+          // Set time to end of day for inclusive filtering
+          const toDate = new Date(to);
+          toDate.setHours(23, 59, 59, 999);
+          whereClause.salesdate.lte = toDate;
+        }
+      }
 
       const [sales, totalCount, totals] = await Promise.all([
         prisma.sale.findMany({
