@@ -38,7 +38,7 @@ export default function DashboardCharts({
   })
 
   return (
-    <Card className="shadow-md border border-border/50 bg-gradient-to-br from-indigo-50 via-white to-emerald-50">
+    <Card className="shadow-md border border-border/50 bg-gradient-to-br from-indigo-50 via-white to-emerald-50 dark:from-indigo-950/30 dark:via-sidebar dark:to-emerald-950/30">
       <CardHeader>
         <CardTitle>Monthly Sales & Purchases</CardTitle>
         <CardDescription>
@@ -46,38 +46,46 @@ export default function DashboardCharts({
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="rounded-xl bg-white/60 p-3 backdrop-blur-sm">
+        <div className="rounded-xl bg-white/60 p-3 backdrop-blur-sm dark:bg-black/20">
           <ResponsiveContainer width="100%" height={320}>
             <BarChart data={combinedData} barGap={6}>
               {/* Light grid lines */}
-              <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+              <CartesianGrid strokeDasharray="3 3" strokeOpacity={0.2} vertical={false} />
 
               {/* X & Y Axes */}
               <XAxis
                 dataKey="month"
-                tick={{ fontSize: 12, fill: "#6b7280" }}
+                tick={{ fontSize: 12, fill: "var(--muted-foreground)" }}
                 angle={-45}
                 textAnchor="end"
                 height={60}
+                tickLine={false}
+                axisLine={false}
               />
               <YAxis
-                tick={{ fontSize: 12, fill: "#6b7280" }}
+                tick={{ fontSize: 12, fill: "var(--muted-foreground)" }}
                 tickFormatter={(value) => `₹${(value / 1000).toFixed(0)}k`}
+                tickLine={false}
+                axisLine={false}
               />
 
               {/* Tooltip */}
               <Tooltip
                 contentStyle={{
-                  backgroundColor: "white",
+                  backgroundColor: "var(--popover)",
                   borderRadius: "8px",
-                  border: "1px solid #e5e7eb",
-                  boxShadow: "0px 2px 8px rgba(0,0,0,0.1)",
+                  border: "1px solid var(--border)",
+                  boxShadow: "0 4px 6px -1px rgb(0 0 0 / 0.1)",
+                  color: "var(--popover-foreground)",
                 }}
+                itemStyle={{ color: "var(--popover-foreground)" }}
+                labelStyle={{ color: "var(--muted-foreground)" }}
                 formatter={(value: number, name: string) => [
                   `₹${value.toLocaleString()}`,
                   name === "sales" ? "Sales" : "Purchases",
                 ]}
                 labelFormatter={(label) => `Month: ${label}`}
+                cursor={{ fill: 'var(--muted)', opacity: 0.2 }}
               />
 
               {/* Legend */}
@@ -90,17 +98,15 @@ export default function DashboardCharts({
               {/* Bars */}
               <Bar
                 dataKey="sales"
-                fill="#4f46e5"
+                fill="var(--chart-1)"
                 name="Sales"
                 radius={[6, 6, 0, 0]}
-                activeBar={<Rectangle fill="#6366f1" stroke="#4338ca" />}
               />
               <Bar
                 dataKey="purchases"
-                fill="#10b981"
+                fill="var(--chart-2)"
                 name="Purchases"
                 radius={[6, 6, 0, 0]}
-                activeBar={<Rectangle fill="#34d399" stroke="#059669" />}
               />
             </BarChart>
           </ResponsiveContainer>

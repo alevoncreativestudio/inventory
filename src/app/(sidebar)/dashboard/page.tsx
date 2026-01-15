@@ -109,34 +109,17 @@ export default async function Dashboard() {
   const purchaseData = groupPurchasesByMonth(monthlyPurchases);
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-background">
       {/* Modern Header */}
-      <div className="bg-white border-b border-gray-200 px-6 py-4">
+      <div className="bg-card border-b border-border px-6 py-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-3">
               <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
-              <h1 className="text-2xl font-bold text-gray-900">Welcome, {session.user.name || 'User'}{displayBranch}</h1>
+              <h1 className="text-2xl font-bold text-foreground">Welcome, {session.user.name || 'User'}{displayBranch}</h1>
             </div>
-            <p className="text-sm text-gray-600">Your inventory dashboard overview</p>
+            <p className="text-sm text-muted-foreground">Your inventory dashboard overview</p>
           </div>
-          {/* <div className="flex items-center gap-4">
-            <div className="relative">
-              <IconSearch className="h-5 w-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-              <input 
-                type="text" 
-                placeholder="Search" 
-                className="pl-10 pr-4 py-2 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-            <div className="relative">
-              <IconBell className="h-5 w-5 text-gray-600 cursor-pointer hover:text-gray-900" />
-              <div className="absolute -top-1 -right-1 h-3 w-3 bg-red-500 rounded-full"></div>
-            </div>
-            <div className="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center">
-              <IconUser className="h-5 w-5 text-gray-600" />
-            </div>
-          </div> */}
         </div>
       </div>
 
@@ -155,11 +138,11 @@ export default async function Dashboard() {
             </div>
 
             {/* Profile Card */}
-            <Card className="shadow-md border border-border/50 bg-gradient-to-br from-indigo-50 via-white to-emerald-50">
+            <Card className="shadow-md border border-border/50 bg-gradient-to-br from-indigo-50 via-white to-emerald-50 dark:from-indigo-950/30 dark:via-sidebar dark:to-emerald-950/30">
               <CardContent className="p-6">
                 <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg font-semibold text-gray-900">Profile</h3>
-                  <IconRefresh className="h-5 w-5 text-gray-400 cursor-pointer hover:text-gray-600" />
+                  <h3 className="text-lg font-semibold text-foreground">Profile</h3>
+                  <IconRefresh className="h-5 w-5 text-muted-foreground cursor-pointer hover:text-foreground" />
                 </div>
                 <div className="flex flex-col items-center">
                   <div className="relative mb-4">
@@ -170,18 +153,18 @@ export default async function Dashboard() {
                       <IconStar className="h-3 w-3 text-white" />
                     </div>
                   </div>
-                  <h4 className="text-lg font-semibold text-gray-900">{session.user.name || 'User'}</h4>
-                  <p className="text-sm text-gray-600">{session.user.role?.toUpperCase() || 'USER'}</p>
+                  <h4 className="text-lg font-semibold text-foreground">{session.user.name || 'User'}</h4>
+                  <p className="text-sm text-muted-foreground">{session.user.role?.toUpperCase() || 'USER'}</p>
                   <div className="flex flex-wrap justify-center gap-4 mt-4">
-                    <div className="flex items-center gap-1 text-gray-600">
+                    <div className="flex items-center gap-1 text-muted-foreground">
                       <IconUsers className="h-4 w-4" />
                       <span className="text-sm">{totalCustomers}</span>
                     </div>
-                    <div className="flex items-center gap-1 text-gray-600">
+                    <div className="flex items-center gap-1 text-muted-foreground">
                       <IconHeart className="h-4 w-4" />
                       <span className="text-sm">{totalProducts}</span>
                     </div>
-                    <div className="flex items-center gap-1 text-gray-600">
+                    <div className="flex items-center gap-1 text-muted-foreground">
                       <IconTrophy className="h-4 w-4" />
                       <span className="text-sm">{todaysSalesCount}</span>
                     </div>
@@ -208,55 +191,55 @@ export default async function Dashboard() {
 
             <div>
               <div className="flex items-center justify-between mb-6">
-                <h2 className="text-xl font-semibold text-gray-900">Financial Record</h2>
-                <div className="flex items-center gap-2 bg-gray-100 rounded-lg px-3 py-2">
-                  <span className="text-sm text-gray-600">Month</span>
-                  <IconArrowDown className="h-4 w-4 text-gray-600" />
+                <h2 className="text-xl font-semibold text-foreground">Financial Record</h2>
+                <div className="flex items-center gap-2 bg-muted rounded-lg px-3 py-2">
+                  <span className="text-sm text-muted-foreground">Month</span>
+                  <IconArrowDown className="h-4 w-4 text-muted-foreground" />
                 </div>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <Card className="bg-green-50 border-green-200">
+                <Card className="bg-green-50 dark:bg-green-950/20 border-green-200 dark:border-green-900/50">
                   <CardContent className="p-6">
                     <div className="flex items-center justify-between mb-4">
-                      <h3 className="text-sm font-medium text-green-700">Today&apos;s Sales</h3>
-                      <IconArrowUp className="h-4 w-4 text-gray-400" />
+                      <h3 className="text-sm font-medium text-green-700 dark:text-green-400">Today&apos;s Sales</h3>
+                      <IconArrowUp className="h-4 w-4 text-green-400/50" />
                     </div>
-                    <div className="text-2xl font-bold text-green-900 mb-2">
+                    <div className="text-2xl font-bold text-green-900 dark:text-green-100 mb-2">
                       {formatCurrency(todaysSales)}
                     </div>
-                    <div className="flex items-center gap-2 text-green-600">
+                    <div className="flex items-center gap-2 text-green-600 dark:text-green-400">
                       <IconArrowUp className="h-4 w-4" />
                       <span className="text-sm">{todaysSalesCount} transactions</span>
                     </div>
                   </CardContent>
                 </Card>
 
-                <Card className="bg-orange-50 border-orange-200">
+                <Card className="bg-orange-50 dark:bg-orange-950/20 border-orange-200 dark:border-orange-900/50">
                   <CardContent className="p-6">
                     <div className="flex items-center justify-between mb-4">
-                      <h3 className="text-sm font-medium text-orange-700">Today&apos;s Purchases</h3>
-                      <IconArrowUp className="h-4 w-4 text-gray-400" />
+                      <h3 className="text-sm font-medium text-orange-700 dark:text-orange-400">Today&apos;s Purchases</h3>
+                      <IconArrowUp className="h-4 w-4 text-orange-400/50" />
                     </div>
-                    <div className="text-2xl font-bold text-orange-900 mb-2">
+                    <div className="text-2xl font-bold text-orange-900 dark:text-orange-100 mb-2">
                       {formatCurrency(todaysPurchases)}
                     </div>
-                    <div className="flex items-center gap-2 text-orange-600">
+                    <div className="flex items-center gap-2 text-orange-600 dark:text-orange-400">
                       <IconArrowUp className="h-4 w-4" />
                       <span className="text-sm">{todaysPurchasesCount} transactions</span>
                     </div>
                   </CardContent>
                 </Card>
 
-                <Card className="bg-blue-50 border-blue-200">
+                <Card className="bg-blue-50 dark:bg-blue-950/20 border-blue-200 dark:border-blue-900/50">
                   <CardContent className="p-6">
                     <div className="flex items-center justify-between mb-4">
-                      <h3 className="text-sm font-medium text-blue-700">Outstanding</h3>
-                      <IconArrowUp className="h-4 w-4 text-gray-400" />
+                      <h3 className="text-sm font-medium text-blue-700 dark:text-blue-400">Outstanding</h3>
+                      <IconArrowUp className="h-4 w-4 text-blue-400/50" />
                     </div>
-                    <div className="text-2xl font-bold text-blue-900 mb-2">
+                    <div className="text-2xl font-bold text-blue-900 dark:text-blue-100 mb-2">
                       {formatCurrency(totalOutstanding || 0)}
                     </div>
-                    <div className="flex items-center gap-2 text-blue-600">
+                    <div className="flex items-center gap-2 text-blue-600 dark:text-blue-400">
                       <IconArrowUp className="h-4 w-4" />
                       <span className="text-sm">{outstandingCount} pending</span>
                     </div>
@@ -268,8 +251,8 @@ export default async function Dashboard() {
             {/* Top Products - Enhanced Card Style */}
             <div>
               <div className="flex items-center justify-between mb-6">
-                <h2 className="text-xl font-semibold text-gray-900">Top Products</h2>
-                <button className="text-blue-600 text-sm font-medium hover:text-blue-700">View all</button>
+                <h2 className="text-xl font-semibold text-foreground">Top Products</h2>
+                <button className="text-primary text-sm font-medium hover:text-primary/90">View all</button>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {topProducts.length > 0 ? (
@@ -291,7 +274,7 @@ export default async function Dashboard() {
                   ))
                 ) : (
                   <div className="text-center py-8">
-                    <p className="text-gray-500">No product data available</p>
+                    <p className="text-muted-foreground">No product data available</p>
                   </div>
                 )}
               </div>
@@ -301,32 +284,32 @@ export default async function Dashboard() {
         </div>
 
         {/* Right Sidebar - Transactions */}
-        <div className="w-full lg:w-80 bg-white border-t lg:border-t-0 lg:border-l border-gray-200 p-6">
+        <div className="w-full lg:w-80 bg-card border-t lg:border-t-0 lg:border-l border-border p-6">
           {/* Transactions */}
           <div className="mb-8">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-lg font-semibold text-gray-900">Transactions</h2>
-              <div className="flex items-center gap-2 bg-gray-100 rounded-lg px-3 py-2">
-                <span className="text-sm text-gray-600">Month</span>
-                <IconArrowDown className="h-4 w-4 text-gray-600" />
+              <h2 className="text-lg font-semibold text-foreground">Transactions</h2>
+              <div className="flex items-center gap-2 bg-muted rounded-lg px-3 py-2">
+                <span className="text-sm text-muted-foreground">Month</span>
+                <IconArrowDown className="h-4 w-4 text-muted-foreground" />
               </div>
             </div>
             <div className="space-y-4">
               {recentSales.slice(0, 6).map((sale) => (
-                <div key={sale.id} className="flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg transition-colors">
+                <div key={sale.id} className="flex items-center justify-between p-3 hover:bg-muted/50 rounded-lg transition-colors">
                   <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
-                      <IconCurrencyDollar className="h-4 w-4 text-green-600" />
+                    <div className="w-8 h-8 bg-green-100 dark:bg-green-900/30 rounded-lg flex items-center justify-center">
+                      <IconCurrencyDollar className="h-4 w-4 text-green-600 dark:text-green-400" />
                     </div>
                     <div>
-                      <p className="font-medium text-sm line-clamp-1">{sale.customer.name}</p>
-                      <p className="text-xs text-gray-500">{formatDate(sale.salesdate)}</p>
+                      <p className="font-medium text-sm line-clamp-1 text-foreground">{sale.customer.name}</p>
+                      <p className="text-xs text-muted-foreground">{formatDate(sale.salesdate)}</p>
                     </div>
                   </div>
                   <div className="text-right">
-                    <p className="font-semibold text-sm">{formatCurrency(sale.grandTotal)}</p>
-                    <div className="w-4 h-4 bg-gray-200 rounded-full flex items-center justify-center ml-auto">
-                      <span className="text-xs text-gray-500">0</span>
+                    <p className="font-semibold text-sm text-foreground">{formatCurrency(sale.grandTotal)}</p>
+                    <div className="w-4 h-4 bg-muted rounded-full flex items-center justify-center ml-auto">
+                      <span className="text-xs text-muted-foreground">0</span>
                     </div>
                   </div>
                 </div>
@@ -337,23 +320,23 @@ export default async function Dashboard() {
           {/* Stock Levels */}
           <div>
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-lg font-semibold text-gray-900">Stock Levels</h2>
-              <button className="text-blue-600 text-sm font-medium hover:text-blue-700">View all</button>
+              <h2 className="text-lg font-semibold text-foreground">Stock Levels</h2>
+              <button className="text-primary text-sm font-medium hover:text-primary/90">View all</button>
             </div>
             <div className="space-y-3">
               {stockLevels.slice(0, 5).map((product) => (
-                <div key={product.product_name} className="flex items-center justify-between p-3 border rounded-lg">
+                <div key={product.product_name} className="flex items-center justify-between p-3 border border-border rounded-lg">
                   <div className="flex items-center gap-3">
                     <IconPackage className="h-5 w-5 text-muted-foreground shrink-0" />
                     <div>
-                      <p className="font-medium text-sm line-clamp-1">{product.product_name}</p>
-                      <p className="text-xs text-gray-500">
+                      <p className="font-medium text-sm line-clamp-1 text-foreground">{product.product_name}</p>
+                      <p className="text-xs text-muted-foreground">
                         {product.category?.name || 'No category'}
                       </p>
                     </div>
                   </div>
-                  <div className={`text-sm font-bold ${product.stock < 10 ? 'text-red-600' :
-                    product.stock < 50 ? 'text-orange-600' : 'text-green-600'
+                  <div className={`text-sm font-bold ${product.stock < 10 ? 'text-red-600 dark:text-red-400' :
+                    product.stock < 50 ? 'text-orange-600 dark:text-orange-400' : 'text-green-600 dark:text-green-400'
                     }`}>
                     {product.stock}
                   </div>
