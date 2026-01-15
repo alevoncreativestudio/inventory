@@ -5,8 +5,16 @@ import { ProductFormSheet } from "@/components/products/product-form";
 import { productColumns } from "@/components/products/product-columns";
 import { getProductList } from "@/actions/product-actions";
 
-export default async function ProductPage() {
-    const {data } = await getProductList();
+interface ProductPageProps {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}
+
+export default async function ProductPage({ searchParams }: ProductPageProps) {
+  const params = await searchParams;
+  const page = typeof params.page === "string" ? Number(params.page) : 1;
+  const limit = typeof params.limit === "string" ? Number(params.limit) : 10;
+
+  const { data } = await getProductList({ page, limit });
 
   return (
     <div className="flex flex-1 flex-col">
@@ -17,10 +25,23 @@ export default async function ProductPage() {
               <h1 className="text-2xl font-bold tracking-tight">Products</h1>
               <p className="text-muted-foreground">Manage your Products</p>
             </div>
-                <ProductFormSheet/>
+            <ProductFormSheet />
           </div>
-          <ProductTable columns={productColumns} data={data?.products ?? []}/>
-          
+          <ProductTable
+            columns={productColumns}
+            data={data?.products ?? []}
+            metadata={
+              data?.metadata ?? {
+                totalPages: 0,
+                totalCount: 0,
+                currentPage: 1,
+                hasNextPage: false,
+                hasPrevPage: false,
+              }
+            }
+            totals={data?.totals ?? { stock: 0 }}
+          />
+
         </div>
       </div>
     </div>

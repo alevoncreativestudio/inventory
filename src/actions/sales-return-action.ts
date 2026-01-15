@@ -12,6 +12,7 @@ import { RawSalesReturnItem } from "@/types/sales-return";
 import { ObjectId } from "mongodb";
 import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
+import { z } from "zod";
 
 // Utility
 const mapItemsWithRelation = (items: RawSalesReturnItem[]) =>
@@ -31,9 +32,9 @@ export const createSalesReturn = actionClient
   .inputSchema(fullSalesReturnSchema)
   .action(async (values) => {
     try {
-      const { salesReturnItem:rawItems, ...returnData } = values.parsedInput;
+      const { salesReturnItem: rawItems, ...returnData } = values.parsedInput;
       const returnItems = mapItemsWithRelation(rawItems);
-      
+
       const grandTotal = returnItems.reduce((sum, item) => sum + (item.total || 0), 0);
       const salesReturn = await prisma.salesReturn.create({
         data: {
@@ -70,32 +71,68 @@ export const createSalesReturn = actionClient
   });
 
 // ✅ GET ALL SALES RETURNS
-export const getSalesReturnList = actionClient.action(async () => {
-  try {
-    const session = await auth.api.getSession({
-      headers: await headers(),
-    });
+// ✅ GET ALL SALES RETURNS
+export const getSalesReturnList = actionClient
+  .inputSchema(
+    z.object({
+      page: z.number().default(1),
+      limit: z.number().default(10),
+    })
+  )
+  .action(async (values) => {
+    try {
+      const { page, limit } = values.parsedInput;
+      const skip = (page - 1) * limit;
 
-    const role = session?.user?.role;
-    const branchId = session?.user?.branch;
+      const session = await auth.api.getSession({
+        headers: await headers(),
+      });
 
-    const whereClause = role === "admin" ? {} : { branchId };
+      const role = session?.user?.role;
+      const branchId = session?.user?.branch;
 
-    const returns = await prisma.salesReturn.findMany({
-      where: whereClause,
-      orderBy: { salesReturnDate: "desc" },
-      include: {
-        customer: true,
-        salesReturnItem: true,
-      },
-    });
+      const whereClause = role === "admin" ? {} : { branchId };
 
-    return { returns };
-  } catch (error) {
-    console.error("Get Sales Returns Error:", error);
-    return { error: "Something went wrong" };
-  }
-});
+      const [returns, totalCount, totals] = await Promise.all([
+        prisma.salesReturn.findMany({
+          where: whereClause,
+          orderBy: { salesReturnDate: "desc" },
+          take: limit,
+          skip: skip,
+          include: {
+            customer: true,
+            salesReturnItem: true,
+          },
+        }),
+        prisma.salesReturn.count({ where: whereClause }),
+        prisma.salesReturn.aggregate({
+          where: whereClause,
+          _sum: {
+            grandTotal: true,
+          },
+        }),
+      ]);
+
+      const totalPages = Math.ceil(totalCount / limit);
+
+      return {
+        returns,
+        metadata: {
+          totalPages,
+          totalCount,
+          currentPage: page,
+          hasNextPage: page < totalPages,
+          hasPrevPage: page > 1,
+        },
+        totals: {
+          grandTotal: totals._sum.grandTotal || 0,
+        }
+      };
+    } catch (error) {
+      console.error("Get Sales Returns Error:", error);
+      return { error: "Something went wrong" };
+    }
+  });
 
 
 // ✅ GET SALES RETURN BY ID
@@ -122,7 +159,7 @@ export const getSalesReturnById = actionClient
 export const updateSalesReturn = actionClient
   .inputSchema(updateFullSalesReturnSchema)
   .action(async (values) => {
-    const { id, salesReturnItem:rawItems, ...data } = values.parsedInput;
+    const { id, salesReturnItem: rawItems, ...data } = values.parsedInput;
 
     try {
       // Roll back stock

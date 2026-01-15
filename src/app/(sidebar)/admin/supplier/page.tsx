@@ -5,8 +5,16 @@ import { SupplierTable } from "@/components/suppliers/supplier-table";
 import { SupplierFormDialog } from "@/components/suppliers/supplier-form";
 import { getSupplierList } from "@/actions/supplier-action";
 
-export default async function SupplierPage() {
-  const {data} = await getSupplierList();  
+interface SupplierPageProps {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}
+
+export default async function SupplierPage({ searchParams }: SupplierPageProps) {
+  const params = await searchParams;
+  const page = typeof params.page === "string" ? Number(params.page) : 1;
+  const limit = typeof params.limit === "string" ? Number(params.limit) : 10;
+
+  const { data } = await getSupplierList({ page, limit });
 
   return (
     <div className="flex flex-1 flex-col">
@@ -20,7 +28,20 @@ export default async function SupplierPage() {
             <SupplierFormDialog />
           </div>
 
-          <SupplierTable columns={supplierColumns} data={data?.suppliers ?? []} />
+          <SupplierTable
+            columns={supplierColumns}
+            data={data?.suppliers ?? []}
+            metadata={
+              data?.metadata ?? {
+                totalPages: 0,
+                totalCount: 0,
+                currentPage: 1,
+                hasNextPage: false,
+                hasPrevPage: false,
+              }
+            }
+            totals={data?.totals ?? { openingBalance: 0, purchaseDue: 0, purchaseReturnDue: 0 }}
+          />
         </div>
       </div>
     </div>

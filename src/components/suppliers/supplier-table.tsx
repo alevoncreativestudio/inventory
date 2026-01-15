@@ -14,6 +14,7 @@ import {
   Table,
   TableBody,
   TableCell,
+  TableFooter,
   TableHead,
   TableHeader,
   TableRow,
@@ -32,12 +33,27 @@ import { Supplier } from "@prisma/client";
 import { useState } from "react";
 import { Search } from "lucide-react";
 
+import { PaginationControls } from "../ui/pagination-controls";
+import { formatCurrency } from "@/lib/utils";
+
 interface SupplierTableProps<TValue> {
   columns: ColumnDef<Supplier, TValue>[];
   data: Supplier[];
+  metadata: {
+    totalPages: number;
+    totalCount: number;
+    currentPage: number;
+    hasNextPage: boolean;
+    hasPrevPage: boolean;
+  };
+  totals: {
+    openingBalance: number;
+    purchaseDue: number;
+    purchaseReturnDue: number;
+  };
 }
 
-export function SupplierTable<TValue>({ columns, data }: SupplierTableProps<TValue>) {
+export function SupplierTable<TValue>({ columns, data, metadata, totals }: SupplierTableProps<TValue>) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [globalFilter, setGlobalFilter] = useState("");
 
@@ -49,10 +65,17 @@ export function SupplierTable<TValue>({ columns, data }: SupplierTableProps<TVal
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     getSortedRowModel: getSortedRowModel(),
+    globalFilterFn: (row, columnId, filterValue) => {
+      const name = row.getValue('name') as string;
+      const filter = String(filterValue || '').toLowerCase();
+      return name.toLowerCase().includes(filter);
+    },
     state: {
       sorting,
       globalFilter,
     },
+    manualPagination: true,
+    pageCount: metadata.totalPages,
   });
 
   return (
@@ -69,10 +92,10 @@ export function SupplierTable<TValue>({ columns, data }: SupplierTableProps<TVal
         </CardContent>
       </Card> */}
       <Card>
-      <CardHeader className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+        <CardHeader className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
           <div>
-          <CardTitle>Suppliers</CardTitle>
-          <CardDescription>A list of all suppliers</CardDescription>
+            <CardTitle>Suppliers</CardTitle>
+            <CardDescription>A list of all suppliers</CardDescription>
           </div>
           <div className="relative">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -91,13 +114,13 @@ export function SupplierTable<TValue>({ columns, data }: SupplierTableProps<TVal
                 <TableRow key={headerGroup.id}>
                   {headerGroup.headers.map((header) => (
                     <TableHead key={header.id}
-                    className="bg-primary text-primary-foreground">
+                      className="bg-primary text-primary-foreground">
                       {header.isPlaceholder
                         ? null
                         : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
+                          header.column.columnDef.header,
+                          header.getContext()
+                        )}
                     </TableHead>
                   ))}
                 </TableRow>
@@ -125,8 +148,23 @@ export function SupplierTable<TValue>({ columns, data }: SupplierTableProps<TVal
                 </TableRow>
               )}
             </TableBody>
+            <TableFooter className="bg-muted/50 text-sm font-medium border-t">
+              <TableRow>
+                <TableCell colSpan={2} />
+                <TableCell className="text-center border-r-2">Total:</TableCell>
+                <TableCell className="border-r-2">{formatCurrency(totals?.openingBalance ?? 0)}</TableCell>
+                <TableCell className="border-r-2">{formatCurrency(totals?.purchaseDue ?? 0)}</TableCell>
+                <TableCell className="border-r-2">{formatCurrency(totals?.purchaseReturnDue ?? 0)}</TableCell>
+              </TableRow>
+            </TableFooter>
           </Table>
         </CardContent>
+        <PaginationControls
+          totalPages={metadata.totalPages}
+          hasNextPage={metadata.hasNextPage}
+          hasPrevPage={metadata.hasPrevPage}
+          totalCount={metadata.totalCount}
+        />
       </Card>
     </div>
   );

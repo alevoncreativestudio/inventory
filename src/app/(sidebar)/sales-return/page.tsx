@@ -5,8 +5,16 @@ import { SalesReturnFormSheet } from "@/components/sales-return/sales-return-for
 import { salesReturnColumns } from "@/components/sales-return/sales-return-colums";
 import { getSalesReturnList } from "@/actions/sales-return-action";
 
-export default async function SalesReturnPage() {
-  const { data } = await getSalesReturnList();
+interface SalesReturnPageProps {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}
+
+export default async function SalesReturnPage({ searchParams }: SalesReturnPageProps) {
+  const params = await searchParams;
+  const page = typeof params.page === "string" ? Number(params.page) : 1;
+  const limit = typeof params.limit === "string" ? Number(params.limit) : 10;
+
+  const { data } = await getSalesReturnList({ page, limit });
 
   return (
     <div className="flex flex-1 flex-col">
@@ -23,6 +31,16 @@ export default async function SalesReturnPage() {
           <SalesReturnTable
             columns={salesReturnColumns}
             data={data?.returns ?? []}
+            metadata={
+              data?.metadata ?? {
+                totalPages: 0,
+                totalCount: 0,
+                currentPage: 1,
+                hasNextPage: false,
+                hasPrevPage: false,
+              }
+            }
+            totals={data?.totals ?? { grandTotal: 0 }}
           />
         </div>
       </div>

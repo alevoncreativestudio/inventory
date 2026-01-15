@@ -8,6 +8,7 @@ import {
   SortingState,
   useReactTable,
   type ColumnFiltersState,
+  type ColumnDef,
 } from "@tanstack/react-table";
 
 import {
@@ -31,12 +32,27 @@ import {
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
 import { useState } from "react";
-import { SalesReturnTableProps } from "@/types/sales-return";
+import { SalesReturn } from "@/types/sales-return";
 import { formatCurrency } from "@/lib/utils";
+import { PaginationControls } from "../ui/pagination-controls";
 
 
+interface SalesReturnTableProps<TValue> {
+  columns: ColumnDef<SalesReturn, TValue>[];
+  data: SalesReturn[];
+  metadata: {
+    totalPages: number;
+    totalCount: number;
+    currentPage: number;
+    hasNextPage: boolean;
+    hasPrevPage: boolean;
+  };
+  totals: {
+    grandTotal: number;
+  };
+}
 
-export function SalesReturnTable<TValue>({ columns, data }: SalesReturnTableProps<TValue>) {
+export function SalesReturnTable<TValue>({ columns, data, metadata, totals }: SalesReturnTableProps<TValue>) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [globalFilter, setGlobalFilter] = useState("");
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
@@ -64,9 +80,11 @@ export function SalesReturnTable<TValue>({ columns, data }: SalesReturnTableProp
         customer?.toLowerCase().includes(filter)
       );
     },
+    manualPagination: true,
+    pageCount: metadata.totalPages,
   });
 
-  const totalReturnedAmount = data.reduce((acc, row) => acc + (row?.grandTotal ?? 0), 0);
+  // const totalReturnedAmount = data.reduce((acc, row) => acc + (row?.grandTotal ?? 0), 0);
 
   return (
     <div className="flex flex-col gap-5">
@@ -107,13 +125,13 @@ export function SalesReturnTable<TValue>({ columns, data }: SalesReturnTableProp
                 <TableRow key={headerGroup.id}>
                   {headerGroup.headers.map((header) => (
                     <TableHead key={header.id}
-                    className="bg-primary text-primary-foreground">
+                      className="bg-primary text-primary-foreground">
                       {header.isPlaceholder
                         ? null
                         : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
+                          header.column.columnDef.header,
+                          header.getContext()
+                        )}
                     </TableHead>
                   ))}
                 </TableRow>
@@ -150,12 +168,18 @@ export function SalesReturnTable<TValue>({ columns, data }: SalesReturnTableProp
                   Total Returned:
                 </TableCell>
                 <TableCell colSpan={2}>
-                  {formatCurrency(totalReturnedAmount)}
+                  {formatCurrency(totals?.grandTotal || 0)}
                 </TableCell>
               </TableRow>
             </TableFooter>
           </Table>
         </CardContent>
+        <PaginationControls
+          totalPages={metadata.totalPages}
+          hasNextPage={metadata.hasNextPage}
+          hasPrevPage={metadata.hasPrevPage}
+          totalCount={metadata.totalCount}
+        />
       </Card>
     </div>
   );

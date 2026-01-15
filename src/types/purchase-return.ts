@@ -1,5 +1,6 @@
-import { PurchaseReturn as PrismaPurchaseReturn,
-  PurchaseReturnItem as PrismaPurchaseReturnItem  
+import {
+  PurchaseReturn as PrismaPurchaseReturn,
+  PurchaseReturnItem as PrismaPurchaseReturnItem
 } from "@prisma/client";
 import { ColumnDef } from "@tanstack/react-table";
 
@@ -12,12 +13,22 @@ export interface PurchaseReturnItem extends PrismaPurchaseReturnItem {
 
 export interface PurchaseReturn extends PrismaPurchaseReturn {
   supplier: { name: string };
-    purchaseReturnItem: PurchaseReturnItem[];
+  purchaseReturnItem: PurchaseReturnItem[];
 }
 
 export interface PurchaseReturnTableProps<TValue> {
   columns: ColumnDef<PurchaseReturn, TValue>[];
   data: PurchaseReturn[];
+  metadata: {
+    totalPages: number;
+    totalCount: number;
+    currentPage: number;
+    hasNextPage: boolean;
+    hasPrevPage: boolean;
+  };
+  totals: {
+    totalAmount: number;
+  };
 }
 
 export interface PurchaseReturnFormProps {

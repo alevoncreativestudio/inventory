@@ -5,8 +5,16 @@ import { PurchaseReturnFormSheet } from "@/components/purchase-return/purchase-r
 import { purchaseReturnColumns } from "@/components/purchase-return/purchase-return-colums";
 import { getPurchaseReturnList } from "@/actions/purchase-return-action";
 
-export default async function PurchaseReturnPage() {
-  const { data } = await getPurchaseReturnList();
+interface PurchaseReturnPageProps {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}
+
+export default async function PurchaseReturnPage({ searchParams }: PurchaseReturnPageProps) {
+  const params = await searchParams;
+  const page = typeof params.page === "string" ? Number(params.page) : 1;
+  const limit = typeof params.limit === "string" ? Number(params.limit) : 10;
+
+  const { data } = await getPurchaseReturnList({ page, limit });
 
   return (
     <div className="flex flex-1 flex-col">
@@ -23,6 +31,16 @@ export default async function PurchaseReturnPage() {
           <PurchaseReturnTable
             columns={purchaseReturnColumns}
             data={data?.returns ?? []}
+            metadata={
+              data?.metadata ?? {
+                totalPages: 0,
+                totalCount: 0,
+                currentPage: 1,
+                hasNextPage: false,
+                hasPrevPage: false,
+              }
+            }
+            totals={data?.totals ?? { totalAmount: 0 }}
           />
         </div>
       </div>

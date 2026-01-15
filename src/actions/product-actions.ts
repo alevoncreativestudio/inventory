@@ -29,32 +29,68 @@ export const createProduct = actionClient
     }
   });
 
-export const getProductList = actionClient.action(async () => {
-  try {
-    const session = await auth.api.getSession({
-      headers: await headers(),
-    });
+export const getProductList = actionClient
+  .inputSchema(
+    z.object({
+      page: z.number().default(1),
+      limit: z.number().default(10),
+    })
+  )
+  .action(async (values) => {
+    try {
+      const { page, limit } = values.parsedInput;
+      const skip = (page - 1) * limit;
 
-    const role = session?.user?.role;
-    const branchId = session?.user?.branch;
+      const session = await auth.api.getSession({
+        headers: await headers(),
+      });
 
-    const whereClause = role === "admin" ? {} : { branchId };
+      const role = session?.user?.role;
+      const branchId = session?.user?.branch;
 
-    const products = await prisma.product.findMany({
-      where: whereClause,
-      orderBy: { product_name: "desc" },
-      include: {
-        brand: true,
-        category: true,
-      },
-    });
+      const whereClause = role === "admin" ? {} : { branchId };
 
-    return { products };
-  } catch (error) {
-    console.log("Get Product List error:", error);
-    return { error: "Something went wrong" };
-  }
-});
+      const [products, totalCount, totals] = await Promise.all([
+        prisma.product.findMany({
+          where: whereClause,
+          orderBy: { product_name: "desc" },
+          take: limit,
+          skip: skip,
+          include: {
+            brand: true,
+            category: true,
+          },
+        }),
+        prisma.product.count({ where: whereClause }),
+        prisma.product.aggregate({
+          where: whereClause,
+          _sum: {
+            stock: true,
+            // You can add other numeric fields if needed for totals
+          },
+        }),
+      ]);
+
+      const totalPages = Math.ceil(totalCount / limit);
+
+      return {
+        products,
+        metadata: {
+          totalPages,
+          totalCount,
+          currentPage: page,
+          hasNextPage: page < totalPages,
+          hasPrevPage: page > 1,
+        },
+        totals: {
+          stock: totals._sum.stock || 0
+        }
+      };
+    } catch (error) {
+      console.log("Get Product List error:", error);
+      return { error: "Something went wrong" };
+    }
+  });
 
 
 export const getProductListForDropdown = actionClient.inputSchema(

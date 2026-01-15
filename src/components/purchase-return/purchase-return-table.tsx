@@ -34,7 +34,9 @@ import { useState } from "react";
 import { PurchaseReturnTableProps } from "@/types/purchase-return";
 import { formatCurrency } from "@/lib/utils";
 
-export function PurchaseReturnTable<TValue>({ columns, data }: PurchaseReturnTableProps<TValue>) {
+import { PaginationControls } from "../ui/pagination-controls";
+
+export function PurchaseReturnTable<TValue>({ columns, data, metadata, totals }: PurchaseReturnTableProps<TValue>) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [globalFilter, setGlobalFilter] = useState("");
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
@@ -62,9 +64,11 @@ export function PurchaseReturnTable<TValue>({ columns, data }: PurchaseReturnTab
         supplier?.toLowerCase().includes(filter)
       );
     },
+    manualPagination: true,
+    pageCount: metadata.totalPages,
   });
 
-    const totalReturnedAmount = data.reduce((acc, row) => acc + (row?.totalAmount ?? 0), 0);
+  // const totalReturnedAmount = data.reduce((acc, row) => acc + (row?.totalAmount ?? 0), 0);
 
 
   return (
@@ -104,7 +108,7 @@ export function PurchaseReturnTable<TValue>({ columns, data }: PurchaseReturnTab
                 <TableRow key={headerGroup.id}>
                   {headerGroup.headers.map((header) => (
                     <TableHead key={header.id}
-                    className="bg-primary text-primary-foreground">
+                      className="bg-primary text-primary-foreground">
                       {header.isPlaceholder
                         ? null
                         : flexRender(header.column.columnDef.header, header.getContext())}
@@ -140,13 +144,19 @@ export function PurchaseReturnTable<TValue>({ columns, data }: PurchaseReturnTab
                   Total Returned:
                 </TableCell>
                 <TableCell>
-                  {formatCurrency(totalReturnedAmount)}
+                  {formatCurrency(totals?.totalAmount || 0)}
                 </TableCell>
-                <TableCell/>
+                <TableCell />
               </TableRow>
             </TableFooter>
           </Table>
         </CardContent>
+        <PaginationControls
+          totalPages={metadata.totalPages}
+          hasNextPage={metadata.hasNextPage}
+          hasPrevPage={metadata.hasPrevPage}
+          totalCount={metadata.totalCount}
+        />
       </Card>
     </div>
   );

@@ -12,6 +12,7 @@ import { RawPurchaseReturnItem } from "@/types/purchase-return";
 import { ObjectId } from "mongodb";
 import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
+import { z } from "zod";
 
 const mapItemsWithRelation = (items: RawPurchaseReturnItem[]) =>
   items.map((item) => ({
@@ -30,7 +31,7 @@ export const createPurchaseReturn = actionClient
   .inputSchema(fullPurchaseReturnSchema)
   .action(async (values) => {
     try {
-      const { purchaseReturnItem:rawItems, ...returnData } = values.parsedInput;
+      const { purchaseReturnItem: rawItems, ...returnData } = values.parsedInput;
       const items = mapItemsWithRelation(rawItems);
 
       const totalAmount = items.reduce((sum, item) => sum + (item.total || 0), 0);
@@ -70,32 +71,68 @@ export const createPurchaseReturn = actionClient
   });
 
 // GET ALL PURCHASE RETURNS
-export const getPurchaseReturnList = actionClient.action(async () => {
-  try {
-    const session = await auth.api.getSession({
-      headers: await headers(),
-    });
+// GET ALL PURCHASE RETURNS
+export const getPurchaseReturnList = actionClient
+  .inputSchema(
+    z.object({
+      page: z.number().default(1),
+      limit: z.number().default(10),
+    })
+  )
+  .action(async (values) => {
+    try {
+      const { page, limit } = values.parsedInput;
+      const skip = (page - 1) * limit;
 
-    const role = session?.user?.role;
-    const branchId = session?.user?.branch;
+      const session = await auth.api.getSession({
+        headers: await headers(),
+      });
 
-    const whereClause = role === "admin" ? {} : { branchId };
+      const role = session?.user?.role;
+      const branchId = session?.user?.branch;
 
-    const returns = await prisma.purchaseReturn.findMany({
-      where: whereClause,
-      orderBy: { returnDate: "desc" },
-      include: {
-        supplier: true,
-        purchaseReturnItem: true,
-      },
-    });
+      const whereClause = role === "admin" ? {} : { branchId };
 
-    return { returns };
-  } catch (error) {
-    console.error("Get Purchase Returns Error:", error);
-    return { error: "Something went wrong" };
-  }
-});
+      const [returns, totalCount, totals] = await Promise.all([
+        prisma.purchaseReturn.findMany({
+          where: whereClause,
+          orderBy: { returnDate: "desc" },
+          take: limit,
+          skip: skip,
+          include: {
+            supplier: true,
+            purchaseReturnItem: true,
+          },
+        }),
+        prisma.purchaseReturn.count({ where: whereClause }),
+        prisma.purchaseReturn.aggregate({
+          where: whereClause,
+          _sum: {
+            totalAmount: true,
+          },
+        }),
+      ]);
+
+      const totalPages = Math.ceil(totalCount / limit);
+
+      return {
+        returns,
+        metadata: {
+          totalPages,
+          totalCount,
+          currentPage: page,
+          hasNextPage: page < totalPages,
+          hasPrevPage: page > 1,
+        },
+        totals: {
+          totalAmount: totals._sum.totalAmount || 0,
+        }
+      };
+    } catch (error) {
+      console.error("Get Purchase Returns Error:", error);
+      return { error: "Something went wrong" };
+    }
+  });
 
 
 // GET PURCHASE RETURN BY ID
@@ -122,7 +159,7 @@ export const getPurchaseReturnById = actionClient
 export const updatePurchaseReturn = actionClient
   .inputSchema(updateFullPurchaseReturnSchema)
   .action(async (values) => {
-    const { id, purchaseReturnItem:rawItems, ...data } = values.parsedInput;
+    const { id, purchaseReturnItem: rawItems, ...data } = values.parsedInput;
 
     try {
       const oldItems = await prisma.purchaseReturnItem.findMany({

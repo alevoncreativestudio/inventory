@@ -11,6 +11,7 @@ import {
 import { ObjectId } from "mongodb";
 import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
+import { z } from "zod";
 
 export const createSupplier = actionClient.inputSchema(supplierSchema).action(
   async (values) => {
@@ -60,27 +61,67 @@ export const createSupplier = actionClient.inputSchema(supplierSchema).action(
   }
 );
 
-export const getSupplierList = actionClient.action(async () => {
-  try {
-    const session = await auth.api.getSession({
-      headers: await headers(),
-    });
+export const getSupplierList = actionClient
+  .inputSchema(
+    z.object({
+      page: z.number().default(1),
+      limit: z.number().default(10),
+    })
+  )
+  .action(async (values) => {
+    try {
+      const { page, limit } = values.parsedInput;
+      const skip = (page - 1) * limit;
 
-    const role = session?.user?.role;
-    const branchId = session?.user?.branch;
+      const session = await auth.api.getSession({
+        headers: await headers(),
+      });
 
-    const whereClause = role === "admin" ? {} : { branchId };
+      const role = session?.user?.role;
+      const branchId = session?.user?.branch;
 
-    const suppliers = await prisma.supplier.findMany({
-      where: whereClause,
-      orderBy: { name: "asc" },
-    });
-    return { suppliers };
-  } catch (error) {
-    console.log("Get Suppliers Error:", error);
-    return { error: "Something went wrong" };
-  }
-});
+      const whereClause = role === "admin" ? {} : { branchId };
+
+      const [suppliers, totalCount, totals] = await Promise.all([
+        prisma.supplier.findMany({
+          where: whereClause,
+          orderBy: { name: "asc" },
+          take: limit,
+          skip: skip,
+        }),
+        prisma.supplier.count({ where: whereClause }),
+        prisma.supplier.aggregate({
+          where: whereClause,
+          _sum: {
+            openingBalance: true,
+            purchaseDue: true,
+            purchaseReturnDue: true
+          },
+        }),
+      ]);
+
+      const totalPages = Math.ceil(totalCount / limit);
+
+      return {
+        suppliers,
+        metadata: {
+          totalPages,
+          totalCount,
+          currentPage: page,
+          hasNextPage: page < totalPages,
+          hasPrevPage: page > 1,
+        },
+        totals: {
+          openingBalance: totals._sum.openingBalance || 0,
+          purchaseDue: totals._sum.purchaseDue || 0,
+          purchaseReturnDue: totals._sum.purchaseReturnDue || 0
+        }
+      };
+    } catch (error) {
+      console.log("Get Suppliers Error:", error);
+      return { error: "Something went wrong" };
+    }
+  });
 
 
 export const getSupplierListForDropdown = async () => {

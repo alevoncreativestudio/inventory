@@ -5,8 +5,16 @@ import { CustomerTable } from "@/components/customers/customer-table";
 import { CustomerFormDialog } from "@/components/customers/customer-form";
 import { getCustomerList } from "@/actions/customer-action";
 
-export default async function CustomerPage() {
-  const {data} = await getCustomerList();
+interface CustomerPageProps {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}
+
+export default async function CustomerPage({ searchParams }: CustomerPageProps) {
+  const params = await searchParams;
+  const page = typeof params.page === "string" ? Number(params.page) : 1;
+  const limit = typeof params.limit === "string" ? Number(params.limit) : 10;
+
+  const { data } = await getCustomerList({ page, limit });
 
   return (
     <div className="flex flex-1 flex-col">
@@ -20,7 +28,20 @@ export default async function CustomerPage() {
             <CustomerFormDialog />
           </div>
 
-          <CustomerTable columns={customersColumns} data={data?.customers ?? []} />
+          <CustomerTable
+            columns={customersColumns}
+            data={data?.customers ?? []}
+            metadata={
+              data?.metadata ?? {
+                totalPages: 0,
+                totalCount: 0,
+                currentPage: 1,
+                hasNextPage: false,
+                hasPrevPage: false,
+              }
+            }
+            totals={data?.totals ?? { openingBalance: 0, outstandingPayments: 0, salesDue: 0, salesReturnDue: 0 }}
+          />
         </div>
       </div>
     </div>

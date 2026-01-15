@@ -31,12 +31,29 @@ import { Customer } from "@prisma/client";
 import { useState } from "react";
 import { Search } from "lucide-react";
 
+import { PaginationControls } from "../ui/pagination-controls";
+import { TableFooter } from "@/components/ui/table";
+import { formatCurrency } from "@/lib/utils";
+
 interface CustomerTableProps<TValue> {
   columns: ColumnDef<Customer, TValue>[];
   data: Customer[];
+  metadata: {
+    totalPages: number;
+    totalCount: number;
+    currentPage: number;
+    hasNextPage: boolean;
+    hasPrevPage: boolean;
+  };
+  totals: {
+    openingBalance: number;
+    outstandingPayments: number;
+    salesDue: number;
+    salesReturnDue: number;
+  };
 }
 
-export function CustomerTable<TValue>({ columns, data }: CustomerTableProps<TValue>) {
+export function CustomerTable<TValue>({ columns, data, metadata, totals }: CustomerTableProps<TValue>) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [globalFilter, setGlobalFilter] = useState("");
 
@@ -57,6 +74,8 @@ export function CustomerTable<TValue>({ columns, data }: CustomerTableProps<TVal
       sorting,
       globalFilter,
     },
+    manualPagination: true,
+    pageCount: metadata.totalPages,
   });
 
   return (
@@ -73,10 +92,10 @@ export function CustomerTable<TValue>({ columns, data }: CustomerTableProps<TVal
         </CardContent>
       </Card> */}
       <Card>
-      <CardHeader className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+        <CardHeader className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
           <div>
-          <CardTitle>Customers</CardTitle>
-          <CardDescription>A list of all customers</CardDescription>
+            <CardTitle>Customers</CardTitle>
+            <CardDescription>A list of all customers</CardDescription>
           </div>
           <div className="relative">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -95,13 +114,13 @@ export function CustomerTable<TValue>({ columns, data }: CustomerTableProps<TVal
                 <TableRow key={headerGroup.id}>
                   {headerGroup.headers.map((header) => (
                     <TableHead key={header.id}
-                    className="bg-primary text-primary-foreground">
+                      className="bg-primary text-primary-foreground">
                       {header.isPlaceholder
                         ? null
                         : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
+                          header.column.columnDef.header,
+                          header.getContext()
+                        )}
                     </TableHead>
                   ))}
                 </TableRow>
@@ -129,8 +148,23 @@ export function CustomerTable<TValue>({ columns, data }: CustomerTableProps<TVal
                 </TableRow>
               )}
             </TableBody>
+            <TableFooter className="bg-muted/50 text-sm font-medium border-t">
+              <TableRow>
+                <TableCell colSpan={2} />
+                <TableCell className="text-center border-r-2">Total:</TableCell>
+                <TableCell className="border-r-2">{formatCurrency(totals?.openingBalance ?? 0)}</TableCell>
+                <TableCell className="border-r-2">{formatCurrency(totals?.salesDue ?? 0)}</TableCell>
+                <TableCell className="border-r-2">{formatCurrency(totals?.salesReturnDue ?? 0)}</TableCell>
+              </TableRow>
+            </TableFooter>
           </Table>
         </CardContent>
+        <PaginationControls
+          totalPages={metadata.totalPages}
+          hasNextPage={metadata.hasNextPage}
+          hasPrevPage={metadata.hasPrevPage}
+          totalCount={metadata.totalCount}
+        />
       </Card>
     </div>
   );

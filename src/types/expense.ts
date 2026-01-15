@@ -15,4 +15,14 @@ export interface ExpenseFormProps {
 export interface ExpenseTableProps<TValue> {
   columns: ColumnDef<Expense, TValue>[];
   data: Expense[];
+  metadata: {
+    totalPages: number;
+    totalCount: number;
+    currentPage: number;
+    hasNextPage: boolean;
+    hasPrevPage: boolean;
+  };
+  totals: {
+    amount: number;
+  };
 }

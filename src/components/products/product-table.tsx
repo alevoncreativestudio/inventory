@@ -7,6 +7,7 @@ import {
   getFilteredRowModel,
   SortingState,
   getSortedRowModel,
+  type ColumnFiltersState,
 } from "@tanstack/react-table";
 
 import {
@@ -26,22 +27,39 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { ProductTableProps } from "@/types/product";
+import { ProductTableProps as ProductTablePropsType } from "@/types/product";
 import { useState } from "react";
 import { Search } from "lucide-react";
 
-export function ProductTable<TValue>({ columns, data }: ProductTableProps<TValue>) {
+import { PaginationControls } from "../ui/pagination-controls";
+import { TableFooter } from "@/components/ui/table";
+
+interface PaginatedProductTableProps<TData> extends ProductTablePropsType<TData> {
+  metadata: {
+    totalPages: number;
+    totalCount: number;
+    currentPage: number;
+    hasNextPage: boolean;
+    hasPrevPage: boolean;
+  };
+  totals: {
+    stock: number;
+  };
+}
+
+export function ProductTable<TValue>({ columns, data, metadata, totals }: PaginatedProductTableProps<TValue>) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [globalFilter, setGlobalFilter] = useState("");
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
 
   const table = useReactTable({
     data,
     columns,
     onSortingChange: setSorting,
-    onGlobalFilterChange: setGlobalFilter,
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     getSortedRowModel: getSortedRowModel(),
+    onGlobalFilterChange: setGlobalFilter,
     globalFilterFn: (row, columnId, filterValue) => {
       const name = row.getValue('product_name') as string;
       const filter = String(filterValue || '').toLowerCase();
@@ -50,7 +68,10 @@ export function ProductTable<TValue>({ columns, data }: ProductTableProps<TValue
     state: {
       sorting,
       globalFilter,
+      columnFilters,
     },
+    manualPagination: true,
+    pageCount: metadata.totalPages,
   });
 
   return (
@@ -77,8 +98,8 @@ export function ProductTable<TValue>({ columns, data }: ProductTableProps<TValue
       <Card>
         <CardHeader className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
           <div>
-          <CardTitle>Product</CardTitle>
-          <CardDescription>A list of all Product</CardDescription>
+            <CardTitle>Product</CardTitle>
+            <CardDescription>A list of all Product</CardDescription>
           </div>
 
           <div className="relative w-full sm:w-1/2 md:w-1/4">
@@ -98,13 +119,13 @@ export function ProductTable<TValue>({ columns, data }: ProductTableProps<TValue
                 <TableRow key={headerGroup.id}>
                   {headerGroup.headers.map((header) => (
                     <TableHead key={header.id}
-                    className="bg-primary text-primary-foreground">
+                      className="bg-primary text-primary-foreground">
                       {header.isPlaceholder
                         ? null
                         : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext(),
-                          )}
+                          header.column.columnDef.header,
+                          header.getContext(),
+                        )}
                     </TableHead>
                   ))}
                 </TableRow>
@@ -135,8 +156,23 @@ export function ProductTable<TValue>({ columns, data }: ProductTableProps<TValue
                 </TableRow>
               )}
             </TableBody>
+            <TableFooter className="bg-muted/50 text-sm font-medium border-t">
+              <TableRow>
+                <TableCell colSpan={4} />
+                {/* Adjust colspan based on your columns */}
+                <TableCell className="text-center border-r-2">Total Stock:</TableCell>
+                <TableCell className="border-r-2">{totals?.stock ?? 0}</TableCell>
+                <TableCell colSpan={2} />
+              </TableRow>
+            </TableFooter>
           </Table>
         </CardContent>
+        <PaginationControls
+          totalPages={metadata.totalPages}
+          hasNextPage={metadata.hasNextPage}
+          hasPrevPage={metadata.hasPrevPage}
+          totalCount={metadata.totalCount}
+        />
       </Card>
     </div>
   );
