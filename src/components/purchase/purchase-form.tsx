@@ -121,7 +121,7 @@ export const PurchaseFormSheet = ({
       referenceNo: purchase?.referenceNo || "",
       branchId: purchase?.branchId || "",
       purchaseDate: purchase?.purchaseDate ? (purchase.purchaseDate instanceof Date ? purchase.purchaseDate : new Date(purchase.purchaseDate)) : new Date(),
-      status: purchase?.status ?? "Purchase_Order",
+      status: purchase?.status ?? "Received",
       totalAmount: purchase?.totalAmount || 0,
       dueAmount: purchase?.dueAmount || 0,
       paidAmount: purchase?.paidAmount || 0,
@@ -344,12 +344,14 @@ export const PurchaseFormSheet = ({
                           <SelectValue placeholder="Select status" />
                         </SelectTrigger>
                         <SelectContent>
-                          {purchaseStatusOption.map((s) => (
-                            <SelectItem key={s} value={s}>
-                              {s === "Purchase_Order" ? "Purchase Order" :
-                                s === "Received" ? "Received" : s}
-                            </SelectItem>
-                          ))}
+                          {purchaseStatusOption
+                            .filter((s) => s !== "Cancelled")
+                            .map((s) => (
+                              <SelectItem key={s} value={s}>
+                                {s === "Purchase_Order" ? "Ordered" :
+                                  s === "Received" ? "Received" : s}
+                              </SelectItem>
+                            ))}
                         </SelectContent>
                       </Select>
                     </FormControl>

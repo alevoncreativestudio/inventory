@@ -104,7 +104,7 @@ export const PurchaseFormPage = () => {
       referenceNo: "",
       branchId: "",
       purchaseDate: new Date(),
-      status: "Purchase_Order",
+      status: "Received",
       totalAmount: 0,
       dueAmount: 0,
       paidAmount: 0,
@@ -349,12 +349,14 @@ export const PurchaseFormPage = () => {
                           <SelectValue placeholder="Select status" />
                         </SelectTrigger>
                         <SelectContent>
-                          {purchaseStatusOption.map((s) => (
-                            <SelectItem key={s} value={s}>
-                              {s === "Purchase_Order" ? "Purchase Order" :
-                                s === "Received" ? "Received" : s}
-                            </SelectItem>
-                          ))}
+                          {purchaseStatusOption
+                            .filter((s) => s !== "Cancelled")
+                            .map((s) => (
+                              <SelectItem key={s} value={s}>
+                                {s === "Purchase_Order" ? "Ordered" :
+                                  s === "Received" ? "Received" : s}
+                              </SelectItem>
+                            ))}
                         </SelectContent>
                       </Select>
                     </FormControl>
