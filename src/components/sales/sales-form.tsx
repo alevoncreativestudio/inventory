@@ -41,6 +41,7 @@ import { getProductListForDropdown } from "@/actions/product-actions";
 import { Command, CommandGroup, CommandItem, CommandInput, CommandEmpty, CommandList } from "../ui/command";
 import { nanoid } from "nanoid";
 import { getAllBranches } from "@/actions/auth";
+import { SalesStatusEnum } from "@/schemas/sales-schema";
 
 export const SalesFormSheet = ({ sales, open, openChange }: SaleFormProps) => {
   const isControlled = typeof open === "boolean";
@@ -59,7 +60,7 @@ export const SalesFormSheet = ({ sales, open, openChange }: SaleFormProps) => {
       invoiceNo: sales?.invoiceNo || "",
       branchId: sales?.branchId || "",
       customerId: sales?.customerId || "",
-      status: (sales?.status as "Ordered" | "Dispatched" | "Cancelled") || "Ordered",
+      status: (sales?.status as "Ordered" | "Dispatched" | "Cancelled") || "Dispatched",
       grandTotal: sales?.grandTotal ?? 0,
       dueAmount: sales?.dueAmount ?? 0,
       paidAmount: sales?.paidAmount ?? 0,
@@ -297,6 +298,32 @@ export const SalesFormSheet = ({ sales, open, openChange }: SaleFormProps) => {
                         <Calendar mode="single" selected={field.value} onSelect={field.onChange} captionLayout="dropdown" />
                       </PopoverContent>
                     </Popover>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="status"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Status</FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select status" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {SalesStatusEnum.options
+                          .filter((s) => s !== "Cancelled")
+                          .map((s) => (
+                            <SelectItem key={s} value={s}>
+                              {s}
+                            </SelectItem>
+                          ))}
+                      </SelectContent>
+                    </Select>
                     <FormMessage />
                   </FormItem>
                 )}

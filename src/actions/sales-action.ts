@@ -64,6 +64,7 @@ export const createSale = actionClient
       const sale = await prisma.sale.create({
         data: {
           ...saleData,
+          status,
           grandTotal,
           dueAmount,
           payments: { create: salesPayment },

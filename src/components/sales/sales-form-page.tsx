@@ -34,6 +34,7 @@ import { nanoid } from "nanoid";
 import { getAllBranches } from "@/actions/auth";
 import { useRouter } from "next/navigation";
 import { CustomerFormDialog } from "@/components/customers/customer-form";
+import { SalesStatusEnum } from "@/schemas/sales-schema";
 
 export const SalesFormPage = () => {
   const router = useRouter();
@@ -52,7 +53,7 @@ export const SalesFormPage = () => {
       invoiceNo: "",
       branchId: "",
       customerId: "",
-      status: "Ordered",
+      status: "Dispatched",
       grandTotal: 0,
       dueAmount: 0,
       paidAmount: 0,
@@ -285,6 +286,33 @@ export const SalesFormPage = () => {
                         />
                       </PopoverContent>
                     </Popover>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="status"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Status</FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select status" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {SalesStatusEnum.options
+                          .filter((s) => s !== "Cancelled")
+                          .map((s) => (
+                            <SelectItem key={s} value={s}>
+                              {s}
+                            </SelectItem>
+                          ))}
+                      </SelectContent>
+                    </Select>
                     <FormMessage />
                   </FormItem>
                 )}
