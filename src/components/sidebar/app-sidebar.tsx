@@ -42,7 +42,7 @@ export function AppSidebar({ user, ...props }: AppSidebarProps) {
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>
-      <SidebarContent className="bg-primary text-primary-foreground">
+      <SidebarContent className="bg-primary text-primary-foreground no-scrollbar">
         <NavMain items={SIDEBAR_DATA.navMain} />
         {user?.role === "admin" && (
           <NavGroup label="Admin Side" items={SIDEBAR_DATA.admin} />
