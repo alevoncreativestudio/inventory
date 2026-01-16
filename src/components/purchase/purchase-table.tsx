@@ -17,7 +17,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-  TableFooter
+  TableFooter,
 } from "@/components/ui/table";
 
 import {
@@ -58,7 +58,12 @@ interface PurchaseTableProps<TData> extends PurchaseTablePropsType<TData> {
   };
 }
 
-export function PurchaseTable<TValue>({ columns, data, metadata, totals }: PurchaseTableProps<TValue>) {
+export function PurchaseTable<TValue>({
+  columns,
+  data,
+  metadata,
+  totals,
+}: PurchaseTableProps<TValue>) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [globalFilter, setGlobalFilter] = useState("");
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
@@ -90,10 +95,15 @@ export function PurchaseTable<TValue>({ columns, data, metadata, totals }: Purch
     pageCount: metadata.totalPages,
   });
 
+  const totalPurchaseAmount = data.reduce(
+    (acc, row) => acc + (row?.totalAmount ?? 0),
+    0,
+  );
 
-  const totalPurchaseAmount = data.reduce((acc, row) => acc + (row?.totalAmount ?? 0), 0);
-
-  const totalDueAmount = data.reduce((acc, row) => acc + (row?.dueAmount ?? 0), 0)
+  const totalDueAmount = data.reduce(
+    (acc, row) => acc + (row?.dueAmount ?? 0),
+    0,
+  );
 
   return (
     <div className="flex flex-col gap-5">
@@ -117,14 +127,14 @@ export function PurchaseTable<TValue>({ columns, data, metadata, totals }: Purch
 
       {/* Table Card */}
       <Card>
-        <CardHeader className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+        <CardHeader className="flex flex-col items-start justify-between gap-4 md:flex-row md:items-center">
           <div>
             <CardTitle>Purchases</CardTitle>
             <CardDescription>A list of all purchases</CardDescription>
           </div>
 
           <div className="relative w-full sm:w-1/2 md:w-1/4">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+            <Search className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 transform" />
             <Input
               placeholder="Search by Ref no or supplier"
               value={globalFilter}
@@ -159,11 +169,16 @@ export function PurchaseTable<TValue>({ columns, data, metadata, totals }: Purch
               {table.getHeaderGroups().map((headerGroup) => (
                 <TableRow key={headerGroup.id}>
                   {headerGroup.headers.map((header) => (
-                    <TableHead key={header.id}
-                      className="bg-primary text-primary-foreground">
+                    <TableHead
+                      key={header.id}
+                      className="bg-primary text-primary-foreground"
+                    >
                       {header.isPlaceholder
                         ? null
-                        : flexRender(header.column.columnDef.header, header.getContext())}
+                        : flexRender(
+                            header.column.columnDef.header,
+                            header.getContext(),
+                          )}
                     </TableHead>
                   ))}
                 </TableRow>
@@ -176,32 +191,50 @@ export function PurchaseTable<TValue>({ columns, data, metadata, totals }: Purch
                   <TableRow key={row.id}>
                     {row.getVisibleCells().map((cell) => (
                       <TableCell key={cell.id}>
-                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                        {flexRender(
+                          cell.column.columnDef.cell,
+                          cell.getContext(),
+                        )}
                       </TableCell>
                     ))}
                   </TableRow>
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={columns.length} className="h-24 text-center">
+                  <TableCell
+                    colSpan={columns.length}
+                    className="h-24 text-center"
+                  >
                     No results.
                   </TableCell>
                 </TableRow>
               )}
             </TableBody>
 
-            <TableFooter className="bg-muted/50 text-sm font-medium border-t">
+            <TableFooter className="bg-muted/50 border-t text-sm font-medium">
               <TableRow>
                 <TableCell colSpan={5} />
-                <TableCell className="text-center border-r-2">Page Total:</TableCell>
-                <TableCell className="border-r-2">{formatCurrency(totalDueAmount)}</TableCell>
-                <TableCell colSpan={2} className="border-r-2">{formatCurrency(totalPurchaseAmount)}</TableCell>
+                <TableCell className="border-r-2 text-center">
+                  Page Total:
+                </TableCell>
+                <TableCell className="border-r-2 text-center">
+                  {formatCurrency(totalDueAmount)}
+                </TableCell>
+                <TableCell colSpan={2} className="border-r-2">
+                  {formatCurrency(totalPurchaseAmount)}
+                </TableCell>
               </TableRow>
               <TableRow>
                 <TableCell colSpan={5} />
-                <TableCell className="text-center border-r-2">Grand Total:</TableCell>
-                <TableCell className="border-r-2">{formatCurrency(totals?.dueAmount ?? 0)}</TableCell>
-                <TableCell colSpan={2} className="border-r-2">{formatCurrency(totals?.totalAmount ?? 0)}</TableCell>
+                <TableCell className="border-r-2 text-center">
+                  Grand Total:
+                </TableCell>
+                <TableCell className="border-r-2 text-center">
+                  {formatCurrency(totals?.dueAmount ?? 0)}
+                </TableCell>
+                <TableCell colSpan={2} className="border-r-2">
+                  {formatCurrency(totals?.totalAmount ?? 0)}
+                </TableCell>
               </TableRow>
             </TableFooter>
           </Table>
