@@ -49,9 +49,9 @@ export function DateRangeFilter({
                 to: new Date(to),
             })
         } else {
-            setDate(undefined)
+            setDate(defaultDate)
         }
-    }, [from, to])
+    }, [from, to, defaultDate])
 
     const handleSelect = (selectedDate: DateRange | undefined) => {
         setDate(selectedDate)

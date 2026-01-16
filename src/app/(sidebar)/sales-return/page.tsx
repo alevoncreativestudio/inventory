@@ -5,6 +5,9 @@ import { SalesReturnFormSheet } from "@/components/sales-return/sales-return-for
 import { salesReturnColumns } from "@/components/sales-return/sales-return-colums";
 import { getSalesReturnList } from "@/actions/sales-return-action";
 
+import { DateRangeFilter } from "@/components/common/date-range-filter";
+import { format } from "date-fns";
+
 interface SalesReturnPageProps {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }
@@ -14,7 +17,12 @@ export default async function SalesReturnPage({ searchParams }: SalesReturnPageP
   const page = typeof params.page === "string" ? Number(params.page) : 1;
   const limit = typeof params.limit === "string" ? Number(params.limit) : 10;
 
-  const { data } = await getSalesReturnList({ page, limit });
+  const today = new Date();
+  const formattedToday = format(today, "yyyy-MM-dd");
+  const from = typeof params.from === "string" ? params.from : formattedToday;
+  const to = typeof params.to === "string" ? params.to : formattedToday;
+
+  const { data } = await getSalesReturnList({ page, limit, from, to });
 
   return (
     <div className="flex flex-1 flex-col">
@@ -25,7 +33,10 @@ export default async function SalesReturnPage({ searchParams }: SalesReturnPageP
               <h1 className="text-2xl font-bold tracking-tight">Sales Returns</h1>
               <p className="text-muted-foreground">Manage your Sales Returns</p>
             </div>
-            <SalesReturnFormSheet />
+            <div className="flex items-center gap-2">
+              <DateRangeFilter defaultDate={{ from: today, to: today }} />
+              <SalesReturnFormSheet />
+            </div>
           </div>
 
           <SalesReturnTable
