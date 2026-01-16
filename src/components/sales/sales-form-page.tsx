@@ -69,9 +69,10 @@ export const SalesFormPage = () => {
 
   const itemFieldKeys: SaleItemField[] = [
     "quantity",
-    "excTax",
+    "purchaseExcTax",
+    "purchaseIncTax",
+    "sellingPrice",
     "discount",
-    "incTax",
     "subtotal",
     "total",
   ];
@@ -324,22 +325,13 @@ export const SalesFormPage = () => {
                             key={p.id}
                             value={p.product_name}
                             onSelect={() => {
-                              const sellingPrice = p.sellingPrice;
-                              const taxRate = Number(p.tax) || 0;
-                              const taxType = p.sellingPriceTaxType || "exclusive";
+                              // Simplified logic: Selling Price is flat, no additional tax
+                              const sellingPrice = p.sellingPrice || 0;
 
-                              let excTax: number;
-                              let incTax: number;
-
-                              if (taxType === "inclusive") {
-                                // Selling price already includes tax
-                                incTax = sellingPrice;
-                                excTax = sellingPrice / (1 + taxRate);
-                              } else {
-                                // Selling price is exclusive of tax
-                                excTax = sellingPrice;
-                                incTax = sellingPrice + (sellingPrice * taxRate);
-                              }
+                              // We use excTax and incTax to satisfy the schema/backend, 
+                              // but they will just equal the selling price if no tax is added at sale time.
+                              const excTax = sellingPrice;
+                              const incTax = sellingPrice;
 
                               append({
                                 productId: p.id,
@@ -351,6 +343,10 @@ export const SalesFormPage = () => {
                                 incTax: incTax,
                                 subtotal: excTax,
                                 total: incTax,
+                                taxRate: 0,
+                                sellingPrice: sellingPrice,
+                                purchaseExcTax: p.excTax || 0,
+                                purchaseIncTax: p.incTax || 0,
                               });
                               setProductSearch("");
                               setProductOptions([]);
@@ -373,9 +369,10 @@ export const SalesFormPage = () => {
                     <TableHead>Product Name</TableHead>
                     <TableHead>Available Stock</TableHead>
                     <TableHead>Qty</TableHead>
-                    <TableHead>Unit Price(Before Tax)</TableHead>
+                    <TableHead>Unit Cost(Before Tax)</TableHead>
+                    <TableHead>Unit Cost(Inc Tax)</TableHead>
+                    <TableHead>Selling Price</TableHead>
                     <TableHead>Discount</TableHead>
-                    <TableHead>Price (include Tax)</TableHead>
                     <TableHead>Subtotal</TableHead>
                     <TableHead>Total</TableHead>
                     <TableHead />
@@ -394,35 +391,56 @@ export const SalesFormPage = () => {
 
                       {itemFieldKeys.map((key) => (
                         <TableCell key={key}>
-                          <FormField
-                            control={form.control}
-                            name={`items.${idx}.${key}`}
-                            render={({ field }) => (
-                              <FormControl>
-                                <Input
-                                  type="number"
-                                  className="min-w-18"
-                                  {...field}
-                                  value={field.value ?? ""}
-                                  onChange={(e) => {
-                                    const value = Number(e.target.value);
-                                    field.onChange(value);
-                                    const quantity = Number(form.getValues(`items.${idx}.quantity`));
-                                    const excTax = Number(form.getValues(`items.${idx}.excTax`));
-                                    const discount = Number(form.getValues(`items.${idx}.discount`));
-                                    const incTax = Number(form.getValues(`items.${idx}.incTax`));
+                          {key === "purchaseExcTax" || key === "purchaseIncTax" ? (
+                            <div className="bg-muted p-2 rounded-md text-sm min-w-18 text-center bg-gray-100 dark:bg-zinc-800">
+                              {(Number(form.watch(`items.${idx}.${key}`)) || 0).toFixed(2)}
+                            </div>
+                          ) : (
+                            <FormField
+                              control={form.control}
+                              name={`items.${idx}.${key}`}
+                              render={({ field }) => (
+                                <FormControl>
+                                  <Input
+                                    type="number"
+                                    className="min-w-18"
+                                    {...field}
+                                    value={
+                                      typeof field.value === 'number'
+                                        ? (field.value)
+                                        : (field.value ?? "")
+                                    }
+                                    onChange={(e) => {
+                                      const value = Number(e.target.value);
+                                      field.onChange(value);
 
-                                    const subtotal = quantity * excTax;
-                                    const totalBeforeDiscount = quantity * incTax;
-                                    const total = totalBeforeDiscount - discount;
+                                      const currentValues = form.getValues(`items.${idx}`);
+                                      const quantity = Number(currentValues.quantity);
+                                      const discount = Number(currentValues.discount);
 
-                                    form.setValue(`items.${idx}.subtotal`, subtotal, { shouldDirty: true });
-                                    form.setValue(`items.${idx}.total`, total, { shouldDirty: true });
-                                  }}
-                                />
-                              </FormControl>
-                            )}
-                          />
+                                      // If Selling Price changes, update excTax/incTax too
+                                      let sellingPrice = Number(currentValues.sellingPrice);
+
+                                      if (key === "sellingPrice") {
+                                        sellingPrice = value;
+                                        // Update the hidden/backend fields
+                                        form.setValue(`items.${idx}.excTax`, value);
+                                        form.setValue(`items.${idx}.incTax`, value);
+                                      }
+
+                                      const subtotal = quantity * sellingPrice;
+                                      const total = subtotal - discount;
+
+                                      form.setValue(`items.${idx}.subtotal`, subtotal);
+                                      form.setValue(`items.${idx}.total`, total);
+                                    }}
+                                    readOnly={key === "subtotal" || key === "total"}
+                                    disabled={key === "subtotal" || key === "total"}
+                                  />
+                                </FormControl>
+                              )}
+                            />
+                          )}
                         </TableCell>
                       ))}
 

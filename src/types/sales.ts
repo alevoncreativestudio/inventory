@@ -33,8 +33,12 @@ export type SaleItemField =
   | "excTax"
   | "incTax"
   | "discount"
+  | "tax"
   | "subtotal"
-  | "total";
+  | "total"
+  | "sellingPrice"
+  | "purchaseExcTax"
+  | "purchaseIncTax";
 
 export interface SaleCount {
   grandTotal?: number;
@@ -51,6 +55,10 @@ export type RawSaleItem = {
   discount: number;
   subtotal: number;
   total: number;
+  taxRate?: number;
+  sellingPrice?: number;
+  purchaseExcTax?: number;
+  purchaseIncTax?: number;
 };
 
 export interface RawSalesPayment {
