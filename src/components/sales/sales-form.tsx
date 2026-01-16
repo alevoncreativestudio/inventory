@@ -136,6 +136,52 @@ export const SalesFormSheet = ({ sales, open, openChange }: SaleFormProps) => {
   useEffect(() => {
     if (!sales) {
       form.setValue("invoiceNo", `INV-${year}-${nanoid(4).toUpperCase()}`);
+    } else {
+      form.reset({
+        invoiceNo: sales?.invoiceNo || "",
+        branchId: sales?.branchId || "",
+        customerId: sales?.customerId || "",
+        status: (sales?.status as "Ordered" | "Dispatched" | "Cancelled") || "Dispatched",
+        grandTotal: sales?.grandTotal ?? 0,
+        dueAmount: sales?.dueAmount ?? 0,
+        paidAmount: sales?.paidAmount ?? 0,
+        salesdate: sales?.salesdate
+          ? sales.salesdate instanceof Date
+            ? sales.salesdate
+            : new Date(sales.salesdate)
+          : new Date(),
+        items: sales?.items?.map((item) => ({
+          productId: item.productId,
+          product_name: item.product?.product_name,
+          stock: item.product?.stock,
+          quantity: Number(item.quantity),
+          excTax: Number(item.excTax),
+          incTax: Number(item.incTax),
+          discount: Number(item.discount),
+          subtotal: Number(item.subtotal),
+          total: Number(item.total),
+        })) || [],
+        salesPayment: sales?.payments?.length
+          ? sales.payments.map((p) => ({
+            amount: Number(p.amount),
+            paidOn: p.paidOn instanceof Date ? p.paidOn : new Date(p.paidOn),
+            paymentMethod: p.paymentMethod,
+            paymentNote: p.paymentNote || "",
+            dueDate: p.dueDate
+              ? p.dueDate instanceof Date
+                ? p.dueDate
+                : new Date(p.dueDate)
+              : undefined,
+          }))
+          : [
+            {
+              amount: 0,
+              paidOn: new Date(),
+              paymentMethod: "cash",
+              paymentNote: "",
+            },
+          ],
+      } as any);
     }
   }, [form, sales, year]);
 

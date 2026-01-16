@@ -99,6 +99,22 @@ export const ProductFormSheet = ({ product, open, openChange }: ProductFormProps
   useEffect(() => {
     if (!product) {
       form.setValue("sku", `SKU-${nanoid(6).toUpperCase()}`);
+    } else {
+      form.reset({
+        product_name: product?.product_name || "",
+        sku: product?.sku || "",
+        branchId: product?.branchId || "",
+        unit: product?.unit || "",
+        stock: product?.stock ?? 0,
+        brandId: product?.brandId || "",
+        categoryId: product?.categoryId || "",
+        tax: product?.tax ?? "0",
+        sellingPriceTaxType: product?.sellingPriceTaxType || "exclusive",
+        excTax: product?.excTax ?? undefined,
+        incTax: product?.incTax ?? undefined,
+        margin: product?.margin ?? 25,
+        sellingPrice: product?.sellingPrice ?? undefined,
+      });
     }
   }, [form, product]);
 

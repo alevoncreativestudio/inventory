@@ -139,6 +139,25 @@ export const PurchaseFormSheet = ({
   useEffect(() => {
     if (!purchase) {
       form.setValue("referenceNo", `REF-${nanoid(4).toUpperCase()}`);
+    } else {
+      form.reset({
+        supplierId: purchase?.supplierId || "",
+        referenceNo: purchase?.referenceNo || "",
+        branchId: purchase?.branchId || "",
+        purchaseDate: purchase?.purchaseDate ? (purchase.purchaseDate instanceof Date ? purchase.purchaseDate : new Date(purchase.purchaseDate)) : new Date(),
+        status: purchase?.status ?? "Received",
+        totalAmount: purchase?.totalAmount || 0,
+        dueAmount: purchase?.dueAmount || 0,
+        paidAmount: purchase?.paidAmount || 0,
+        items: purchase?.items || [],
+        payments: purchase?.payments || [{
+          amount: 0,
+          paidOn: new Date(),
+          paymentMethod: "",
+          paymentNote: "",
+          dueDate: null
+        }]
+      });
     }
   }, [form, purchase]);
 
