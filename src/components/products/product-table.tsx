@@ -166,7 +166,7 @@ export function ProductTable<TValue>({
             </TableBody>
             <TableFooter className="bg-muted/50 border-t text-sm font-medium">
               <TableRow>
-                <TableCell className="border-r-2 text-left">
+                <TableCell className="border-r-2 text-center">
                   Total Stock:
                 </TableCell>
 
