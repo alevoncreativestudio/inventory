@@ -67,7 +67,7 @@ export const SalesFormPage = () => {
     }
   });
 
-  const itemFieldKeys: SaleItemField[] = [
+  const itemFieldKeys = [
     "quantity",
     "purchaseExcTax",
     "purchaseIncTax",
@@ -75,7 +75,7 @@ export const SalesFormPage = () => {
     "discount",
     "subtotal",
     "total",
-  ];
+  ] as const;
 
   const year = new Date().getFullYear();
 
@@ -362,114 +362,121 @@ export const SalesFormPage = () => {
               </Popover>
             </FormItem>
 
-            <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Product Name</TableHead>
-                    <TableHead>Available Stock</TableHead>
-                    <TableHead>Qty</TableHead>
-                    <TableHead>Unit Cost(Before Tax)</TableHead>
-                    <TableHead>Unit Cost(Inc Tax)</TableHead>
-                    <TableHead>Selling Price</TableHead>
-                    <TableHead>Discount</TableHead>
-                    <TableHead>Subtotal</TableHead>
-                    <TableHead>Total</TableHead>
-                    <TableHead />
-                  </TableRow>
-                </TableHeader>
-
-                <TableBody>
-                  {fields.filter(f => f.productId && f.product_name).map((f, idx) => (
-                    <TableRow key={f.id}>
-                      <TableCell>
-                        {f.product_name || "—"}
-                      </TableCell>
-                      <TableCell>
-                        {f.stock}
-                      </TableCell>
-
-                      {itemFieldKeys.map((key) => (
-                        <TableCell key={key}>
-                          {key === "purchaseExcTax" || key === "purchaseIncTax" ? (
-                            <div className="bg-muted p-2 rounded-md text-sm min-w-18 text-center bg-gray-100 dark:bg-zinc-800">
-                              {(Number(form.watch(`items.${idx}.${key}`)) || 0).toFixed(2)}
-                            </div>
-                          ) : (
-                            <FormField
-                              control={form.control}
-                              name={`items.${idx}.${key}`}
-                              render={({ field }) => (
-                                <FormControl>
-                                  <Input
-                                    type="number"
-                                    className="min-w-18"
-                                    {...field}
-                                    value={
-                                      typeof field.value === 'number'
-                                        ? (field.value)
-                                        : (field.value ?? "")
-                                    }
-                                    onChange={(e) => {
-                                      const value = Number(e.target.value);
-                                      field.onChange(value);
-
-                                      const currentValues = form.getValues(`items.${idx}`);
-                                      const quantity = Number(currentValues.quantity);
-                                      const discount = Number(currentValues.discount);
-
-                                      // If Selling Price changes, update excTax/incTax too
-                                      let sellingPrice = Number(currentValues.sellingPrice);
-
-                                      if (key === "sellingPrice") {
-                                        sellingPrice = value;
-                                        // Update the hidden/backend fields
-                                        form.setValue(`items.${idx}.excTax`, value);
-                                        form.setValue(`items.${idx}.incTax`, value);
-                                      }
-
-                                      const subtotal = quantity * sellingPrice;
-                                      const total = subtotal - discount;
-
-                                      form.setValue(`items.${idx}.subtotal`, subtotal);
-                                      form.setValue(`items.${idx}.total`, total);
-                                    }}
-                                    readOnly={key === "subtotal" || key === "total"}
-                                    disabled={key === "subtotal" || key === "total"}
-                                  />
-                                </FormControl>
-                              )}
-                            />
-                          )}
-                        </TableCell>
-                      ))}
-
-                      <TableCell>
-                        <Button
-                          type="button"
-                          variant="destructive"
-                          onClick={() => remove(idx)}
-                        >
-                          Remove
-                        </Button>
-                      </TableCell>
+            {fields.length > 0 ? (
+              <>
+                <Table className="min-w-[1500px]">
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Product Name</TableHead>
+                      <TableHead>Available Stock</TableHead>
+                      <TableHead>Qty</TableHead>
+                      <TableHead>Unit Cost(Before Tax)</TableHead>
+                      <TableHead>Unit Cost(Inc Tax)</TableHead>
+                      <TableHead>Selling Price</TableHead>
+                      <TableHead>Discount</TableHead>
+                      <TableHead>Subtotal</TableHead>
+                      <TableHead>Total</TableHead>
+                      <TableHead />
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-              <div className="flex justify-end pr-4 mt-4">
-                <div className="text-right space-y-1">
-                  <div className="text-muted-foreground text-sm">Grand Total:</div>
-                  <div className="text-xl font-semibold">
-                    ₹{" "}
-                    {form
-                      .watch("items")
-                      .reduce((sum, item) => sum + (Number(item.total) || 0), 0)
-                      .toFixed(2)}
+                  </TableHeader>
+
+                  <TableBody>
+                    {fields.filter(f => f.productId && f.product_name).map((f, idx) => (
+                      <TableRow key={f.id}>
+                        <TableCell>
+                          {f.product_name || "—"}
+                        </TableCell>
+                        <TableCell>
+                          {f.stock}
+                        </TableCell>
+
+                        {itemFieldKeys.map((key) => (
+                          <TableCell key={key}>
+                            {key === "purchaseExcTax" || key === "purchaseIncTax" ? (
+                              <div className="bg-muted p-2 rounded-md text-sm min-w-18 text-center bg-gray-100 dark:bg-zinc-800">
+                                {(Number(form.watch(`items.${idx}.${key}`)) || 0).toFixed(2)}
+                              </div>
+                            ) : (
+                              <FormField
+                                control={form.control}
+                                name={`items.${idx}.${key}`}
+                                render={({ field }) => (
+                                  <FormControl>
+                                    <Input
+                                      type="number"
+                                      className="min-w-18"
+                                      {...field}
+                                      value={
+                                        typeof field.value === 'number'
+                                          ? (field.value)
+                                          : (field.value ?? "")
+                                      }
+                                      onChange={(e) => {
+                                        const value = Number(e.target.value);
+                                        field.onChange(value);
+
+                                        const currentValues = form.getValues(`items.${idx}`);
+                                        const quantity = Number(currentValues.quantity);
+                                        const discount = Number(currentValues.discount);
+
+                                        // If Selling Price changes, update excTax/incTax too
+                                        let sellingPrice = Number(currentValues.sellingPrice);
+
+                                        if (key === "sellingPrice") {
+                                          sellingPrice = value;
+                                          // Update the hidden/backend fields
+                                          form.setValue(`items.${idx}.excTax`, value);
+                                          form.setValue(`items.${idx}.incTax`, value);
+                                        }
+
+                                        const subtotal = quantity * sellingPrice;
+                                        const total = subtotal - discount;
+
+                                        form.setValue(`items.${idx}.subtotal`, subtotal);
+                                        form.setValue(`items.${idx}.total`, total);
+                                      }}
+                                      readOnly={key === "subtotal" || key === "total"}
+                                      disabled={key === "subtotal" || key === "total"}
+                                    />
+                                  </FormControl>
+                                )}
+                              />
+                            )}
+                          </TableCell>
+                        ))}
+
+                        <TableCell>
+                          <Button
+                            type="button"
+                            variant="destructive"
+                            onClick={() => remove(idx)}
+                          >
+                            Remove
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+                <div className="flex justify-end pr-4 mt-4">
+                  <div className="text-right space-y-1">
+                    <div className="text-muted-foreground text-sm">Grand Total:</div>
+                    <div className="text-xl font-semibold">
+                      ₹{" "}
+                      {form
+                        .watch("items")
+                        .reduce((sum, item) => sum + (Number(item.total) || 0), 0)
+                        .toFixed(2)}
+                    </div>
                   </div>
                 </div>
+              </>
+            ) : (
+              <div className="flex flex-col items-center justify-center py-10 text-center text-sm text-muted-foreground bg-muted/20 border-2 border-dashed rounded-lg">
+                <p>No products added yet.</p>
+                <p>Search and select products above to add them to the sale.</p>
               </div>
-            </div>
+            )}
           </Card>
 
           {/* Payment Card */}
