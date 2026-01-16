@@ -160,6 +160,9 @@ export const SalesFormSheet = ({ sales, open, openChange }: SaleFormProps) => {
           discount: Number(item.discount),
           subtotal: Number(item.subtotal),
           total: Number(item.total),
+          sellingPrice: Number(item.excTax), // excTax used as unit price in this simplified logic
+          purchaseExcTax: Number(item.product?.excTax || 0),
+          purchaseIncTax: Number(item.product?.incTax || 0),
         })) || [],
         salesPayment: sales?.payments?.length
           ? sales.payments.map((p) => ({

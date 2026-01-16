@@ -7,6 +7,8 @@ export interface SaleItem extends PrismaSaleItem {
     stock: number;
     sellingPrice?: number;
     tax?: number;
+    excTax?: number;
+    incTax?: number;
   };
 }
 
