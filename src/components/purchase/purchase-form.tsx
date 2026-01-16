@@ -73,23 +73,23 @@ export const PurchaseFormSheet = ({
   const { execute: update, isExecuting: isUpdating } = useAction(updatePurchase);
   const [productSearch, setProductSearch] = useState("");
   const [productOptions, setProductOptions] = useState<ProductOption[]>([]);
-  const [supplierList, setSupplierList] = useState<{ name: string; id: string,openingBalance:number }[]>([]);
+  const [supplierList, setSupplierList] = useState<{ name: string; id: string, openingBalance: number }[]>([]);
   const [showSupplierSuggestions, setShowSupplierSuggestions] = useState(false);
   const [selectedSupplierOpeningBalance, setSelectedSupplierOpeningBalance] = useState<number | null>(null);
-  const [baranchList, setBranchList] = useState<{ name: string; id: string;}[]>([]);
+  const [baranchList, setBranchList] = useState<{ name: string; id: string; }[]>([]);
   const [taxRateList, setTaxRateList] = useState<{ name: string; taxRate: string; id: string }[]>([]);
   const [openSupplierForm, setOpenSupplierForm] = useState(false);
-  
+
   const itemFieldKeys: PurchaseItemField[] = [
     "quantity",
     "excTax",
     "tax",
     "discount",
     "incTax",
+    "sellingPrice",
     "margin",
     "subtotal",
     "total",
-    "sellingPrice",
   ];
 
   const itemFieldKeysWithoutTax = itemFieldKeys.filter((key) => key !== "tax");
@@ -123,8 +123,8 @@ export const PurchaseFormSheet = ({
       purchaseDate: purchase?.purchaseDate ? (purchase.purchaseDate instanceof Date ? purchase.purchaseDate : new Date(purchase.purchaseDate)) : new Date(),
       status: purchase?.status ?? "Purchase_Order",
       totalAmount: purchase?.totalAmount || 0,
-      dueAmount:purchase?.dueAmount || 0,
-      paidAmount:purchase?.paidAmount || 0,
+      dueAmount: purchase?.dueAmount || 0,
+      paidAmount: purchase?.paidAmount || 0,
       items: purchase?.items || [],
       payments: purchase?.payments || [{
         amount: 0,
@@ -137,17 +137,17 @@ export const PurchaseFormSheet = ({
   });
 
   useEffect(() => {
-  if (!purchase) {
-    form.setValue("referenceNo", `REF-${nanoid(4).toUpperCase()}`);
-  }
-}, [form, purchase]);
+    if (!purchase) {
+      form.setValue("referenceNo", `REF-${nanoid(4).toUpperCase()}`);
+    }
+  }, [form, purchase]);
 
   const { fields, append, remove } = useFieldArray({
     control: form.control,
     name: "items",
   });
 
-// Removed useWatch hooks that were causing empty items to be created
+  // Removed useWatch hooks that were causing empty items to be created
 
 
   useEffect(() => {
@@ -162,14 +162,14 @@ export const PurchaseFormSheet = ({
 
 
   const handleSubmit = async (data: z.infer<typeof fullPurchaseSchema>) => {
-    
+
     const totalAmount = data.items.reduce((sum, item) => sum + (item.total || 0), 0);
     const paidAmount = data.payments.reduce((sum, payment) => sum + (payment.amount || 0), 0);
     const dueAmount = totalAmount - paidAmount
 
     form.setValue("totalAmount", totalAmount);
-    form.setValue("paidAmount",paidAmount)
-    form.setValue("dueAmount",dueAmount);
+    form.setValue("paidAmount", paidAmount)
+    form.setValue("dueAmount", dueAmount);
 
     const payload = {
       ...data,
@@ -274,21 +274,21 @@ export const PurchaseFormSheet = ({
               />
 
               <FormField control={form.control} name="branchId" render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Business Location</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value}>
-                      <FormControl>
-                        <SelectTrigger className="w-full"><SelectValue placeholder="Select Branch" /></SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {baranchList.map(branch => (
-                          <SelectItem key={branch.id} value={branch.id}>{branch.name}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )} />
+                <FormItem>
+                  <FormLabel>Business Location</FormLabel>
+                  <Select onValueChange={field.onChange} value={field.value}>
+                    <FormControl>
+                      <SelectTrigger className="w-full"><SelectValue placeholder="Select Branch" /></SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {baranchList.map(branch => (
+                        <SelectItem key={branch.id} value={branch.id}>{branch.name}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )} />
 
               <FormField
                 control={form.control}
@@ -346,8 +346,8 @@ export const PurchaseFormSheet = ({
                         <SelectContent>
                           {purchaseStatusOption.map((s) => (
                             <SelectItem key={s} value={s}>
-                              {s === "Purchase_Order" ? "Purchase Order" : 
-                               s === "Received" ? "Received" : s}
+                              {s === "Purchase_Order" ? "Purchase Order" :
+                                s === "Received" ? "Received" : s}
                             </SelectItem>
                           ))}
                         </SelectContent>
@@ -391,10 +391,10 @@ export const PurchaseFormSheet = ({
                   </PopoverTrigger>
                   <PopoverContent className="w-full p-0">
                     <Command shouldFilter={false}>
-                      <CommandInput 
-                      placeholder="Search product..." 
-                      value={productSearch} 
-                      onValueChange={setProductSearch} 
+                      <CommandInput
+                        placeholder="Search product..."
+                        value={productSearch}
+                        onValueChange={setProductSearch}
                       />
 
                       <CommandList>
@@ -409,15 +409,15 @@ export const PurchaseFormSheet = ({
                                   productId: p.id,
                                   quantity: 1,
                                   product_name: p.product_name,
-                                  stock:p.stock,
+                                  stock: p.stock,
                                   discount: 0,
                                   excTax: p.excTax,
                                   incTax: p.incTax,
-                                  tax:p.tax,
-                                  margin:p.margin,
-                                  sellingPrice:p.sellingPrice,
+                                  tax: p.tax,
+                                  margin: p.margin,
+                                  sellingPrice: p.sellingPrice,
                                   subtotal: p.excTax,
-                                  total:p.incTax,
+                                  total: p.incTax,
                                 });
                                 setProductSearch("");
                                 setProductOptions([]);
@@ -444,10 +444,10 @@ export const PurchaseFormSheet = ({
                     <TableHead>Unit Cost(Before Tax)</TableHead>
                     <TableHead>Discount</TableHead>
                     <TableHead>Cost (include Tax)</TableHead>
+                    <TableHead>Selling Price</TableHead>
                     <TableHead>Margin(%)</TableHead>
                     <TableHead>Subtotal</TableHead>
                     <TableHead>Total</TableHead>
-                    <TableHead>Selling Price</TableHead>
                     <TableHead />
                   </TableRow>
                 </TableHeader>
@@ -463,42 +463,42 @@ export const PurchaseFormSheet = ({
                       </TableCell>
 
                       <TableCell>
-                          <FormField control={form.control} name={`items.${idx}.tax`} render={({ field }) => (
-                            <FormItem>
-                              <Select onValueChange={(value) => {
-                                field.onChange(value); 
-                                const quantity = Number(form.getValues(`items.${idx}.quantity`));
-                                const excTax = Number(form.getValues(`items.${idx}.excTax`));
-                                const discount = Number(form.getValues(`items.${idx}.discount`));
-                                const margin = Number(form.getValues(`items.${idx}.margin`));
+                        <FormField control={form.control} name={`items.${idx}.tax`} render={({ field }) => (
+                          <FormItem>
+                            <Select onValueChange={(value) => {
+                              field.onChange(value);
+                              const quantity = Number(form.getValues(`items.${idx}.quantity`));
+                              const excTax = Number(form.getValues(`items.${idx}.excTax`));
+                              const discount = Number(form.getValues(`items.${idx}.discount`));
+                              const margin = Number(form.getValues(`items.${idx}.margin`));
 
-                                const taxRate = Number(value); 
+                              const taxRate = Number(value);
 
-                                const incTax = Math.round(excTax * (1 + taxRate));
-                                const subtotal = quantity * excTax;
-                                const totalBeforeDiscount = quantity * incTax;
-                                const total = totalBeforeDiscount - discount;
-                                const sellingPrice = Math.round(incTax * (1 + margin / 100) * 100) / 100;
+                              const incTax = Math.round(excTax * (1 + taxRate));
+                              const subtotal = quantity * excTax;
+                              const totalBeforeDiscount = quantity * incTax;
+                              const total = totalBeforeDiscount - discount;
+                              const sellingPrice = Math.round(incTax * (1 + margin / 100) * 100) / 100;
 
-                                form.setValue(`items.${idx}.incTax`, incTax);
-                                form.setValue(`items.${idx}.subtotal`, subtotal);
-                                form.setValue(`items.${idx}.total`, total);
-                                form.setValue(`items.${idx}.sellingPrice`, sellingPrice);
-                              }} 
+                              form.setValue(`items.${idx}.incTax`, incTax);
+                              form.setValue(`items.${idx}.subtotal`, subtotal);
+                              form.setValue(`items.${idx}.total`, total);
+                              form.setValue(`items.${idx}.sellingPrice`, sellingPrice);
+                            }}
                               value={field.value}>
-                                <FormControl>
-                                  <SelectTrigger className="w-full"><SelectValue placeholder="Select Tax Rate" /></SelectTrigger>
-                                </FormControl>
-                                <SelectContent>
-                                  {taxRateList.map(tax => (
-                                    <SelectItem key={tax.id} value={tax.taxRate}>{tax.name}</SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
-                              <FormMessage />
-                            </FormItem>
-                          )} />
-                        </TableCell>
+                              <FormControl>
+                                <SelectTrigger className="w-full"><SelectValue placeholder="Select Tax Rate" /></SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                {taxRateList.map(tax => (
+                                  <SelectItem key={tax.id} value={tax.taxRate}>{tax.name}</SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                            <FormMessage />
+                          </FormItem>
+                        )} />
+                      </TableCell>
 
                       {itemFieldKeysWithoutTax.map((key) => (
                         <TableCell key={key}>
@@ -520,17 +520,17 @@ export const PurchaseFormSheet = ({
                                     const discount = Number(form.getValues(`items.${idx}.discount`));
                                     const incTax = Number(form.getValues(`items.${idx}.incTax`));
                                     const margin = Number(form.getValues(`items.${idx}.margin`));
-                                  
+
                                     const subtotal = quantity * excTax;
                                     const totalBeforeDiscount = quantity * incTax;
                                     const total = totalBeforeDiscount - discount;
                                     const sellingPrice = Math.round(incTax * (1 + margin / 100) * 100) / 100;
-                                  
+
                                     form.setValue(`items.${idx}.subtotal`, subtotal, { shouldDirty: true });
                                     form.setValue(`items.${idx}.total`, total, { shouldDirty: true });
                                     form.setValue(`items.${idx}.sellingPrice`, sellingPrice, { shouldDirty: true });
                                   }}
-                                  
+
                                 />
                               </FormControl>
                             )}
@@ -694,37 +694,37 @@ export const PurchaseFormSheet = ({
 
                 if (due > 0) {
                   return (
-                  <div className="grid md:grid-cols-2 gap-4">
-                    <FormField
-                      control={form.control}
-                      name="payments.0.dueDate"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Due Date</FormLabel>
-                          <Popover>
-                            <PopoverTrigger asChild>
-                              <FormControl>
-                                <Button variant="outline" className="w-full text-left">
-                                  {field.value
-                                    ? new Date(field.value).toLocaleDateString()
-                                    : "Select date"}
-                                </Button>
-                              </FormControl>
-                            </PopoverTrigger>
-                            <PopoverContent>
-                              <Calendar
-                                mode="single"
-                                selected={field.value ? new Date(field.value) : undefined}
-                                onSelect={field.onChange}
-                                captionLayout="dropdown"
-                              />
-                            </PopoverContent>
-                          </Popover>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
+                    <div className="grid md:grid-cols-2 gap-4">
+                      <FormField
+                        control={form.control}
+                        name="payments.0.dueDate"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Due Date</FormLabel>
+                            <Popover>
+                              <PopoverTrigger asChild>
+                                <FormControl>
+                                  <Button variant="outline" className="w-full text-left">
+                                    {field.value
+                                      ? new Date(field.value).toLocaleDateString()
+                                      : "Select date"}
+                                  </Button>
+                                </FormControl>
+                              </PopoverTrigger>
+                              <PopoverContent>
+                                <Calendar
+                                  mode="single"
+                                  selected={field.value ? new Date(field.value) : undefined}
+                                  onSelect={field.onChange}
+                                  captionLayout="dropdown"
+                                />
+                              </PopoverContent>
+                            </Popover>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
                   );
                 }
                 return null;
@@ -734,15 +734,15 @@ export const PurchaseFormSheet = ({
 
             <SheetFooter>
               <div className="mt-4 flex justify-end gap-2">
-              <Button type="submit" disabled={isCreating || isUpdating}>
-                {isCreating || isUpdating ? "Saving..." : "Save"}
-              </Button>
+                <Button type="submit" disabled={isCreating || isUpdating}>
+                  {isCreating || isUpdating ? "Saving..." : "Save"}
+                </Button>
               </div>
             </SheetFooter>
           </form>
         </FormProvider>
       </SheetContent>
-      
+
       {/* Supplier Form Dialog */}
       <SupplierFormDialog
         supplier={undefined}
