@@ -18,22 +18,27 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { useState } from "react";
 import { Input } from "../ui/input";
 import { Search } from "lucide-react";
 import { ExpenseTableProps, Expense } from "@/types/expense";
 import { formatCurrency } from "@/lib/utils";
 
-
-
-
 import { PaginationControls } from "../ui/pagination-controls";
 
-
-
-
-export function ExpenseTable<TValue>({ columns, data, metadata, totals }: ExpenseTableProps<TValue>) {
+export function ExpenseTable<TValue>({
+  columns,
+  data,
+  metadata,
+  totals,
+}: ExpenseTableProps<TValue>) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [globalFilter, setGlobalFilter] = useState("");
 
@@ -46,15 +51,17 @@ export function ExpenseTable<TValue>({ columns, data, metadata, totals }: Expens
     getFilteredRowModel: getFilteredRowModel(),
     getSortedRowModel: getSortedRowModel(),
     globalFilterFn: (row, columnId, filterValue) => {
-      const title = row.getValue('title') as string;
-      const description = row.getValue('description') as string;
-      const category = row.getValue('category') as string
+      const title = row.getValue("title") as string;
+      const description = row.getValue("description") as string;
+      const category = row.getValue("category") as string;
 
-      const filter = String(filterValue || '').toLowerCase();
+      const filter = String(filterValue || "").toLowerCase();
 
-      return title.toLowerCase().includes(filter) ||
+      return (
+        title.toLowerCase().includes(filter) ||
         description.toLocaleLowerCase().includes(filter) ||
         category.toLocaleLowerCase().includes(filter)
+      );
     },
     state: {
       sorting,
@@ -65,7 +72,10 @@ export function ExpenseTable<TValue>({ columns, data, metadata, totals }: Expens
   });
 
   // const totalExpenseAmount = data.reduce((acc, row) => acc + (row?.amount ?? 0), 0);
-  const totalExpenseAmount = data.reduce((acc, row) => acc + (row?.amount ?? 0), 0);
+  const totalExpenseAmount = data.reduce(
+    (acc, row) => acc + (row?.amount ?? 0),
+    0,
+  );
 
   return (
     <div className="flex flex-col gap-5">
@@ -79,13 +89,13 @@ export function ExpenseTable<TValue>({ columns, data, metadata, totals }: Expens
     </Card> */}
 
       <Card>
-        <CardHeader className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+        <CardHeader className="flex flex-col items-start justify-between gap-4 md:flex-row md:items-center">
           <div>
             <CardTitle>Expenses</CardTitle>
             <CardDescription>A list of all Expenses</CardDescription>
           </div>
           <div className="relative w-full sm:w-1/2 md:w-1/4">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+            <Search className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 transform" />
             <Input
               placeholder="Search by title,description,category"
               value={globalFilter}
@@ -101,14 +111,16 @@ export function ExpenseTable<TValue>({ columns, data, metadata, totals }: Expens
                 <TableRow key={headerGroup.id}>
                   {headerGroup.headers.map((header) => {
                     return (
-                      <TableHead key={header.id}
-                        className="bg-primary text-primary-foreground">
+                      <TableHead
+                        key={header.id}
+                        className="bg-primary text-primary-foreground"
+                      >
                         {header.isPlaceholder
                           ? null
                           : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext(),
-                          )}
+                              header.column.columnDef.header,
+                              header.getContext(),
+                            )}
                       </TableHead>
                     );
                   })}
@@ -144,17 +156,25 @@ export function ExpenseTable<TValue>({ columns, data, metadata, totals }: Expens
               )}
             </TableBody>
 
-            <TableFooter className="bg-muted/50 text-sm font-medium border-t">
+            <TableFooter className="bg-muted/50 border-t text-sm font-medium">
               <TableRow>
                 <TableCell colSpan={3} />
-                <TableCell className="text-center border-r-2">Page Total:</TableCell>
-                <TableCell className="border-r-2">{formatCurrency(totalExpenseAmount)}</TableCell>
+                <TableCell className="border-r-2 text-center">
+                  Page Total:
+                </TableCell>
+                <TableCell className="border-r-2 text-center">
+                  {formatCurrency(totalExpenseAmount)}
+                </TableCell>
                 <TableCell />
               </TableRow>
               <TableRow>
                 <TableCell colSpan={3} />
-                <TableCell className="text-center border-r-2">Grand Total:</TableCell>
-                <TableCell className="border-r-2">{formatCurrency(totals?.amount ?? 0)}</TableCell>
+                <TableCell className="border-r-2 text-center">
+                  Grand Total:
+                </TableCell>
+                <TableCell className="border-r-2 text-center">
+                  {formatCurrency(totals?.amount ?? 0)}
+                </TableCell>
                 <TableCell />
               </TableRow>
             </TableFooter>

@@ -36,7 +36,6 @@ import { SalesReturn } from "@/types/sales-return";
 import { formatCurrency } from "@/lib/utils";
 import { PaginationControls } from "../ui/pagination-controls";
 
-
 interface SalesReturnTableProps<TValue> {
   columns: ColumnDef<SalesReturn, TValue>[];
   data: SalesReturn[];
@@ -52,7 +51,12 @@ interface SalesReturnTableProps<TValue> {
   };
 }
 
-export function SalesReturnTable<TValue>({ columns, data, metadata, totals }: SalesReturnTableProps<TValue>) {
+export function SalesReturnTable<TValue>({
+  columns,
+  data,
+  metadata,
+  totals,
+}: SalesReturnTableProps<TValue>) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [globalFilter, setGlobalFilter] = useState("");
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
@@ -102,13 +106,13 @@ export function SalesReturnTable<TValue>({ columns, data, metadata, totals }: Sa
 
       {/* Table */}
       <Card>
-        <CardHeader className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+        <CardHeader className="flex flex-col items-start justify-between gap-4 md:flex-row md:items-center">
           <div>
             <CardTitle>Sales Returns</CardTitle>
             <CardDescription>A list of all sales returns</CardDescription>
           </div>
-          <div className="relative w-full sm:w-1/2 md:w-1/4 mt-3">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+          <div className="relative mt-3 w-full sm:w-1/2 md:w-1/4">
+            <Search className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 transform" />
             <Input
               placeholder="Search by Invoice no or customer"
               value={globalFilter}
@@ -124,14 +128,16 @@ export function SalesReturnTable<TValue>({ columns, data, metadata, totals }: Sa
               {table.getHeaderGroups().map((headerGroup) => (
                 <TableRow key={headerGroup.id}>
                   {headerGroup.headers.map((header) => (
-                    <TableHead key={header.id}
-                      className="bg-primary text-primary-foreground">
+                    <TableHead
+                      key={header.id}
+                      className="bg-primary text-primary-foreground"
+                    >
                       {header.isPlaceholder
                         ? null
                         : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext()
-                        )}
+                            header.column.columnDef.header,
+                            header.getContext(),
+                          )}
                     </TableHead>
                   ))}
                 </TableRow>
@@ -146,7 +152,7 @@ export function SalesReturnTable<TValue>({ columns, data, metadata, totals }: Sa
                       <TableCell key={cell.id}>
                         {flexRender(
                           cell.column.columnDef.cell,
-                          cell.getContext()
+                          cell.getContext(),
                         )}
                       </TableCell>
                     ))}
@@ -154,22 +160,27 @@ export function SalesReturnTable<TValue>({ columns, data, metadata, totals }: Sa
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={columns.length} className="h-24 text-center">
+                  <TableCell
+                    colSpan={columns.length}
+                    className="h-24 text-center"
+                  >
                     No results.
                   </TableCell>
                 </TableRow>
               )}
             </TableBody>
 
-            <TableFooter className="bg-muted/50 text-sm font-medium border-t">
+            <TableFooter className="bg-muted/50 border-t text-sm font-medium">
               <TableRow>
-                <TableCell />
-                <TableCell colSpan={2} className="text-center border-r-2">
+                <TableCell colSpan={3} className="border-r-2 text-right">
                   Total Returned:
                 </TableCell>
-                <TableCell colSpan={2}>
+
+                <TableCell className="border-r-2 text-center font-semibold">
                   {formatCurrency(totals?.grandTotal || 0)}
                 </TableCell>
+
+                <TableCell />
               </TableRow>
             </TableFooter>
           </Table>
