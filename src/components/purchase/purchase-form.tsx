@@ -103,13 +103,14 @@ export const PurchaseFormSheet = ({
 
   useEffect(() => {
     const fetchOptions = async () => {
-      const res = await getSupplierListForDropdown();
-      const branches = await getAllBranches()
-      const taxRateRes = await getTaxRateListForDropdown();
+      const [res, branches, taxRateRes] = await Promise.all([
+        getSupplierListForDropdown(),
+        getAllBranches(),
+        getTaxRateListForDropdown(),
+      ]);
       setSupplierList(res);
       setBranchList(branches);
       setTaxRateList(taxRateRes);
-
     };
     fetchOptions();
   }, []);

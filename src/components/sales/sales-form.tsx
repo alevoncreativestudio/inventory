@@ -125,8 +125,10 @@ export const SalesFormSheet = ({ sales, open, openChange }: SaleFormProps) => {
 
   useEffect(() => {
     const fetchCustomers = async () => {
-      const result = await getCustomerListForDropdown();
-      const branches = await getAllBranches()
+      const [result, branches] = await Promise.all([
+        getCustomerListForDropdown(),
+        getAllBranches(),
+      ]);
       setBranchList(branches);
       setCustomerList(result);
     };

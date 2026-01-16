@@ -2,19 +2,19 @@ import { prisma } from "@/lib/prisma";
 
 export async function getMonthlyData() {
   try {
-    // Get sales data grouped by month
-    const salesData = await prisma.sale.groupBy({
-      by: ["salesdate"],
-      _sum: { grandTotal: true },
-      orderBy: { salesdate: "asc" },
-    });
-
-    // Get purchase data grouped by month
-    const purchaseData = await prisma.purchase.groupBy({
-      by: ["purchaseDate"],
-      _sum: { totalAmount: true },
-      orderBy: { purchaseDate: "asc" },
-    });
+    // Get sales and purchase data in parallel
+    const [salesData, purchaseData] = await Promise.all([
+      prisma.sale.groupBy({
+        by: ["salesdate"],
+        _sum: { grandTotal: true },
+        orderBy: { salesdate: "asc" },
+      }),
+      prisma.purchase.groupBy({
+        by: ["purchaseDate"],
+        _sum: { totalAmount: true },
+        orderBy: { purchaseDate: "asc" },
+      }),
+    ]);
 
     // Create a map to combine sales and purchases by date
     const dataMap = new Map<string, { sales: number; purchases: number }>();

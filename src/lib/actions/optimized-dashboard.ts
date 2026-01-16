@@ -38,7 +38,7 @@ export async function getOptimizedDashboardData(branchId?: string) {
       prisma.supplier.count({ where: branchFilter }),
       prisma.customer.count({ where: branchFilter }),
       prisma.product.count({ where: branchFilter }),
-      
+
       // Low stock items (stock < 10)
       prisma.product.count({
         where: {
@@ -49,9 +49,9 @@ export async function getOptimizedDashboardData(branchId?: string) {
 
       // Today's sales
       prisma.sale.aggregate({
-        where: { 
+        where: {
           ...branchFilter,
-          salesdate: { gte: startOfDay, lte: endOfDay } 
+          salesdate: { gte: startOfDay, lte: endOfDay }
         },
         _sum: { grandTotal: true },
         _count: true,
@@ -59,9 +59,9 @@ export async function getOptimizedDashboardData(branchId?: string) {
 
       // Today's purchases
       prisma.purchase.aggregate({
-        where: { 
+        where: {
           ...branchFilter,
-          purchaseDate: { gte: startOfDay, lte: endOfDay } 
+          purchaseDate: { gte: startOfDay, lte: endOfDay }
         },
         _sum: { totalAmount: true },
         _count: true,
@@ -70,9 +70,9 @@ export async function getOptimizedDashboardData(branchId?: string) {
       // Monthly sales
       prisma.sale.groupBy({
         by: ["salesdate"],
-        where: { 
+        where: {
           ...branchFilter,
-          salesdate: { gte: monthStart } 
+          salesdate: { gte: monthStart }
         },
         _sum: { grandTotal: true },
         orderBy: { salesdate: 'desc' },
@@ -81,9 +81,9 @@ export async function getOptimizedDashboardData(branchId?: string) {
       // Monthly purchases
       prisma.purchase.groupBy({
         by: ["purchaseDate"],
-        where: { 
+        where: {
           ...branchFilter,
-          purchaseDate: { gte: monthStart } 
+          purchaseDate: { gte: monthStart }
         },
         _sum: { totalAmount: true },
         orderBy: { purchaseDate: 'desc' },
@@ -112,10 +112,10 @@ export async function getOptimizedDashboardData(branchId?: string) {
         orderBy: { salesdate: "desc" },
         include: {
           customer: { select: { name: true } },
-          items: { 
-            include: { 
-              product: { select: { product_name: true } } 
-            } 
+          items: {
+            include: {
+              product: { select: { product_name: true } }
+            }
           },
         },
       }),
@@ -127,10 +127,10 @@ export async function getOptimizedDashboardData(branchId?: string) {
         orderBy: { purchaseDate: "desc" },
         include: {
           supplier: { select: { name: true } },
-          items: { 
-            include: { 
-              product: { select: { product_name: true } } 
-            } 
+          items: {
+            include: {
+              product: { select: { product_name: true } }
+            }
           },
         },
       }),
@@ -167,8 +167,8 @@ export async function getOptimizedDashboardData(branchId?: string) {
       // Stock levels
       prisma.product.findMany({
         where: branchFilter,
-        select: { 
-          product_name: true, 
+        select: {
+          product_name: true,
           stock: true,
           sellingPrice: true,
           category: { select: { name: true } }
@@ -185,47 +185,48 @@ export async function getOptimizedDashboardData(branchId?: string) {
       }),
     ]);
 
-    // Get product details for top products
-    const topProductDetails = await Promise.all(
-      topProducts.map(async (item) => {
-        const product = await prisma.product.findUnique({
-          where: { id: item.productId },
-          select: { product_name: true, stock: true },
-        });
-        return {
-          ...item,
-          product,
-        };
-      })
-    );
-
-    // Get supplier details for top suppliers
-    const topSupplierDetails = await Promise.all(
-      topSuppliers.map(async (item) => {
-        const supplier = await prisma.supplier.findUnique({
-          where: { id: item.supplierId },
-          select: { name: true, phone: true },
-        });
-        return {
-          ...item,
-          supplier,
-        };
-      })
-    );
-
-    // Get customer details for top customers
-    const topCustomerDetails = await Promise.all(
-      topCustomers.map(async (item) => {
-        const customer = await prisma.customer.findUnique({
-          where: { id: item.customerId },
-          select: { name: true, phone: true },
-        });
-        return {
-          ...item,
-          customer,
-        };
-      })
-    );
+    // Get details for top performers in parallel
+    const [topProductDetails, topSupplierDetails, topCustomerDetails] = await Promise.all([
+      // Top products details
+      Promise.all(
+        topProducts.map(async (item) => {
+          const product = await prisma.product.findUnique({
+            where: { id: item.productId },
+            select: { product_name: true, stock: true },
+          });
+          return {
+            ...item,
+            product,
+          };
+        })
+      ),
+      // Top suppliers details
+      Promise.all(
+        topSuppliers.map(async (item) => {
+          const supplier = await prisma.supplier.findUnique({
+            where: { id: item.supplierId },
+            select: { name: true, phone: true },
+          });
+          return {
+            ...item,
+            supplier,
+          };
+        })
+      ),
+      // Top customers details
+      Promise.all(
+        topCustomers.map(async (item) => {
+          const customer = await prisma.customer.findUnique({
+            where: { id: item.customerId },
+            select: { name: true, phone: true },
+          });
+          return {
+            ...item,
+            customer,
+          };
+        })
+      ),
+    ]);
 
     return {
       // Basic stats
@@ -233,31 +234,31 @@ export async function getOptimizedDashboardData(branchId?: string) {
       totalCustomers,
       totalProducts,
       lowStockItems,
-      
+
       // Today's performance
       todaysSales: todaysSales._sum.grandTotal || 0,
       todaysSalesCount: todaysSales._count,
       todaysPurchases: todaysPurchases._sum.totalAmount || 0,
       todaysPurchasesCount: todaysPurchases._count,
-      
+
       // Monthly trends
       monthlySales,
       monthlyPurchases,
-      
+
       // Recent activity
       recentProducts,
       recentSuppliers,
       recentSales,
       recentPurchases,
-      
+
       // Top performers
       topProducts: topProductDetails,
       topSuppliers: topSupplierDetails,
       topCustomers: topCustomerDetails,
-      
+
       // Stock information
       stockLevels,
-      
+
       // Payment status
       totalOutstanding: paymentStatus._sum.dueAmount || 0,
       outstandingCount: paymentStatus._count,

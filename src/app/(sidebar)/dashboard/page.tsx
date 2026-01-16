@@ -46,10 +46,11 @@ export default async function Dashboard() {
   // Use optimized dashboard data fetcher
   const isAdmin = (session?.user?.role ?? '').toLowerCase() === 'admin';
   const branchFilter = isAdmin ? undefined : (session?.user?.branch || undefined);
-  const dashboardData = await getOptimizedDashboardData(branchFilter);
-
-  // Fetch chart data on server side
-  const chartData = await getMonthlyData();
+  // Fetch dashboard and chart data in parallel
+  const [dashboardData, chartData] = await Promise.all([
+    getOptimizedDashboardData(branchFilter),
+    getMonthlyData(),
+  ]);
 
   const {
     totalCustomers,
