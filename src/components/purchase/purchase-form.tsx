@@ -434,135 +434,144 @@ export const PurchaseFormSheet = ({
               </FormItem>
 
 
-              <Table className="min-w-[1500px]">
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Product Name</TableHead>
-                    <TableHead>Available Stock</TableHead>
-                    <TableHead>Applicable Tax</TableHead>
-                    <TableHead>Qty</TableHead>
-                    <TableHead>Unit Cost(Before Tax)</TableHead>
-                    <TableHead>Discount</TableHead>
-                    <TableHead>Cost (include Tax)</TableHead>
-                    <TableHead>Selling Price</TableHead>
-                    <TableHead>Margin(%)</TableHead>
-                    <TableHead>Subtotal</TableHead>
-                    <TableHead>Total</TableHead>
-                    <TableHead />
-                  </TableRow>
-                </TableHeader>
+              {fields.length > 0 ? (
+                <>
+                  <Table className="min-w-[1500px]">
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Product Name</TableHead>
+                        <TableHead>Available Stock</TableHead>
+                        <TableHead>Applicable Tax</TableHead>
+                        <TableHead>Qty</TableHead>
+                        <TableHead>Unit Cost(Before Tax)</TableHead>
+                        <TableHead>Discount</TableHead>
+                        <TableHead>Cost (include Tax)</TableHead>
+                        <TableHead>Selling Price</TableHead>
+                        <TableHead>Margin(%)</TableHead>
+                        <TableHead>Subtotal</TableHead>
+                        <TableHead>Total</TableHead>
+                        <TableHead />
+                      </TableRow>
+                    </TableHeader>
 
-                <TableBody>
-                  {fields.filter(f => f.productId && f.product_name).map((f, idx) => (
-                    <TableRow key={f.id}>
-                      <TableCell>
-                        {f.product_name || "—"}
-                      </TableCell>
-                      <TableCell>
-                        {f.stock}
-                      </TableCell>
+                    <TableBody>
+                      {fields.filter(f => f.productId && f.product_name).map((f, idx) => (
+                        <TableRow key={f.id}>
+                          <TableCell>
+                            {f.product_name || "—"}
+                          </TableCell>
+                          <TableCell>
+                            {f.stock}
+                          </TableCell>
 
-                      <TableCell>
-                        <FormField control={form.control} name={`items.${idx}.tax`} render={({ field }) => (
-                          <FormItem>
-                            <Select onValueChange={(value) => {
-                              field.onChange(value);
-                              const quantity = Number(form.getValues(`items.${idx}.quantity`));
-                              const excTax = Number(form.getValues(`items.${idx}.excTax`));
-                              const discount = Number(form.getValues(`items.${idx}.discount`));
-                              const margin = Number(form.getValues(`items.${idx}.margin`));
+                          <TableCell>
+                            <FormField control={form.control} name={`items.${idx}.tax`} render={({ field }) => (
+                              <FormItem>
+                                <Select onValueChange={(value) => {
+                                  field.onChange(value);
+                                  const quantity = Number(form.getValues(`items.${idx}.quantity`));
+                                  const excTax = Number(form.getValues(`items.${idx}.excTax`));
+                                  const discount = Number(form.getValues(`items.${idx}.discount`));
+                                  const margin = Number(form.getValues(`items.${idx}.margin`));
 
-                              const taxRate = Number(value);
+                                  const taxRate = Number(value);
 
-                              const incTax = Math.round(excTax * (1 + taxRate));
-                              const subtotal = quantity * excTax;
-                              const totalBeforeDiscount = quantity * incTax;
-                              const total = totalBeforeDiscount - discount;
-                              const sellingPrice = Math.round(incTax * (1 + margin / 100) * 100) / 100;
+                                  const incTax = Math.round(excTax * (1 + taxRate));
+                                  const subtotal = quantity * excTax;
+                                  const totalBeforeDiscount = quantity * incTax;
+                                  const total = totalBeforeDiscount - discount;
+                                  const sellingPrice = Math.round(incTax * (1 + margin / 100) * 100) / 100;
 
-                              form.setValue(`items.${idx}.incTax`, incTax);
-                              form.setValue(`items.${idx}.subtotal`, subtotal);
-                              form.setValue(`items.${idx}.total`, total);
-                              form.setValue(`items.${idx}.sellingPrice`, sellingPrice);
-                            }}
-                              value={field.value}>
-                              <FormControl>
-                                <SelectTrigger className="w-full"><SelectValue placeholder="Select Tax Rate" /></SelectTrigger>
-                              </FormControl>
-                              <SelectContent>
-                                {taxRateList.map(tax => (
-                                  <SelectItem key={tax.id} value={tax.taxRate}>{tax.name}</SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                            <FormMessage />
-                          </FormItem>
-                        )} />
-                      </TableCell>
+                                  form.setValue(`items.${idx}.incTax`, incTax);
+                                  form.setValue(`items.${idx}.subtotal`, subtotal);
+                                  form.setValue(`items.${idx}.total`, total);
+                                  form.setValue(`items.${idx}.sellingPrice`, sellingPrice);
+                                }}
+                                  value={field.value}>
+                                  <FormControl>
+                                    <SelectTrigger className="w-full"><SelectValue placeholder="Select Tax Rate" /></SelectTrigger>
+                                  </FormControl>
+                                  <SelectContent>
+                                    {taxRateList.map(tax => (
+                                      <SelectItem key={tax.id} value={tax.taxRate}>{tax.name}</SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
+                                <FormMessage />
+                              </FormItem>
+                            )} />
+                          </TableCell>
 
-                      {itemFieldKeysWithoutTax.map((key) => (
-                        <TableCell key={key}>
-                          <FormField
-                            control={form.control}
-                            name={`items.${idx}.${key}`}
-                            render={({ field }) => (
-                              <FormControl>
-                                <Input
-                                  type="number"
-                                  className="min-w-18"
-                                  {...field}
-                                  value={field.value ?? ""}
-                                  onChange={(e) => {
-                                    const value = Number(e.target.value);
-                                    field.onChange(value); // update field
-                                    const quantity = Number(form.getValues(`items.${idx}.quantity`));
-                                    const excTax = Number(form.getValues(`items.${idx}.excTax`));
-                                    const discount = Number(form.getValues(`items.${idx}.discount`));
-                                    const incTax = Number(form.getValues(`items.${idx}.incTax`));
-                                    const margin = Number(form.getValues(`items.${idx}.margin`));
+                          {itemFieldKeysWithoutTax.map((key) => (
+                            <TableCell key={key}>
+                              <FormField
+                                control={form.control}
+                                name={`items.${idx}.${key}`}
+                                render={({ field }) => (
+                                  <FormControl>
+                                    <Input
+                                      type="number"
+                                      className="min-w-18"
+                                      {...field}
+                                      value={field.value ?? ""}
+                                      onChange={(e) => {
+                                        const value = Number(e.target.value);
+                                        field.onChange(value); // update field
+                                        const quantity = Number(form.getValues(`items.${idx}.quantity`));
+                                        const excTax = Number(form.getValues(`items.${idx}.excTax`));
+                                        const discount = Number(form.getValues(`items.${idx}.discount`));
+                                        const incTax = Number(form.getValues(`items.${idx}.incTax`));
+                                        const margin = Number(form.getValues(`items.${idx}.margin`));
 
-                                    const subtotal = quantity * excTax;
-                                    const totalBeforeDiscount = quantity * incTax;
-                                    const total = totalBeforeDiscount - discount;
-                                    const sellingPrice = Math.round(incTax * (1 + margin / 100) * 100) / 100;
+                                        const subtotal = quantity * excTax;
+                                        const totalBeforeDiscount = quantity * incTax;
+                                        const total = totalBeforeDiscount - discount;
+                                        const sellingPrice = Math.round(incTax * (1 + margin / 100) * 100) / 100;
 
-                                    form.setValue(`items.${idx}.subtotal`, subtotal, { shouldDirty: true });
-                                    form.setValue(`items.${idx}.total`, total, { shouldDirty: true });
-                                    form.setValue(`items.${idx}.sellingPrice`, sellingPrice, { shouldDirty: true });
-                                  }}
+                                        form.setValue(`items.${idx}.subtotal`, subtotal, { shouldDirty: true });
+                                        form.setValue(`items.${idx}.total`, total, { shouldDirty: true });
+                                        form.setValue(`items.${idx}.sellingPrice`, sellingPrice, { shouldDirty: true });
+                                      }}
 
-                                />
-                              </FormControl>
-                            )}
-                          />
-                        </TableCell>
+                                    />
+                                  </FormControl>
+                                )}
+                              />
+                            </TableCell>
+                          ))}
+
+                          <TableCell>
+                            <Button
+                              type="button"
+                              variant="destructive"
+                              onClick={() => remove(idx)}
+                            >
+                              Remove
+                            </Button>
+                          </TableCell>
+                        </TableRow>
                       ))}
-
-                      <TableCell>
-                        <Button
-                          type="button"
-                          variant="destructive"
-                          onClick={() => remove(idx)}
-                        >
-                          Remove
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-              <div className="flex justify-end pr-4">
-                <div className="text-right space-y-1">
-                  <div className="text-muted-foreground text-sm">Grand Total:</div>
-                  <div className="text-xl font-semibold">
-                    ₹{" "}
-                    {form
-                      .watch("items")
-                      .reduce((sum, item) => sum + (Number(item.total) || 0), 0)
-                      .toFixed(2)}
+                    </TableBody>
+                  </Table>
+                  <div className="flex justify-end pr-4">
+                    <div className="text-right space-y-1">
+                      <div className="text-muted-foreground text-sm">Grand Total:</div>
+                      <div className="text-xl font-semibold">
+                        ₹{" "}
+                        {form
+                          .watch("items")
+                          .reduce((sum, item) => sum + (Number(item.total) || 0), 0)
+                          .toFixed(2)}
+                      </div>
+                    </div>
                   </div>
+                </>
+              ) : (
+                <div className="flex flex-col items-center justify-center py-10 text-center text-sm text-muted-foreground bg-muted/20 border-2 border-dashed rounded-lg">
+                  <p>No products added yet.</p>
+                  <p>Search and select products above to add them to the purchase.</p>
                 </div>
-              </div>
+              )}
             </Card>
             <Card className="p-4 space-y-4">
               <h3 className="text-lg font-semibold">Add Payment</h3>
