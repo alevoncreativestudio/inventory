@@ -34,7 +34,8 @@ import { Search } from "lucide-react";
 import { PaginationControls } from "../ui/pagination-controls";
 import { TableFooter } from "@/components/ui/table";
 
-interface PaginatedProductTableProps<TData> extends ProductTablePropsType<TData> {
+interface PaginatedProductTableProps<TData>
+  extends ProductTablePropsType<TData> {
   metadata: {
     totalPages: number;
     totalCount: number;
@@ -47,7 +48,12 @@ interface PaginatedProductTableProps<TData> extends ProductTablePropsType<TData>
   };
 }
 
-export function ProductTable<TValue>({ columns, data, metadata, totals }: PaginatedProductTableProps<TValue>) {
+export function ProductTable<TValue>({
+  columns,
+  data,
+  metadata,
+  totals,
+}: PaginatedProductTableProps<TValue>) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [globalFilter, setGlobalFilter] = useState("");
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
@@ -61,8 +67,8 @@ export function ProductTable<TValue>({ columns, data, metadata, totals }: Pagina
     getSortedRowModel: getSortedRowModel(),
     onGlobalFilterChange: setGlobalFilter,
     globalFilterFn: (row, columnId, filterValue) => {
-      const name = row.getValue('product_name') as string;
-      const filter = String(filterValue || '').toLowerCase();
+      const name = row.getValue("product_name") as string;
+      const filter = String(filterValue || "").toLowerCase();
       return name.toLowerCase().includes(filter);
     },
     state: {
@@ -96,14 +102,14 @@ export function ProductTable<TValue>({ columns, data, metadata, totals }: Pagina
         </CardContent>
       </Card> */}
       <Card>
-        <CardHeader className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+        <CardHeader className="flex flex-col items-start justify-between gap-4 md:flex-row md:items-center">
           <div>
             <CardTitle>Product</CardTitle>
             <CardDescription>A list of all Product</CardDescription>
           </div>
 
           <div className="relative w-full sm:w-1/2 md:w-1/4">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+            <Search className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 transform" />
             <Input
               placeholder="Search by Ref no or supplier"
               value={globalFilter}
@@ -118,14 +124,16 @@ export function ProductTable<TValue>({ columns, data, metadata, totals }: Pagina
               {table.getHeaderGroups().map((headerGroup) => (
                 <TableRow key={headerGroup.id}>
                   {headerGroup.headers.map((header) => (
-                    <TableHead key={header.id}
-                      className="bg-primary text-primary-foreground">
+                    <TableHead
+                      key={header.id}
+                      className="bg-primary text-primary-foreground"
+                    >
                       {header.isPlaceholder
                         ? null
                         : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext(),
-                        )}
+                            header.column.columnDef.header,
+                            header.getContext(),
+                          )}
                     </TableHead>
                   ))}
                 </TableRow>
@@ -156,13 +164,17 @@ export function ProductTable<TValue>({ columns, data, metadata, totals }: Pagina
                 </TableRow>
               )}
             </TableBody>
-            <TableFooter className="bg-muted/50 text-sm font-medium border-t">
+            <TableFooter className="bg-muted/50 border-t text-sm font-medium">
               <TableRow>
-                <TableCell colSpan={4} />
-                {/* Adjust colspan based on your columns */}
-                <TableCell className="text-center border-r-2">Total Stock:</TableCell>
-                <TableCell className="border-r-2">{totals?.stock ?? 0}</TableCell>
-                <TableCell colSpan={2} />
+                <TableCell className="border-r-2 text-left">
+                  Total Stock:
+                </TableCell>
+
+                <TableCell className="text-left">
+                  {totals?.stock ?? 0}
+                </TableCell>
+
+                <TableCell colSpan={8} />
               </TableRow>
             </TableFooter>
           </Table>
