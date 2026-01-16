@@ -65,10 +65,13 @@ export const ProductFormSheet = ({ product, open, openChange }: ProductFormProps
 
   useEffect(() => {
     const fetchOptions = async () => {
-      const brandRes = await getBrandlistForDropdown();
-      const categoryRes = await getCategorylistForDropdown();
-      const taxRateRes = await getTaxRateListForDropdown();
-      const branches = await getAllBranches()
+      const [brandRes, categoryRes, taxRateRes, branches] = await Promise.all([
+        getBrandlistForDropdown(),
+        getCategorylistForDropdown(),
+        getTaxRateListForDropdown(),
+        getAllBranches(),
+      ]);
+
       setBrandList(brandRes);
       setCategoryList(categoryRes);
       setTaxRateList(taxRateRes);
