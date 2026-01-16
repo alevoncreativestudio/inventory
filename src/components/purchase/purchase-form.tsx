@@ -434,7 +434,7 @@ export const PurchaseFormSheet = ({
               </FormItem>
 
 
-              <Table>
+              <Table className="min-w-[1500px]">
                 <TableHeader>
                   <TableRow>
                     <TableHead>Product Name</TableHead>
