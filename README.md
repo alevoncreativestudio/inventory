@@ -258,6 +258,8 @@ This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) 
 <div align="center">
 
 latest deploy done by shibili with major updation at 16/01/2026
+....................
+new one
 
 **[⭐ Star this repository](https://github.com/rashidmp/next-admin-template)** if it helped you!
 
